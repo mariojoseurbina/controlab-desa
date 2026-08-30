@@ -1,0 +1,719 @@
+
+> controlab-ia-frontend@1.0.0 start
+> react-scripts start
+
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+(node:15240) [DEP0176] DeprecationWarning: fs.F_OK is deprecated, use fs.constants.F_OK instead
+(Use `node --trace-deprecation ...` to show where the warning was created)
+Browserslist: browsers data (caniuse-lite) is 9 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+(node:15240) [DEP_WEBPACK_DEV_SERVER_ON_AFTER_SETUP_MIDDLEWARE] DeprecationWarning: 'onAfterSetupMiddleware' option is deprecated. Please use the 'setupMiddlewares' option.
+(node:15240) [DEP_WEBPACK_DEV_SERVER_ON_BEFORE_SETUP_MIDDLEWARE] DeprecationWarning: 'onBeforeSetupMiddleware' option is deprecated. Please use the 'setupMiddlewares' option.
+Starting the development server...
+
+Compiled successfully!
+
+You can now view controlab-ia-frontend in the browser.
+
+  http://localhost:3000
+
+Note that the development build is not optimized.
+To create a production build, use npm run build.
+
+webpack compiled successfully
+(node:15240) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Compiling...
+Failed to compile.
+
+[eslint] 
+src\pages\Reagents\Reagents.js
+Syntax error: Unexpected token, expected "," (913:4) (913:4)
+ERROR in ./src/pages/Reagents/Reagents.js
+Module build failed (from ./node_modules/babel-loader/lib/index.js):
+SyntaxError: C:\controlab-ia\frontend\src\pages\Reagents\Reagents.js: Unexpected token, expected "," (913:4)
+
+  911 |           ...prev,
+  912 |           [name]: ''
+> 913 |     return (
+      |     ^
+  914 |       <div className="modal-overlay">
+  915 |         <div className="modal-content">
+  916 |           <div className="modal-header">
+    at constructor (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:367:19)
+    at FlowParserMixin.raise (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:6630:19)
+    at FlowParserMixin.unexpected (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:6650:16)
+    at FlowParserMixin.expect (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:6930:12)
+    at FlowParserMixin.parseObjectLike (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:11830:14)
+    at FlowParserMixin.parseExprAtom (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:11343:23)
+    at FlowParserMixin.parseExprAtom (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:4797:20)
+    at FlowParserMixin.parseExprSubscripts (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:11085:23)
+    at FlowParserMixin.parseUpdate (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:11070:21)
+    at FlowParserMixin.parseMaybeUnary (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:11050:23)
+    at FlowParserMixin.parseMaybeUnaryOrPrivate (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:10903:61)
+    at FlowParserMixin.parseExprOps (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:10908:23)
+    at FlowParserMixin.parseMaybeConditional (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:10885:23)
+    at FlowParserMixin.parseMaybeAssign (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:10835:21)
+    at FlowParserMixin.parseMaybeAssign (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:3582:18)
+    at C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:10804:39
+    at FlowParserMixin.allowInAnd (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:12436:12)
+    at FlowParserMixin.parseMaybeAssignAllowIn (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:10804:17)
+    at FlowParserMixin.parseMaybeAssignAllowInOrVoidPattern (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:12503:17)
+    at FlowParserMixin.parseParenAndDistinguishExpression (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:11683:28)
+    at FlowParserMixin.parseParenAndDistinguishExpression (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:3624:18)
+    at FlowParserMixin.parseExprAtom (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:11335:23)
+    at FlowParserMixin.parseExprAtom (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:4797:20)
+    at FlowParserMixin.parseExprSubscripts (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:11085:23)
+    at FlowParserMixin.parseUpdate (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:11070:21)
+    at FlowParserMixin.parseMaybeUnary (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:11050:23)
+    at FlowParserMixin.parseMaybeUnaryOrPrivate (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:10903:61)
+    at FlowParserMixin.parseExprOps (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:10908:23)
+    at FlowParserMixin.parseMaybeConditional (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:10885:23)
+    at FlowParserMixin.parseMaybeAssign (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:10835:21)
+    at FlowParserMixin.parseMaybeAssign (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:3582:18)
+    at FlowParserMixin.parseFunctionBody (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:12103:24)
+    at C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:2923:63
+    at FlowParserMixin.forwardNoArrowParamsConversionAt (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:3099:16)
+    at FlowParserMixin.parseFunctionBody (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:2923:12)
+    at FlowParserMixin.parseArrowExpression (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:12085:10)
+    at FlowParserMixin.parseExprAtom (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:11447:25)
+    at FlowParserMixin.parseExprAtom (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:4797:20)
+    at FlowParserMixin.parseExprSubscripts (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:11085:23)
+    at FlowParserMixin.parseUpdate (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:11070:21)
+    at FlowParserMixin.parseMaybeUnary (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:11050:23)
+    at FlowParserMixin.parseMaybeUnaryOrPrivate (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:10903:61)
+    at FlowParserMixin.parseExprOps (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:10908:23)
+    at FlowParserMixin.parseMaybeConditional (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:10885:23)
+    at FlowParserMixin.parseMaybeAssign (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:10835:21)
+    at FlowParserMixin.parseMaybeAssign (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:3582:18)
+    at C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:10804:39
+    at FlowParserMixin.allowInAnd (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:12436:12)
+    at FlowParserMixin.parseMaybeAssignAllowIn (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:10804:17)
+    at FlowParserMixin.parseMaybeAssignAllowInOrVoidPattern (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:12503:17)
+
+ERROR in [eslint] 
+src\pages\Reagents\Reagents.js
+  Line 913:4:  Parsing error: Unexpected token, expected "," (913:4)
+
+
+
+webpack compiled with 2 errors
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Compiling...
+Failed to compile.
+
+[eslint] 
+src\pages\Reagents\Reagents.js
+Syntax error: Unexpected token (711:8) (711:8)
+ERROR in ./src/pages/Reagents/Reagents.js
+Module build failed (from ./node_modules/babel-loader/lib/index.js):
+SyntaxError: C:\controlab-ia\frontend\src\pages\Reagents\Reagents.js: Unexpected token (711:8)
+
+  709 |                     className={`form-control ${errors.CantidadActual ? 'error' : ''}`}
+  710 |                     name="CantidadActual"
+> 711 |         }
+      |         ^
+  712 |         const reales = Math.floor(teoricas / (1 + (merma/100)));
+  713 |         return { teoricas, reales, merma, limitante };
+  714 |       }
+    at constructor (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:367:19)
+    at FlowParserMixin.raise (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:6630:19)
+    at FlowParserMixin.unexpected (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:6650:16)
+    at FlowParserMixin.jsxParseIdentifier (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:4602:12)
+    at FlowParserMixin.jsxParseNamespacedName (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:4609:23)
+    at FlowParserMixin.jsxParseAttribute (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:4685:22)
+    at FlowParserMixin.jsxParseOpeningElementAfterName (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:4700:28)
+    at FlowParserMixin.jsxParseOpeningElementAfterName (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:4101:18)
+    at FlowParserMixin.jsxParseOpeningElementAt (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:4695:17)
+    at FlowParserMixin.jsxParseElementAt (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:4719:33)
+    at FlowParserMixin.jsxParseElementAt (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:4731:32)
+    at FlowParserMixin.jsxParseElementAt (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:4731:32)
+    at FlowParserMixin.jsxParseElementAt (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:4731:32)
+    at FlowParserMixin.jsxParseElementAt (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:4731:32)
+    at FlowParserMixin.jsxParseElementAt (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:4731:32)
+    at FlowParserMixin.jsxParseElementAt (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:4731:32)
+    at FlowParserMixin.jsxParseElement (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:4782:17)
+    at FlowParserMixin.parseExprAtom (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:4792:19)
+    at FlowParserMixin.parseExprSubscripts (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:11085:23)
+    at FlowParserMixin.parseUpdate (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:11070:21)
+    at FlowParserMixin.parseMaybeUnary (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:11050:23)
+    at FlowParserMixin.parseMaybeUnaryOrPrivate (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:10903:61)
+    at FlowParserMixin.parseExprOps (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:10908:23)
+    at FlowParserMixin.parseMaybeConditional (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:10885:23)
+    at FlowParserMixin.parseMaybeAssign (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:10835:21)
+    at C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:3531:39
+    at FlowParserMixin.tryParse (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:6938:20)
+    at FlowParserMixin.parseMaybeAssign (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:3531:18)
+    at C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:10804:39
+    at FlowParserMixin.allowInAnd (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:12436:12)
+    at FlowParserMixin.parseMaybeAssignAllowIn (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:10804:17)
+    at FlowParserMixin.parseMaybeAssignAllowInOrVoidPattern (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:12503:17)
+    at FlowParserMixin.parseParenAndDistinguishExpression (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:11683:28)
+    at FlowParserMixin.parseParenAndDistinguishExpression (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:3624:18)
+    at FlowParserMixin.parseExprAtom (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:11335:23)
+    at FlowParserMixin.parseExprAtom (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:4797:20)
+    at FlowParserMixin.parseExprSubscripts (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:11085:23)
+    at FlowParserMixin.parseUpdate (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:11070:21)
+    at FlowParserMixin.parseMaybeUnary (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:11050:23)
+    at FlowParserMixin.parseMaybeUnaryOrPrivate (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:10903:61)
+    at FlowParserMixin.parseExprOps (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:10908:23)
+    at FlowParserMixin.parseMaybeConditional (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:10885:23)
+    at FlowParserMixin.parseMaybeAssign (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:10835:21)
+    at FlowParserMixin.parseMaybeAssign (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:3582:18)
+    at FlowParserMixin.parseExpressionBase (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:10788:23)
+    at C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:10784:39
+    at FlowParserMixin.allowInAnd (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:12431:16)
+    at FlowParserMixin.parseExpression (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:10784:17)
+    at FlowParserMixin.parseReturnStatement (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:13151:28)
+    at FlowParserMixin.parseStatementContent (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:12807:21)
+
+ERROR in [eslint] 
+src\pages\Reagents\Reagents.js
+  Line 711:8:  Parsing error: Unexpected token (711:8)
+
+
+
+webpack compiled with 2 errors
+Compiling...
+Failed to compile.
+
+[eslint] 
+src\pages\Reagents\Reagents.js
+Syntax error: Unexpected token (711:8) (711:8)
+ERROR in ./src/pages/Reagents/Reagents.js
+Module build failed (from ./node_modules/babel-loader/lib/index.js):
+SyntaxError: C:\controlab-ia\frontend\src\pages\Reagents\Reagents.js: Unexpected token (711:8)
+
+  709 |                     className={`form-control ${errors.CantidadActual ? 'error' : ''}`}
+  710 |                     name="CantidadActual"
+> 711 |         }
+      |         ^
+  712 |         const reales = Math.floor(teoricas / (1 + (merma/100)));
+  713 |         return { teoricas, reales, merma, limitante };
+  714 |       }
+    at constructor (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:367:19)
+    at FlowParserMixin.raise (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:6630:19)
+    at FlowParserMixin.unexpected (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:6650:16)
+    at FlowParserMixin.jsxParseIdentifier (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:4602:12)
+    at FlowParserMixin.jsxParseNamespacedName (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:4609:23)
+    at FlowParserMixin.jsxParseAttribute (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:4685:22)
+    at FlowParserMixin.jsxParseOpeningElementAfterName (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:4700:28)
+    at FlowParserMixin.jsxParseOpeningElementAfterName (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:4101:18)
+    at FlowParserMixin.jsxParseOpeningElementAt (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:4695:17)
+    at FlowParserMixin.jsxParseElementAt (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:4719:33)
+    at FlowParserMixin.jsxParseElementAt (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:4731:32)
+    at FlowParserMixin.jsxParseElementAt (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:4731:32)
+    at FlowParserMixin.jsxParseElementAt (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:4731:32)
+    at FlowParserMixin.jsxParseElementAt (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:4731:32)
+    at FlowParserMixin.jsxParseElementAt (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:4731:32)
+    at FlowParserMixin.jsxParseElementAt (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:4731:32)
+    at FlowParserMixin.jsxParseElement (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:4782:17)
+    at FlowParserMixin.parseExprAtom (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:4792:19)
+    at FlowParserMixin.parseExprSubscripts (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:11085:23)
+    at FlowParserMixin.parseUpdate (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:11070:21)
+    at FlowParserMixin.parseMaybeUnary (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:11050:23)
+    at FlowParserMixin.parseMaybeUnaryOrPrivate (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:10903:61)
+    at FlowParserMixin.parseExprOps (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:10908:23)
+    at FlowParserMixin.parseMaybeConditional (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:10885:23)
+    at FlowParserMixin.parseMaybeAssign (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:10835:21)
+    at C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:3531:39
+    at FlowParserMixin.tryParse (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:6938:20)
+    at FlowParserMixin.parseMaybeAssign (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:3531:18)
+    at C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:10804:39
+    at FlowParserMixin.allowInAnd (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:12436:12)
+    at FlowParserMixin.parseMaybeAssignAllowIn (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:10804:17)
+    at FlowParserMixin.parseMaybeAssignAllowInOrVoidPattern (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:12503:17)
+    at FlowParserMixin.parseParenAndDistinguishExpression (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:11683:28)
+    at FlowParserMixin.parseParenAndDistinguishExpression (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:3624:18)
+    at FlowParserMixin.parseExprAtom (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:11335:23)
+    at FlowParserMixin.parseExprAtom (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:4797:20)
+    at FlowParserMixin.parseExprSubscripts (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:11085:23)
+    at FlowParserMixin.parseUpdate (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:11070:21)
+    at FlowParserMixin.parseMaybeUnary (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:11050:23)
+    at FlowParserMixin.parseMaybeUnaryOrPrivate (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:10903:61)
+    at FlowParserMixin.parseExprOps (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:10908:23)
+    at FlowParserMixin.parseMaybeConditional (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:10885:23)
+    at FlowParserMixin.parseMaybeAssign (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:10835:21)
+    at FlowParserMixin.parseMaybeAssign (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:3582:18)
+    at FlowParserMixin.parseExpressionBase (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:10788:23)
+    at C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:10784:39
+    at FlowParserMixin.allowInAnd (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:12431:16)
+    at FlowParserMixin.parseExpression (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:10784:17)
+    at FlowParserMixin.parseReturnStatement (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:13151:28)
+    at FlowParserMixin.parseStatementContent (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:12807:21)
+
+ERROR in [eslint] 
+src\pages\Reagents\Reagents.js
+  Line 711:8:  Parsing error: Unexpected token (711:8)
+
+
+
+webpack compiled with 2 errors
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Compiling...
+Failed to compile.
+
+[eslint] 
+src\pages\Reagents\Reagents.js
+Syntax error: Identifier 'handleCheckboxChange' has already been declared. (928:10) (928:10)
+ERROR in ./src/pages/Reagents/Reagents.js
+Module build failed (from ./node_modules/babel-loader/lib/index.js):
+SyntaxError: C:\controlab-ia\frontend\src\pages\Reagents\Reagents.js: Identifier 'handleCheckboxChange' has already been declared. (928:10)
+
+  926 |     };
+  927 |
+> 928 |     const handleCheckboxChange = (e) => {
+      |           ^
+  929 |       const { name, checked } = e.target;
+  930 |       setFormData(prev => ({
+  931 |         ...prev,
+    at constructor (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:367:19)
+    at FlowParserMixin.raise (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:6630:19)
+    at FlowScopeHandler.checkRedeclarationInScope (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:1647:19)
+    at FlowScopeHandler.declareName (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:1613:12)
+    at FlowScopeHandler.declareName (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:1714:11)
+    at FlowParserMixin.declareNameFromIdentifier (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:7594:16)
+    at FlowParserMixin.checkIdentifier (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:7590:12)
+    at FlowParserMixin.checkLVal (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:7529:12)
+    at FlowParserMixin.parseVarId (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:13421:10)
+    at FlowParserMixin.parseVarId (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:3507:11)
+    at FlowParserMixin.parseVar (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:13392:12)
+    at FlowParserMixin.parseVarStatement (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:13239:10)
+    at FlowParserMixin.parseStatementContent (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:12860:23)
+    at FlowParserMixin.parseStatementLike (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:12776:17)
+    at FlowParserMixin.parseStatementLike (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:2949:24)
+    at FlowParserMixin.parseStatementListItem (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:12756:17)
+    at FlowParserMixin.parseBlockOrModuleBlockBody (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:13325:61)
+    at FlowParserMixin.parseBlockBody (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:13318:10)
+    at FlowParserMixin.parseBlock (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:13306:10)
+    at FlowParserMixin.parseFunctionBody (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:12110:24)
+    at C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:2923:63
+    at FlowParserMixin.forwardNoArrowParamsConversionAt (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:3099:16)
+    at FlowParserMixin.parseFunctionBody (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:2923:12)
+    at FlowParserMixin.parseArrowExpression (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:12085:10)
+    at FlowParserMixin.parseParenAndDistinguishExpression (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:11695:12)
+    at FlowParserMixin.parseParenAndDistinguishExpression (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:3624:18)
+    at FlowParserMixin.parseExprAtom (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:11335:23)
+    at FlowParserMixin.parseExprAtom (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:4797:20)
+    at FlowParserMixin.parseExprSubscripts (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:11085:23)
+    at FlowParserMixin.parseUpdate (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:11070:21)
+    at FlowParserMixin.parseMaybeUnary (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:11050:23)
+    at FlowParserMixin.parseMaybeUnaryOrPrivate (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:10903:61)
+    at FlowParserMixin.parseExprOps (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:10908:23)
+    at FlowParserMixin.parseMaybeConditional (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:10885:23)
+    at FlowParserMixin.parseMaybeAssign (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:10835:21)
+    at FlowParserMixin.parseMaybeAssign (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:3582:18)
+    at C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:10804:39
+    at FlowParserMixin.allowInAnd (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:12431:16)
+    at FlowParserMixin.parseMaybeAssignAllowIn (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:10804:17)
+    at FlowParserMixin.parseVar (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:13393:91)
+    at FlowParserMixin.parseVarStatement (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:13239:10)
+    at FlowParserMixin.parseStatementContent (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:12860:23)
+    at FlowParserMixin.parseStatementLike (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:12776:17)
+    at FlowParserMixin.parseStatementLike (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:2949:24)
+    at FlowParserMixin.parseStatementListItem (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:12756:17)
+    at FlowParserMixin.parseBlockOrModuleBlockBody (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:13325:61)
+    at FlowParserMixin.parseBlockBody (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:13318:10)
+    at FlowParserMixin.parseBlock (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:13306:10)
+    at FlowParserMixin.parseFunctionBody (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:12110:24)
+    at C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:2923:63
+
+ERROR in [eslint] 
+src\pages\Reagents\Reagents.js
+  Line 928:10:  Parsing error: Identifier 'handleCheckboxChange' has already been declared. (928:10)
+
+
+
+webpack compiled with 2 errors
+Compiling...
+Failed to compile.
+
+[eslint] 
+src\pages\Reagents\Reagents.js
+Syntax error: Identifier 'handleCheckboxChange' has already been declared. (936:10) (936:10)
+ERROR in ./src/pages/Reagents/Reagents.js
+Module build failed (from ./node_modules/babel-loader/lib/index.js):
+SyntaxError: C:\controlab-ia\frontend\src\pages\Reagents\Reagents.js: Identifier 'handleCheckboxChange' has already been declared. (936:10)
+
+  934 |     };
+  935 |
+> 936 |     const handleCheckboxChange = (e) => {
+      |           ^
+  937 |       const { name, checked } = e.target;
+  938 |       setFormData(prev => ({
+  939 |         ...prev,
+    at constructor (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:367:19)
+    at FlowParserMixin.raise (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:6630:19)
+    at FlowScopeHandler.checkRedeclarationInScope (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:1647:19)
+    at FlowScopeHandler.declareName (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:1613:12)
+    at FlowScopeHandler.declareName (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:1714:11)
+    at FlowParserMixin.declareNameFromIdentifier (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:7594:16)
+    at FlowParserMixin.checkIdentifier (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:7590:12)
+    at FlowParserMixin.checkLVal (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:7529:12)
+    at FlowParserMixin.parseVarId (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:13421:10)
+    at FlowParserMixin.parseVarId (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:3507:11)
+    at FlowParserMixin.parseVar (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:13392:12)
+    at FlowParserMixin.parseVarStatement (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:13239:10)
+    at FlowParserMixin.parseStatementContent (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:12860:23)
+    at FlowParserMixin.parseStatementLike (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:12776:17)
+    at FlowParserMixin.parseStatementLike (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:2949:24)
+    at FlowParserMixin.parseStatementListItem (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:12756:17)
+    at FlowParserMixin.parseBlockOrModuleBlockBody (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:13325:61)
+    at FlowParserMixin.parseBlockBody (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:13318:10)
+    at FlowParserMixin.parseBlock (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:13306:10)
+    at FlowParserMixin.parseFunctionBody (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:12110:24)
+    at C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:2923:63
+    at FlowParserMixin.forwardNoArrowParamsConversionAt (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:3099:16)
+    at FlowParserMixin.parseFunctionBody (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:2923:12)
+    at FlowParserMixin.parseArrowExpression (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:12085:10)
+    at FlowParserMixin.parseParenAndDistinguishExpression (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:11695:12)
+    at FlowParserMixin.parseParenAndDistinguishExpression (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:3624:18)
+    at FlowParserMixin.parseExprAtom (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:11335:23)
+    at FlowParserMixin.parseExprAtom (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:4797:20)
+    at FlowParserMixin.parseExprSubscripts (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:11085:23)
+    at FlowParserMixin.parseUpdate (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:11070:21)
+    at FlowParserMixin.parseMaybeUnary (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:11050:23)
+    at FlowParserMixin.parseMaybeUnaryOrPrivate (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:10903:61)
+    at FlowParserMixin.parseExprOps (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:10908:23)
+    at FlowParserMixin.parseMaybeConditional (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:10885:23)
+    at FlowParserMixin.parseMaybeAssign (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:10835:21)
+    at FlowParserMixin.parseMaybeAssign (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:3582:18)
+    at C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:10804:39
+    at FlowParserMixin.allowInAnd (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:12431:16)
+    at FlowParserMixin.parseMaybeAssignAllowIn (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:10804:17)
+    at FlowParserMixin.parseVar (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:13393:91)
+    at FlowParserMixin.parseVarStatement (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:13239:10)
+    at FlowParserMixin.parseStatementContent (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:12860:23)
+    at FlowParserMixin.parseStatementLike (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:12776:17)
+    at FlowParserMixin.parseStatementLike (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:2949:24)
+    at FlowParserMixin.parseStatementListItem (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:12756:17)
+    at FlowParserMixin.parseBlockOrModuleBlockBody (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:13325:61)
+    at FlowParserMixin.parseBlockBody (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:13318:10)
+    at FlowParserMixin.parseBlock (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:13306:10)
+    at FlowParserMixin.parseFunctionBody (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:12110:24)
+    at C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:2923:63
+
+ERROR in [eslint] 
+src\pages\Reagents\Reagents.js
+  Line 936:10:  Parsing error: Identifier 'handleCheckboxChange' has already been declared. (936:10)
+
+
+
+webpack compiled with 2 errors
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Watchpack Error (stats): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+Watchpack Error (stats): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+Watchpack Error (stats): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+Watchpack Error (stats): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+Watchpack Error (stats): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+Watchpack Error (stats): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+Watchpack Error (stats): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+Watchpack Error (stats): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+Watchpack Error (stats): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+Watchpack Error (stats): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+Watchpack Error (stats): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+Watchpack Error (stats): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+Watchpack Error (stats): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+Watchpack Error (stats): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+Watchpack Error (stats): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+Watchpack Error (stats): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+Watchpack Error (stats): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+Watchpack Error (stats): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+Watchpack Error (stats): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/sniffer/logs from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Compiling...
+Compiled successfully!
+webpack compiled successfully

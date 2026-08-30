@@ -1,0 +1,148 @@
+
+> controlab-ia-backend@1.0.0 dev
+> nodemon server.js
+
+[nodemon] 3.1.10
+[nodemon] to restart at any time, enter `rs`
+[nodemon] watching path(s): *.*
+[nodemon] watching extensions: js,mjs,cjs,json
+[nodemon] starting `node server.js`
+🚀 Servidor Controlab - IA ejecutándose en puerto 5000
+📊 Entorno: development
+[nodemon] restarting due to changes...
+[nodemon] starting `node server.js`
+node:events:486
+      throw er; // Unhandled 'error' event
+      ^
+
+Error: listen EADDRINUSE: address already in use :::5000
+    at Server.setupListenHandle [as _listen2] (node:net:1940:16)
+    at listenInCluster (node:net:1997:12)
+    at Server.listen (node:net:2102:7)
+    at app.listen (C:\controlab-ia\backend\node_modules\express\lib\application.js:635:24)
+    at Object.<anonymous> (C:\controlab-ia\backend\server.js:89:5)
+    at Module._compile (node:internal/modules/cjs/loader:1761:14)
+    at Object..js (node:internal/modules/cjs/loader:1893:10)
+    at Module.load (node:internal/modules/cjs/loader:1481:32)
+    at Module._load (node:internal/modules/cjs/loader:1300:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:328:14)
+Emitted 'error' event on Server instance at:
+    at emitErrorNT (node:net:1976:8)
+    at process.processTicksAndRejections (node:internal/process/task_queues:89:21) {
+  code: 'EADDRINUSE',
+  errno: -4091,
+  syscall: 'listen',
+  address: '::',
+  port: 5000
+}
+
+Node.js v24.12.0
+[nodemon] app crashed - waiting for file changes before starting...
+[nodemon] starting `node server.js`
+🚀 Servidor Controlab - IA ejecutándose en puerto 5000
+📊 Entorno: development
+💾 Guardando gastos globales mensuales: {
+  mes: 6,
+  anio: 2026,
+  gastos_administrativos: 3120,
+  gastos_personal: 5000,
+  total_pruebas_mes: 35000,
+  desglose_admin: '{"papeleria":"10","internet":"50","electricidad":"40","agua":"100","aseo":"30","alquiler":"1000","asesorias":"0","honorarios":"0","software":"1000","condominio":"70","legales":"200","impuestosNacionales":"100","impuestosMunicipales":"50","suscripciones":"20","colegioBioanalistas":"300","remodelaciones":"0","mobiliario":"20","tecnologia":"100","infraestructura":"0","telefonia":"30"}'
+}
+🚚 Obteniendo lista de pruebas maestras...
+📊 Generando análisis consolidado de costos...
+📊 Generando reporte de impacto fiscal por área operativa...
+📦 Obteniendo inventario (Screaming Architecture)...
+✅ Inventario obtenido: 116 items
+📊 Obteniendo gastos globales mensuales...
+🔬 Obteniendo costos por equipo...
+💾 Guardando gastos globales mensuales: {
+  mes: 6,
+  anio: 2026,
+  gastos_administrativos: 3120,
+  gastos_personal: 5000,
+  total_pruebas_mes: 35000,
+  desglose_admin: '{"papeleria":"10","internet":"50","electricidad":"40","agua":"100","aseo":"30","alquiler":"1000","asesorias":"0","honorarios":"0","software":"1000","condominio":"70","legales":"200","impuestosNacionales":"100","impuestosMunicipales":"50","suscripciones":"20","colegioBioanalistas":"300","remodelaciones":"0","mobiliario":"20","tecnologia":"100","infraestructura":"0","telefonia":"30"}'
+}
+🚚 Obteniendo lista de pruebas maestras...
+📊 Generando análisis consolidado de costos...
+📊 Generando reporte de impacto fiscal por área operativa...
+📦 Obteniendo inventario (Screaming Architecture)...
+✅ Inventario obtenido: 116 items
+📊 Obteniendo gastos globales mensuales...
+🔬 Obteniendo costos por equipo...
+💾 Guardando gastos globales mensuales: {
+  mes: 6,
+  anio: 2026,
+  gastos_administrativos: 3120,
+  gastos_personal: 6000,
+  total_pruebas_mes: 35000,
+  desglose_admin: '{"papeleria":"10","internet":"50","electricidad":"40","agua":"100","aseo":"30","alquiler":"1000","asesorias":"0","honorarios":"0","software":"1000","condominio":"70","legales":"200","impuestosNacionales":"100","impuestosMunicipales":"50","suscripciones":"20","colegioBioanalistas":"300","remodelaciones":"0","mobiliario":"20","tecnologia":"100","infraestructura":"0","telefonia":"30"}'
+}
+🚚 Obteniendo lista de pruebas maestras...
+📊 Generando análisis consolidado de costos...
+📊 Generando reporte de impacto fiscal por área operativa...
+📦 Obteniendo inventario (Screaming Architecture)...
+✅ Inventario obtenido: 116 items
+📊 Obteniendo gastos globales mensuales...
+🔬 Obteniendo costos por equipo...
+💾 Guardando gastos globales mensuales: {
+  mes: 6,
+  anio: 2026,
+  gastos_administrativos: 3120,
+  gastos_personal: 7000,
+  total_pruebas_mes: 35000,
+  desglose_admin: '{"papeleria":"10","internet":"50","electricidad":"40","agua":"100","aseo":"30","alquiler":"1000","asesorias":"0","honorarios":"0","software":"1000","condominio":"70","legales":"200","impuestosNacionales":"100","impuestosMunicipales":"50","suscripciones":"20","colegioBioanalistas":"300","remodelaciones":"0","mobiliario":"20","tecnologia":"100","infraestructura":"0","telefonia":"30"}'
+}
+🚚 Obteniendo lista de pruebas maestras...
+📊 Generando análisis consolidado de costos...
+📊 Generando reporte de impacto fiscal por área operativa...
+📦 Obteniendo inventario (Screaming Architecture)...
+✅ Inventario obtenido: 116 items
+📊 Obteniendo gastos globales mensuales...
+🔬 Obteniendo costos por equipo...
+💾 Guardando gastos globales mensuales: {
+  mes: 6,
+  anio: 2026,
+  gastos_administrativos: 2920,
+  gastos_personal: 7000,
+  total_pruebas_mes: 35000,
+  desglose_admin: '{"papeleria":"10","internet":"50","electricidad":"40","agua":"100","aseo":"30","alquiler":"1000","asesorias":"0","honorarios":"0","software":"1000","condominio":"70","legales":"0","impuestosNacionales":"100","impuestosMunicipales":"50","suscripciones":"20","colegioBioanalistas":"300","remodelaciones":"0","mobiliario":"20","tecnologia":"100","infraestructura":"0","telefonia":"30"}'
+}
+🚚 Obteniendo lista de pruebas maestras...
+📊 Generando análisis consolidado de costos...
+📊 Generando reporte de impacto fiscal por área operativa...
+📦 Obteniendo inventario (Screaming Architecture)...
+✅ Inventario obtenido: 116 items
+📊 Obteniendo gastos globales mensuales...
+🔬 Obteniendo costos por equipo...
+💾 Guardando gastos globales mensuales: {
+  mes: 6,
+  anio: 2026,
+  gastos_administrativos: 2870,
+  gastos_personal: 7000,
+  total_pruebas_mes: 35000,
+  desglose_admin: '{"papeleria":"10","internet":"50","electricidad":"40","agua":"100","aseo":"30","alquiler":"1000","asesorias":"0","honorarios":"100","software":"1000","condominio":"70","legales":"","impuestosNacionales":"100","impuestosMunicipales":"50","suscripciones":"20","colegioBioanalistas":"150","remodelaciones":"0","mobiliario":"20","tecnologia":"100","infraestructura":"0","telefonia":"30"}'
+}
+🚚 Obteniendo lista de pruebas maestras...
+📊 Generando análisis consolidado de costos...
+📊 Generando reporte de impacto fiscal por área operativa...
+📦 Obteniendo inventario (Screaming Architecture)...
+✅ Inventario obtenido: 116 items
+📊 Obteniendo gastos globales mensuales...
+🔬 Obteniendo costos por equipo...
+💾 Guardando gastos globales mensuales: {
+  mes: 5,
+  anio: 2026,
+  gastos_administrativos: 1840,
+  gastos_personal: 5000,
+  total_pruebas_mes: 35000,
+  desglose_admin: '{"papeleria":"100","internet":"50","electricidad":"100","agua":"20","aseo":"50","alquiler":"100","asesorias":"0","honorarios":"0","software":"100","condominio":"","legales":"200","impuestosNacionales":"60","impuestosMunicipales":"100","suscripciones":"100","colegioBioanalistas":"100","remodelaciones":"100","mobiliario":"100","tecnologia":"250","infraestructura":"250","telefonia":"60"}'
+}
+🚚 Obteniendo lista de pruebas maestras...
+📊 Generando análisis consolidado de costos...
+📊 Generando reporte de impacto fiscal por área operativa...
+📦 Obteniendo inventario (Screaming Architecture)...
+✅ Inventario obtenido: 116 items
+📊 Obteniendo gastos globales mensuales...
+🔬 Obteniendo costos por equipo...

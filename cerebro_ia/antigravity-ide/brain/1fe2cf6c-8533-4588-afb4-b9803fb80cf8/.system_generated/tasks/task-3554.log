@@ -1,0 +1,7 @@
+Successfully scheduled one-shot timer.
+Expected to fire at: 2026-07-07T08:19:42-04:00
+Prompt: Wait for final V2 zip V3 to complete with local static login images
+
+[2026-07-07T08:19:22-04:00] Still waiting. Remaining time: 20s
+[2026-07-07T08:19:32-04:00] Still waiting. Remaining time: 10s
+[2026-07-07T08:19:42-04:00] Timer fired.

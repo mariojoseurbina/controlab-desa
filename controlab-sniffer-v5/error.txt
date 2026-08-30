@@ -1,0 +1,10 @@
+REM 1. Ve a la carpeta donde está el sniffer
+cd C:\ruta\donde\esta\wpcap_sniffer_v10.exe
+
+REM 2. Corre en modo SCAN (captura todo el tráfico)
+wpcap_sniffer_v10.exe --scan
+
+REM 3. Cuando veas líneas aparecer, procesa un Clinchem
+REM    y dime qué IPs y puertos aparecen en pantalla
+
+

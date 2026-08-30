@@ -1,0 +1,4 @@
+codigo,nombre,categoria,unidad,stock_actual,stock_minimo,ubicacion,marca,proveedor,precio_costo
+REA-001,Reactivo Glucosa COD,Reactivo,Frasco,15,5,Nevera 1,Wiener,Distribuidora Medica,15.50
+MAT-002,Tubos de Ensayo Tapa Roja,Material,Caja,120,20,Estante A,BD Vacutainer,Insumos Lab,25.00
+CON-003,Inyectadora 5ml,Consumible,Unidad,500,100,Estante B,Nipro,Farmacia Central,0.15

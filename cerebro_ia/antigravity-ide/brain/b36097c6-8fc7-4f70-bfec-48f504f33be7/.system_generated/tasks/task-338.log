@@ -1,0 +1,89 @@
+
+Rebuilding...
+CssSyntaxError: tailwindcss: C:\controlab-h\frontend\src\index.css:22:5: The `hover:bg-brand-secondary` class does not exist. If `hover:bg-brand-secondary` is a custom class, make sure it is defined within a `@layer` directive.
+    at Input.error (C:\controlab-h\frontend\node_modules\postcss\lib\input.js:135:16)
+    at AtRule.error (C:\controlab-h\frontend\node_modules\postcss\lib\node.js:149:32)
+    at processApply (C:\controlab-h\frontend\node_modules\tailwindcss\lib\lib\expandApplyAtRules.js:380:29)
+    at C:\controlab-h\frontend\node_modules\tailwindcss\lib\lib\expandApplyAtRules.js:551:9
+    at C:\controlab-h\frontend\node_modules\tailwindcss\lib\processTailwindFeatures.js:55:50
+    at async Object.Once (C:\controlab-h\frontend\node_modules\tailwindcss\lib\cli\build\plugin.js:248:17)
+    at async LazyResult.runAsync (C:\controlab-h\frontend\node_modules\postcss\lib\lazy-result.js:293:11)
+    at async build (C:\controlab-h\frontend\node_modules\tailwindcss\lib\cli\build\index.js:49:9) {
+  reason: 'The `hover:bg-brand-secondary` class does not exist. If `hover:bg-brand-secondary` is a custom class, make sure it is defined within a `@layer` directive.',
+  file: 'C:\\controlab-h\\frontend\\src\\index.css',
+  source: "@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');\n" +
+    '\n' +
+    '@tailwind base;\n' +
+    '@tailwind components;\n' +
+    '@tailwind utilities;\n' +
+    '\n' +
+    '@layer base {\n' +
+    '  body {\n' +
+    '    @apply bg-gray-50 text-gray-800 font-sans antialiased;\n' +
+    '    /* Soft background gradient for light mode */\n' +
+    '    background: radial-gradient(circle at top left, #f3f4f6, #e5e7eb);\n' +
+    '    min-height: 100vh;\n' +
+    '  }\n' +
+    '}\n' +
+    '\n' +
+    '@layer components {\n' +
+    '  .glass-panel {\n' +
+    '    @apply bg-white/70 backdrop-blur-md border border-white/40 rounded-2xl shadow-lg;\n' +
+    '  }\n' +
+    '  \n' +
+    '  .btn-primary {\n' +
+    '    @apply bg-brand-primary hover:bg-brand-secondary text-white px-6 py-2.5 rounded-xl font-medium transition-all duration-300 shadow-md shadow-brand-primary/30 hover:shadow-lg hover:shadow-brand-primary/40;\n' +
+    '  }\n' +
+    '\n' +
+    '  .input-glass {\n' +
+    '    @apply w-full bg-black/20 border border-brand-border rounded-lg px-4 py-2 text-white\n' +
+    '           focus:outline-none focus:border-brand-accent focus:ring-1 focus:ring-brand-accent\n' +
+    '           transition-all duration-300 placeholder-gray-400;\n' +
+    '  }\n' +
+    '}\n',
+  line: 22,
+  column: 5,
+  endLine: 22,
+  endColumn: 208,
+  input: {
+    column: 5,
+    endColumn: 208,
+    endLine: 22,
+    endOffset: 749,
+    line: 22,
+    offset: 546,
+    source: "@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');\n" +
+      '\n' +
+      '@tailwind base;\n' +
+      '@tailwind components;\n' +
+      '@tailwind utilities;\n' +
+      '\n' +
+      '@layer base {\n' +
+      '  body {\n' +
+      '    @apply bg-gray-50 text-gray-800 font-sans antialiased;\n' +
+      '    /* Soft background gradient for light mode */\n' +
+      '    background: radial-gradient(circle at top left, #f3f4f6, #e5e7eb);\n' +
+      '    min-height: 100vh;\n' +
+      '  }\n' +
+      '}\n' +
+      '\n' +
+      '@layer components {\n' +
+      '  .glass-panel {\n' +
+      '    @apply bg-white/70 backdrop-blur-md border border-white/40 rounded-2xl shadow-lg;\n' +
+      '  }\n' +
+      '  \n' +
+      '  .btn-primary {\n' +
+      '    @apply bg-brand-primary hover:bg-brand-secondary text-white px-6 py-2.5 rounded-xl font-medium transition-all duration-300 shadow-md shadow-brand-primary/30 hover:shadow-lg hover:shadow-brand-primary/40;\n' +
+      '  }\n' +
+      '\n' +
+      '  .input-glass {\n' +
+      '    @apply w-full bg-black/20 border border-brand-border rounded-lg px-4 py-2 text-white\n' +
+      '           focus:outline-none focus:border-brand-accent focus:ring-1 focus:ring-brand-accent\n' +
+      '           transition-all duration-300 placeholder-gray-400;\n' +
+      '  }\n' +
+      '}\n',
+    url: 'file:///C:/controlab-h/frontend/src/index.css',
+    file: 'C:\\controlab-h\\frontend\\src\\index.css'
+  },
+  plugin: 'tailwindcss'
+}

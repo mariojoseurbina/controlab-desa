@@ -1,0 +1,109 @@
+       Código                                                                     Descripción del Examen  Días  Precio Bs
+  55                 CONTROL PRE NATAL                                                                                     20.00
+               1001                          HEMATOLOGIA                                                  1
+               1624                          ACIDO URICO                                                  1
+               1400                          TIEMPO DE PROTROMBINA (PT)                                   1
+               1401                          TIEMPO PARCIAL TROMBOPLASTINA (PTT)                          1
+               1618                          CREATININA                                                   1
+               1600                          GLICEMIA                                                     1
+               1655                          UREA                                                         1
+  480                PERFIL 20                                                                                             16.00
+               1001                          HEMATOLOGIA                                                  1
+               1624                          ACIDO URICO                                                  1
+               1619                          TRIGLICERIDOS                                                1
+               1626                          PROTEINAS TOTALES Y FRACCIONADAS                             1
+               1636                          TRANSAMINASA OXALACETICA                                     1
+               1620                          COLESTEROL                                                   1
+               1618                          CREATININA                                                   1
+               1600                          GLICEMIA                                                     1
+               1655                          UREA                                                         1
+               1637                          TRANSAMINASA PIRUVICA                                        1
+               3100                          EXAMEN DE ORINA                                              1
+  478                PERFIL 20 NIÑO                                                                                        21.00
+               1001                          HEMATOLOGIA                                                  1
+               1632                          BILIRRUBINA TOTAL Y FRACCIONADA                              1
+               1624                          ACIDO URICO                                                  1
+               1630                          FOSFORO                                                      1
+               1619                          TRIGLICERIDOS                                                1
+               1629                          CALCIO                                                       1
+               1626                          PROTEINAS TOTALES Y FRACCIONADAS                             1
+               1636                          TRANSAMINASA OXALACETICA                                     1
+               1620                          COLESTEROL                                                   1
+               1618                          CREATININA                                                   1
+               1600                          GLICEMIA                                                     1
+               1655                          UREA                                                         1
+               1637                          TRANSAMINASA PIRUVICA                                        1
+               1680                          HIERRO SERICO                                                1
+               3100                          EXAMEN DE ORINA                                              1
+               3200                          EXAMEN DE HECES                                              1
+  439                PERFIL 21 (PERFIL 20 + LIPIDICO)                                                                      20.00
+               1001                          HEMATOLOGIA                                                  1
+               1624                          ACIDO URICO                                                  1
+               1619                          TRIGLICERIDOS                                                1
+               1626                          PROTEINAS TOTALES Y FRACCIONADAS                             1
+               1636                          TRANSAMINASA OXALACETICA                                     1
+               1620                          COLESTEROL                                                   1
+               1621                          COLESTEROL HDL                                               1
+               1623                          COLESTEROL LDL                                               1
+               1622                          COLESTEROL VLDL                                              1
+               1618                          CREATININA                                                   1
+               1600                          GLICEMIA                                                     1
+               1655                          UREA                                                         1
+               1637                          TRANSAMINASA PIRUVICA                                        1
+               3100                          EXAMEN DE ORINA                                              1
+                10                           PERFIL LIPIDICO                                              0
+  309                PERFIL DIARREA NIÑO                                                                                    0.01
+               9223                          POLIMORFONUCLEARES                                           0
+               9224                          MONONUCLEARES                                                0
+               6500                          ADENOVIRUS - ROTAVIRUS EN HECES                              1
+               3200                          EXAMEN DE HECES                                              1
+               3201                          AZUCARES REDUCTORES                                          1
+               3206                          SANGRE OCULTA EN HECES                                       1
+  20                 PERFIL HEPATICO                                                                                       27.00
+               1001                          HEMATOLOGIA                                                  1
+               1632                          BILIRRUBINA TOTAL Y FRACCIONADA                              1
+               1635                          FOSFATASA ALCALINA                                           1
+               1710                          AMILASA                                                      1
+               1730                          GAMMA GLUTAMIL TRANSFERASA GGT                               1
+               1626                          PROTEINAS TOTALES Y FRACCIONADAS                             1
+               1636                          TRANSAMINASA OXALACETICA                                     1
+               1637                          TRANSAMINASA PIRUVICA                                        1
+               9234                          LDH (DESHIDROGENASA LACTICA)                                 0
+  56                 PERFIL PRE NATAL                                                                                      21.00
+               1001                          HEMATOLOGIA                                                  1
+               1624                          ACIDO URICO                                                  1
+               1618                          CREATININA                                                   1
+               1600                          GLICEMIA                                                     1
+               1655                          UREA                                                         1
+               1206                          GRUPO SANGUINEO                                              1
+               6574                          V.D.R.L. CUALITATIVO                                         0
+               6556                          HIV                                                          0
+  401                PERFIL PRE NATAL LIAZ                                                                                  0.02
+               1001                          HEMATOLOGIA                                                  1
+               1624                          ACIDO URICO                                                  1
+               1618                          CREATININA                                                   1
+               1600                          GLICEMIA                                                     1
+               1655                          UREA                                                         1
+               1206                          GRUPO SANGUINEO                                              1
+               3100                          EXAMEN DE ORINA                                              1
+               6574                          V.D.R.L. CUALITATIVO                                         0
+               6556                          HIV                                                          0
+  57                 PERFIL PRE-OPERATORIO                                                                                 25.00
+               1001                          HEMATOLOGIA                                                  1
+               1400                          TIEMPO DE PROTROMBINA (PT)                                   1
+               1401                          TIEMPO PARCIAL TROMBOPLASTINA (PTT)                          1
+               1618                          CREATININA                                                   1
+               1600                          GLICEMIA                                                     1
+               1655                          UREA                                                         1
+               1206                          GRUPO SANGUINEO                                              1
+               6574                          V.D.R.L. CUALITATIVO                                         0
+               6556                          HIV                                                          0
+  110                PERFIL REUMATICO                                                                                      21.00
+               1001                          HEMATOLOGIA                                                  1
+               1624                          ACIDO URICO                                                  1
+               1629                          CALCIO                                                       1
+               1204                          VELOCIDAD DE SEDIMENTACION GLOBULAR                          1
+               1700                          P.C.R CUANTITATIVA AUTOMATIZADA                              1
+               2871                          RA TEST (FACTOR REUMATOIDEO)                                 1
+                905                          ASTO                                                         0
+

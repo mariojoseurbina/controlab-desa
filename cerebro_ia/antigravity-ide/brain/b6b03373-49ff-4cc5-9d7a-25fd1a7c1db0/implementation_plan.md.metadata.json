@@ -1,0 +1,6 @@
+{
+  "artifactType": "ARTIFACT_TYPE_IMPLEMENTATION_PLAN",
+  "summary": "Plan de implementación para crear un instalador automatizado de Controlab-IA usando Inno Setup, resolviendo la lentitud de copia de node_modules mediante empaquetado y compresión.",
+  "updatedAt": "2026-06-16T00:48:08.476690100Z",
+  "requestFeedback": true
+}

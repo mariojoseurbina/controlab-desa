@@ -1,0 +1,6 @@
+- `[ ]` Modificar `schema.prisma` en `controlab-desa` para añadir campos a `LogSniffer`
+- `[ ]` Regenerar el cliente de Prisma en `controlab-desa/backend` (`npx prisma generate`)
+- `[ ]` Implementar el webhook de descuento directo síncrono en `sniffer.controller.js`
+- `[ ]` Crear el script de simulación de analizadores `Simular_Analizadores.js`
+- `[ ]` Crear el archivo ejecutable `Simular_Analizadores.bat`
+- `[ ]` Verificar el funcionamiento de la simulación y el descuento de lotes en la base de datos de desarrollo

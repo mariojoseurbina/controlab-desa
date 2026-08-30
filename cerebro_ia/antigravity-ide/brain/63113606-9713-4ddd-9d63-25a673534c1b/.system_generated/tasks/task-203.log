@@ -1,0 +1,73 @@
+
+> controlab-ia-backend@1.0.0 dev
+> nodemon server.js
+
+[nodemon] 3.1.10
+[nodemon] to restart at any time, enter `rs`
+[nodemon] watching path(s): *.*
+[nodemon] watching extensions: js,mjs,cjs,json
+[nodemon] starting `node server.js`
+🚀 Servidor Controlab - IA ejecutándose en puerto 5000
+📊 Entorno: development
+🛒 Obteniendo compras...
+📦 Obteniendo inventario (Screaming Architecture)...
+❌ Error inventario: 
+Invalid `prisma.itemInventario.findMany()` invocation in
+C:\controlab-ia\backend\src\modules\inventory\inventory.repository.js:5:34
+
+  2 
+  3 class InventoryRepository {
+  4   async findAllActive() {
+→ 5     return prisma.itemInventario.findMany({
+          where: {
+            activo: 1
+                    ~
+          },
+          orderBy: {
+            fecha_creacion: "desc"
+          }
+        })
+
+Argument `activo`: Invalid value provided. Expected BoolNullableFilter, Boolean or Null, provided Int.
+[nodemon] restarting due to changes...
+[nodemon] starting `node server.js`
+🚀 Servidor Controlab - IA ejecutándose en puerto 5000
+📊 Entorno: development
+[nodemon] restarting due to changes...
+[nodemon] starting `node server.js`
+🚀 Servidor Controlab - IA ejecutándose en puerto 5000
+📊 Entorno: development
+📦 Obteniendo inventario (Screaming Architecture)...
+✅ Inventario obtenido: 110 items
+[nodemon] restarting due to changes...
+[nodemon] starting `node server.js`
+🚀 Servidor Controlab - IA ejecutándose en puerto 5000
+📊 Entorno: development
+📦 Obteniendo inventario (Screaming Architecture)...
+✅ Inventario obtenido: 110 items
+➕ Creando nueva compra: FACT-TEST-099
+📦 Obteniendo inventario (Screaming Architecture)...
+✅ Inventario obtenido: 110 items
+✏️ Actualizando compra ID: 2
+📦 Obteniendo inventario (Screaming Architecture)...
+✅ Inventario obtenido: 110 items
+[nodemon] restarting due to changes...
+[nodemon] restarting due to changes...
+[nodemon] starting `node server.js`
+🚀 Servidor Controlab - IA ejecutándose en puerto 5000
+📊 Entorno: development
+📦 Obteniendo inventario (Screaming Architecture)...
+✅ Inventario obtenido: 110 items
+➕ Creando nueva compra: FACT-TEST-099
+📦 Obteniendo inventario (Screaming Architecture)...
+✅ Inventario obtenido: 110 items
+✏️ Actualizando compra ID: 3
+📦 Obteniendo inventario (Screaming Architecture)...
+✅ Inventario obtenido: 110 items
+🗑️ Eliminando compra ID: 3
+📦 Obteniendo inventario (Screaming Architecture)...
+✅ Inventario obtenido: 110 items
+[nodemon] restarting due to changes...
+[nodemon] starting `node server.js`
+🚀 Servidor Controlab - IA ejecutándose en puerto 5000
+📊 Entorno: development

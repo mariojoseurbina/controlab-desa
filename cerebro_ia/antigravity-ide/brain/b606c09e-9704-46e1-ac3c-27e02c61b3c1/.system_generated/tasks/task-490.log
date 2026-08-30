@@ -1,0 +1,14 @@
+🚀 Servidor Controlab - IA ejecutándose en puerto 5000
+📊 Entorno: development
+📦 Obteniendo inventario (Screaming Architecture)...
+❌ Error inventario: 
+Invalid `prisma.itemInventario.findMany()` invocation in
+C:\controlab-ia\backend\src\modules\inventory\inventory.repository.js:5:34
+
+  2 
+  3 class InventoryRepository {
+  4   async findAllActive() {
+→ 5     return prisma.itemInventario.findMany(
+Authentication failed against database server at `localhost`, the provided database credentials for `sa` are not valid.
+
+Please make sure to provide valid database credentials for the database server at `localhost`.

@@ -1,0 +1,5 @@
+Successfully scheduled one-shot timer.
+Expected to fire at: 2026-07-08T17:33:00-04:00
+Prompt: Wait for tar.exe V4 to complete
+
+[2026-07-08T17:32:31-04:00] Timer cancelled: agent received a message during wait.

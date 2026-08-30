@@ -1,0 +1,6 @@
+{
+  "artifactType": "ARTIFACT_TYPE_OTHER",
+  "summary": "Auditoría de consistencia de arquitectura y código de Controlab VET, identificando fallas de seguridad, bases de datos duplicadas y deuda técnica.",
+  "updatedAt": "2026-06-23T16:51:01.718759500Z",
+  "requestFeedback": true
+}

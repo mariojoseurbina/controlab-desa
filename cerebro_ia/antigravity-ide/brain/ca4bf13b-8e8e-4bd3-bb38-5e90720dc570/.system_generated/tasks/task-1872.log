@@ -1,0 +1,26 @@
+Launching headless Chrome for Reports test...
+Connecting to Chrome debugger...
+Connecting to: ws://localhost:9222/devtools/page/A753B8EBFD58F2C1C5A471AF7E6F45A0
+Performing login and redirecting to reports...
+[BROWSER CONSOLE]: Sending login request from browser...
+[EVALUATE RESULT]: redirecting
+[BROWSER CONSOLE]: %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold
+[BROWSER CONSOLE]: The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[BROWSER CONSOLE]: The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[BROWSER CONSOLE]: The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[BROWSER CONSOLE]: The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+Checking if reports page rendered...
+[EVALUATE RESULT]: {"url":"http://localhost:3000/reports","hasTitle":true,"hasRecharts":true,"hasTables":2,"hasBreedTitle":true,"hasBreedPoodle":true,"hasAI":true}
+Reports test complete. Shutting down Chrome...

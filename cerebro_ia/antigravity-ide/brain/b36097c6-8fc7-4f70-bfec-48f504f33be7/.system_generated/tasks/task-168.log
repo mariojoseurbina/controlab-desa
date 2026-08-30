@@ -1,0 +1,36 @@
+
+> npx
+> create-vite frontend --template react
+
+|
+o  Scaffolding project in C:\controlab-h\frontend...
+|
+—  Done. Now run:
+
+  cd frontend
+  npm install
+  npm run dev
+
+
+added 24 packages, and audited 25 packages in 17s
+
+9 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+
+added 13 packages, and audited 38 packages in 2s
+
+14 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+npm error could not determine executable to run
+npm error A complete log of this run can be found in: C:\Users\Administrador\AppData\Local\npm-cache\_logs\2026-07-01T13_26_15_554Z-debug-0.log
+
+added 32 packages, and audited 70 packages in 9s
+
+21 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities

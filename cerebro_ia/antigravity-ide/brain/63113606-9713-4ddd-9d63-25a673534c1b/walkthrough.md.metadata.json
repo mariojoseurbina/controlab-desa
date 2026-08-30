@@ -1,0 +1,5 @@
+{
+  "artifactType": "ARTIFACT_TYPE_WALKTHROUGH",
+  "summary": "Walkthrough summarizing the changes made to make the Purchases (Compras) module fully operational. Details include the backend Purchases module implementation, Prisma Client generation, type-safety fixes in the inventory repository, frontend API integrations, and the automated stock-movement sync business logic.",
+  "updatedAt": "2026-06-07T15:28:51.115834Z"
+}

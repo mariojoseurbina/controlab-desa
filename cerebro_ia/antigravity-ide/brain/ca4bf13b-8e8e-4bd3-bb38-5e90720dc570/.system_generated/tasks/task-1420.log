@@ -1,0 +1,451 @@
+Launching headless Chrome...
+Fetching active debug targets from Chrome...
+Active targets: 5
+Selected Target URL: http://localhost:3000/login
+WebSocket Debugger URL: ws://localhost:9222/devtools/page/5D2401342DDF76B40F5227AA9CF6D3D4
+Connected to Chrome DevTools Protocol via WebSocket.
+Reloading page...
+Listening for errors/logs for 6 seconds...
+[CONSOLE INFO]: %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold
+[EXCEPTION THROWN]: {
+  "exceptionId": 4,
+  "text": "Uncaught",
+  "lineNumber": 184529,
+  "columnNumber": 98,
+  "scriptId": "5",
+  "url": "http://localhost:3000/static/js/bundle.js",
+  "stackTrace": {
+    "callFrames": [
+      {
+        "functionName": "Login",
+        "scriptId": "5",
+        "url": "http://localhost:3000/static/js/bundle.js",
+        "lineNumber": 184529,
+        "columnNumber": 98
+      },
+      {
+        "functionName": "renderWithHooks",
+        "scriptId": "5",
+        "url": "http://localhost:3000/static/js/bundle.js",
+        "lineNumber": 91783,
+        "columnNumber": 21
+      },
+      {
+        "functionName": "mountIndeterminateComponent",
+        "scriptId": "5",
+        "url": "http://localhost:3000/static/js/bundle.js",
+        "lineNumber": 95755,
+        "columnNumber": 16
+      },
+      {
+        "functionName": "beginWork",
+        "scriptId": "5",
+        "url": "http://localhost:3000/static/js/bundle.js",
+        "lineNumber": 97058,
+        "columnNumber": 19
+      },
+      {
+        "functionName": "callCallback",
+        "scriptId": "5",
+        "url": "http://localhost:3000/static/js/bundle.js",
+        "lineNumber": 82039,
+        "columnNumber": 17
+      },
+      {
+        "functionName": "invokeGuardedCallbackDev",
+        "scriptId": "5",
+        "url": "http://localhost:3000/static/js/bundle.js",
+        "lineNumber": 82083,
+        "columnNumber": 19
+      },
+      {
+        "functionName": "invokeGuardedCallback",
+        "scriptId": "5",
+        "url": "http://localhost:3000/static/js/bundle.js",
+        "lineNumber": 82140,
+        "columnNumber": 34
+      },
+      {
+        "functionName": "beginWork$1",
+        "scriptId": "5",
+        "url": "http://localhost:3000/static/js/bundle.js",
+        "lineNumber": 102039,
+        "columnNumber": 10
+      },
+      {
+        "functionName": "performUnitOfWork",
+        "scriptId": "5",
+        "url": "http://localhost:3000/static/js/bundle.js",
+        "lineNumber": 101287,
+        "columnNumber": 15
+      },
+      {
+        "functionName": "workLoopSync",
+        "scriptId": "5",
+        "url": "http://localhost:3000/static/js/bundle.js",
+        "lineNumber": 101210,
+        "columnNumber": 8
+      },
+      {
+        "functionName": "renderRootSync",
+        "scriptId": "5",
+        "url": "http://localhost:3000/static/js/bundle.js",
+        "lineNumber": 101183,
+        "columnNumber": 10
+      },
+      {
+        "functionName": "performConcurrentWorkOnRoot",
+        "scriptId": "5",
+        "url": "http://localhost:3000/static/js/bundle.js",
+        "lineNumber": 100578,
+        "columnNumber": 77
+      },
+      {
+        "functionName": "workLoop",
+        "scriptId": "5",
+        "url": "http://localhost:3000/static/js/bundle.js",
+        "lineNumber": 144393,
+        "columnNumber": 37
+      },
+      {
+        "functionName": "flushWork",
+        "scriptId": "5",
+        "url": "http://localhost:3000/static/js/bundle.js",
+        "lineNumber": 144371,
+        "columnNumber": 17
+      },
+      {
+        "functionName": "performWorkUntilDeadline",
+        "scriptId": "5",
+        "url": "http://localhost:3000/static/js/bundle.js",
+        "lineNumber": 144608,
+        "columnNumber": 24
+      }
+    ]
+  },
+  "exception": {
+    "type": "object",
+    "subtype": "error",
+    "className": "ReferenceError",
+    "description": "ReferenceError: Biotech is not defined\n    at Login (http://localhost:3000/static/js/bundle.js:184530:99)\n    at renderWithHooks (http://localhost:3000/static/js/bundle.js:91784:22)\n    at mountIndeterminateComponent (http://localhost:3000/static/js/bundle.js:95756:17)\n    at beginWork (http://localhost:3000/static/js/bundle.js:97059:20)\n    at HTMLUnknownElement.callCallback (http://localhost:3000/static/js/bundle.js:82040:18)\n    at Object.invokeGuardedCallbackDev (http://localhost:3000/static/js/bundle.js:82084:20)\n    at invokeGuardedCallback (http://localhost:3000/static/js/bundle.js:82141:35)\n    at beginWork$1 (http://localhost:3000/static/js/bundle.js:102040:11)\n    at performUnitOfWork (http://localhost:3000/static/js/bundle.js:101288:16)\n    at workLoopSync (http://localhost:3000/static/js/bundle.js:101211:9)",
+    "objectId": "-2228958705113359947.3.1",
+    "preview": {
+      "type": "object",
+      "subtype": "error",
+      "description": "ReferenceError: Biotech is not defined\n    at Login (http://localhost:3000/static/js/bundle.js:184530:99)\n    at renderWithHooks (http://localhost:3000/static/js/bundle.js:91784:22)\n    at mountIndeterminateComponent (http://localhost:3000/static/js/bundle.js:95756:17)\n    at beginWork (http://localhost:3000/static/js/bundle.js:97059:20)\n    at HTMLUnknownElement.callCallback (http://localhost:3000/static/js/bundle.js:82040:18)\n    at Object.invokeGuardedCallbackDev (http://localhost:3000/static/js/bundle.js:82084:20)\n    at invokeGuardedCallback (http://localhost:3000/static/js/bundle.js:82141:35)\n    at beginWork$1 (http://localhost:3000/static/js/bundle.js:102040:11)\n    at performUnitOfWork (http://localhost:3000/static/js/bundle.js:101288:16)\n    at workLoopSync (http://localhost:3000/static/js/bundle.js:101211:9)",
+      "overflow": false,
+      "properties": [
+        {
+          "name": "stack",
+          "type": "string",
+          "value": "ReferenceError: Biotech is not defined\n    at Logi…tp://localhost:3000/static/js/bundle.js:101211:9)"
+        },
+        {
+          "name": "message",
+          "type": "string",
+          "value": "Biotech is not defined"
+        }
+      ]
+    }
+  },
+  "executionContextId": 3
+}
+[EXCEPTION THROWN]: {
+  "exceptionId": 5,
+  "text": "Uncaught",
+  "lineNumber": 184529,
+  "columnNumber": 98,
+  "scriptId": "5",
+  "url": "http://localhost:3000/static/js/bundle.js",
+  "stackTrace": {
+    "callFrames": [
+      {
+        "functionName": "Login",
+        "scriptId": "5",
+        "url": "http://localhost:3000/static/js/bundle.js",
+        "lineNumber": 184529,
+        "columnNumber": 98
+      },
+      {
+        "functionName": "renderWithHooks",
+        "scriptId": "5",
+        "url": "http://localhost:3000/static/js/bundle.js",
+        "lineNumber": 91783,
+        "columnNumber": 21
+      },
+      {
+        "functionName": "mountIndeterminateComponent",
+        "scriptId": "5",
+        "url": "http://localhost:3000/static/js/bundle.js",
+        "lineNumber": 95755,
+        "columnNumber": 16
+      },
+      {
+        "functionName": "beginWork",
+        "scriptId": "5",
+        "url": "http://localhost:3000/static/js/bundle.js",
+        "lineNumber": 97058,
+        "columnNumber": 19
+      },
+      {
+        "functionName": "callCallback",
+        "scriptId": "5",
+        "url": "http://localhost:3000/static/js/bundle.js",
+        "lineNumber": 82039,
+        "columnNumber": 17
+      },
+      {
+        "functionName": "invokeGuardedCallbackDev",
+        "scriptId": "5",
+        "url": "http://localhost:3000/static/js/bundle.js",
+        "lineNumber": 82083,
+        "columnNumber": 19
+      },
+      {
+        "functionName": "invokeGuardedCallback",
+        "scriptId": "5",
+        "url": "http://localhost:3000/static/js/bundle.js",
+        "lineNumber": 82140,
+        "columnNumber": 34
+      },
+      {
+        "functionName": "beginWork$1",
+        "scriptId": "5",
+        "url": "http://localhost:3000/static/js/bundle.js",
+        "lineNumber": 102039,
+        "columnNumber": 10
+      },
+      {
+        "functionName": "performUnitOfWork",
+        "scriptId": "5",
+        "url": "http://localhost:3000/static/js/bundle.js",
+        "lineNumber": 101287,
+        "columnNumber": 15
+      },
+      {
+        "functionName": "workLoopSync",
+        "scriptId": "5",
+        "url": "http://localhost:3000/static/js/bundle.js",
+        "lineNumber": 101210,
+        "columnNumber": 8
+      },
+      {
+        "functionName": "renderRootSync",
+        "scriptId": "5",
+        "url": "http://localhost:3000/static/js/bundle.js",
+        "lineNumber": 101183,
+        "columnNumber": 10
+      },
+      {
+        "functionName": "recoverFromConcurrentError",
+        "scriptId": "5",
+        "url": "http://localhost:3000/static/js/bundle.js",
+        "lineNumber": 100675,
+        "columnNumber": 23
+      },
+      {
+        "functionName": "performConcurrentWorkOnRoot",
+        "scriptId": "5",
+        "url": "http://localhost:3000/static/js/bundle.js",
+        "lineNumber": 100588,
+        "columnNumber": 25
+      },
+      {
+        "functionName": "workLoop",
+        "scriptId": "5",
+        "url": "http://localhost:3000/static/js/bundle.js",
+        "lineNumber": 144393,
+        "columnNumber": 37
+      },
+      {
+        "functionName": "flushWork",
+        "scriptId": "5",
+        "url": "http://localhost:3000/static/js/bundle.js",
+        "lineNumber": 144371,
+        "columnNumber": 17
+      },
+      {
+        "functionName": "performWorkUntilDeadline",
+        "scriptId": "5",
+        "url": "http://localhost:3000/static/js/bundle.js",
+        "lineNumber": 144608,
+        "columnNumber": 24
+      }
+    ]
+  },
+  "exception": {
+    "type": "object",
+    "subtype": "error",
+    "className": "ReferenceError",
+    "description": "ReferenceError: Biotech is not defined\n    at Login (http://localhost:3000/static/js/bundle.js:184530:99)\n    at renderWithHooks (http://localhost:3000/static/js/bundle.js:91784:22)\n    at mountIndeterminateComponent (http://localhost:3000/static/js/bundle.js:95756:17)\n    at beginWork (http://localhost:3000/static/js/bundle.js:97059:20)\n    at HTMLUnknownElement.callCallback (http://localhost:3000/static/js/bundle.js:82040:18)\n    at Object.invokeGuardedCallbackDev (http://localhost:3000/static/js/bundle.js:82084:20)\n    at invokeGuardedCallback (http://localhost:3000/static/js/bundle.js:82141:35)\n    at beginWork$1 (http://localhost:3000/static/js/bundle.js:102040:11)\n    at performUnitOfWork (http://localhost:3000/static/js/bundle.js:101288:16)\n    at workLoopSync (http://localhost:3000/static/js/bundle.js:101211:9)",
+    "objectId": "-2228958705113359947.3.2",
+    "preview": {
+      "type": "object",
+      "subtype": "error",
+      "description": "ReferenceError: Biotech is not defined\n    at Login (http://localhost:3000/static/js/bundle.js:184530:99)\n    at renderWithHooks (http://localhost:3000/static/js/bundle.js:91784:22)\n    at mountIndeterminateComponent (http://localhost:3000/static/js/bundle.js:95756:17)\n    at beginWork (http://localhost:3000/static/js/bundle.js:97059:20)\n    at HTMLUnknownElement.callCallback (http://localhost:3000/static/js/bundle.js:82040:18)\n    at Object.invokeGuardedCallbackDev (http://localhost:3000/static/js/bundle.js:82084:20)\n    at invokeGuardedCallback (http://localhost:3000/static/js/bundle.js:82141:35)\n    at beginWork$1 (http://localhost:3000/static/js/bundle.js:102040:11)\n    at performUnitOfWork (http://localhost:3000/static/js/bundle.js:101288:16)\n    at workLoopSync (http://localhost:3000/static/js/bundle.js:101211:9)",
+      "overflow": false,
+      "properties": [
+        {
+          "name": "stack",
+          "type": "string",
+          "value": "ReferenceError: Biotech is not defined\n    at Logi…tp://localhost:3000/static/js/bundle.js:101211:9)"
+        },
+        {
+          "name": "message",
+          "type": "string",
+          "value": "Biotech is not defined"
+        }
+      ]
+    }
+  },
+  "executionContextId": 3
+}
+[CONSOLE ERROR]: The above error occurred in the <Login> component:
+
+    at Login (http://localhost:3000/static/js/bundle.js:184214:88)
+    at PublicRoute (http://localhost:3000/static/js/bundle.js:181461:3)
+    at RenderedRoute (http://localhost:3000/static/js/bundle.js:108101:5)
+    at Routes (http://localhost:3000/static/js/bundle.js:108835:5)
+    at Router (http://localhost:3000/static/js/bundle.js:108769:15)
+    at BrowserRouter (http://localhost:3000/static/js/bundle.js:106670:5)
+    at AuthProvider (http://localhost:3000/static/js/bundle.js:182376:3)
+    at SnackbarProvider (http://localhost:3000/static/js/bundle.js:77018:24)
+    at DefaultPropsProvider (http://localhost:3000/static/js/bundle.js:38164:3)
+    at RtlProvider (http://localhost:3000/static/js/bundle.js:38334:7)
+    at ThemeProvider (http://localhost:3000/static/js/bundle.js:36979:5)
+    at ThemeProvider (http://localhost:3000/static/js/bundle.js:38628:5)
+    at ThemeProvider (http://localhost:3000/static/js/bundle.js:34402:14)
+    at App
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+[EXCEPTION THROWN]: {
+  "exceptionId": 6,
+  "text": "Uncaught",
+  "lineNumber": 184529,
+  "columnNumber": 98,
+  "scriptId": "5",
+  "url": "http://localhost:3000/static/js/bundle.js",
+  "stackTrace": {
+    "callFrames": [
+      {
+        "functionName": "Login",
+        "scriptId": "5",
+        "url": "http://localhost:3000/static/js/bundle.js",
+        "lineNumber": 184529,
+        "columnNumber": 98
+      },
+      {
+        "functionName": "renderWithHooks",
+        "scriptId": "5",
+        "url": "http://localhost:3000/static/js/bundle.js",
+        "lineNumber": 91783,
+        "columnNumber": 21
+      },
+      {
+        "functionName": "mountIndeterminateComponent",
+        "scriptId": "5",
+        "url": "http://localhost:3000/static/js/bundle.js",
+        "lineNumber": 95755,
+        "columnNumber": 16
+      },
+      {
+        "functionName": "beginWork",
+        "scriptId": "5",
+        "url": "http://localhost:3000/static/js/bundle.js",
+        "lineNumber": 97058,
+        "columnNumber": 19
+      },
+      {
+        "functionName": "beginWork$1",
+        "scriptId": "5",
+        "url": "http://localhost:3000/static/js/bundle.js",
+        "lineNumber": 102017,
+        "columnNumber": 17
+      },
+      {
+        "functionName": "performUnitOfWork",
+        "scriptId": "5",
+        "url": "http://localhost:3000/static/js/bundle.js",
+        "lineNumber": 101287,
+        "columnNumber": 15
+      },
+      {
+        "functionName": "workLoopSync",
+        "scriptId": "5",
+        "url": "http://localhost:3000/static/js/bundle.js",
+        "lineNumber": 101210,
+        "columnNumber": 8
+      },
+      {
+        "functionName": "renderRootSync",
+        "scriptId": "5",
+        "url": "http://localhost:3000/static/js/bundle.js",
+        "lineNumber": 101183,
+        "columnNumber": 10
+      },
+      {
+        "functionName": "recoverFromConcurrentError",
+        "scriptId": "5",
+        "url": "http://localhost:3000/static/js/bundle.js",
+        "lineNumber": 100675,
+        "columnNumber": 23
+      },
+      {
+        "functionName": "performConcurrentWorkOnRoot",
+        "scriptId": "5",
+        "url": "http://localhost:3000/static/js/bundle.js",
+        "lineNumber": 100588,
+        "columnNumber": 25
+      },
+      {
+        "functionName": "workLoop",
+        "scriptId": "5",
+        "url": "http://localhost:3000/static/js/bundle.js",
+        "lineNumber": 144393,
+        "columnNumber": 37
+      },
+      {
+        "functionName": "flushWork",
+        "scriptId": "5",
+        "url": "http://localhost:3000/static/js/bundle.js",
+        "lineNumber": 144371,
+        "columnNumber": 17
+      },
+      {
+        "functionName": "performWorkUntilDeadline",
+        "scriptId": "5",
+        "url": "http://localhost:3000/static/js/bundle.js",
+        "lineNumber": 144608,
+        "columnNumber": 24
+      }
+    ]
+  },
+  "exception": {
+    "type": "object",
+    "subtype": "error",
+    "className": "ReferenceError",
+    "description": "ReferenceError: Biotech is not defined\n    at Login (http://localhost:3000/static/js/bundle.js:184530:99)\n    at renderWithHooks (http://localhost:3000/static/js/bundle.js:91784:22)\n    at mountIndeterminateComponent (http://localhost:3000/static/js/bundle.js:95756:17)\n    at beginWork (http://localhost:3000/static/js/bundle.js:97059:20)\n    at beginWork$1 (http://localhost:3000/static/js/bundle.js:102018:18)\n    at performUnitOfWork (http://localhost:3000/static/js/bundle.js:101288:16)\n    at workLoopSync (http://localhost:3000/static/js/bundle.js:101211:9)\n    at renderRootSync (http://localhost:3000/static/js/bundle.js:101184:11)\n    at recoverFromConcurrentError (http://localhost:3000/static/js/bundle.js:100676:24)\n    at performConcurrentWorkOnRoot (http://localhost:3000/static/js/bundle.js:100589:26)",
+    "objectId": "-2228958705113359947.3.3",
+    "preview": {
+      "type": "object",
+      "subtype": "error",
+      "description": "ReferenceError: Biotech is not defined\n    at Login (http://localhost:3000/static/js/bundle.js:184530:99)\n    at renderWithHooks (http://localhost:3000/static/js/bundle.js:91784:22)\n    at mountIndeterminateComponent (http://localhost:3000/static/js/bundle.js:95756:17)\n    at beginWork (http://localhost:3000/static/js/bundle.js:97059:20)\n    at beginWork$1 (http://localhost:3000/static/js/bundle.js:102018:18)\n    at performUnitOfWork (http://localhost:3000/static/js/bundle.js:101288:16)\n    at workLoopSync (http://localhost:3000/static/js/bundle.js:101211:9)\n    at renderRootSync (http://localhost:3000/static/js/bundle.js:101184:11)\n    at recoverFromConcurrentError (http://localhost:3000/static/js/bundle.js:100676:24)\n    at performConcurrentWorkOnRoot (http://localhost:3000/static/js/bundle.js:100589:26)",
+      "overflow": false,
+      "properties": [
+        {
+          "name": "stack",
+          "type": "string",
+          "value": "ReferenceError: Biotech is not defined\n    at Logi…p://localhost:3000/static/js/bundle.js:100589:26)"
+        },
+        {
+          "name": "message",
+          "type": "string",
+          "value": "Biotech is not defined"
+        }
+      ]
+    }
+  },
+  "executionContextId": 3
+}
+Finished listening. Closing Chrome...

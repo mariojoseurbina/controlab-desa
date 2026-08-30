@@ -1,0 +1,11 @@
+{
+  '$$typeof': Symbol(react.memo),
+  type: {
+    '$$typeof': Symbol(react.forward_ref),
+    render: [Function: Component] {
+      displayName: 'PetsIcon',
+      muiName: 'SvgIcon'
+    }
+  },
+  compare: null
+}

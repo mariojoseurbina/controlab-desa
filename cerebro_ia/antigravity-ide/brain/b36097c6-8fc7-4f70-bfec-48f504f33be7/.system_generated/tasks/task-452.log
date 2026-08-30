@@ -1,0 +1,135 @@
+
+> frontend@0.0.0 dev
+> vite
+
+
+  VITE v8.1.2  ready in 257 ms
+
+  ➜  Local:   http://localhost:5173/
+  ➜  Network: use --host to expose
+11:02:55 [vite] (client) [console.error] Error guardando paciente: AxiosError: Request failed with status code 400
+    at settle (http://localhost:5173/node_modules/.vite/deps/axios.js?v=ab9a8867:1838:14)
+    at XMLHttpRequest.onloadend (http://localhost:5173/node_modules/.vite/deps/axios.js?v=ab9a8867:2231:4)
+11:07:37 [vite] (client) hmr update /src/index.css
+11:08:05 [vite] (client) hmr update /src/index.css, /src/components/NuevoIngresoModal.jsx
+11:08:54 [vite] (client) hmr update /src/index.css, /src/components/NuevoIngresoModal.jsx
+11:09:28 [vite] (client) hmr update /src/index.css, /src/components/NuevoIngresoModal.jsx
+11:10:54 [vite] (client) [console.warn] No routes matched location "/resultados" 
+11:10:54 [vite] (client) [console.warn] No routes matched location "/resultados" 
+11:16:30 [vite] (client) [console.warn] No routes matched location "/dashboard" 
+11:16:30 [vite] (client) [console.warn] No routes matched location "/dashboard" 
+12:56:45 [vite] (client) hmr update /src/App.jsx, /src/index.css
+13:02:58 [vite] (client) hmr update /src/index.css, /src/pages/OrdenesDashboard.jsx
+13:03:00 [vite] (client) [console.error] Error fetching ordenes AxiosError: Network Error
+    at XMLHttpRequest.handleError (http://localhost:5173/node_modules/.vite/deps/axios.js?v=ab9a8867:2260:16)
+13:03:22 [vite] (client) hmr update /src/index.css, /src/pages/OrdenesDashboard.jsx
+13:06:40 [vite] (client) [console.error] Error fetching ordenes AxiosError: Network Error
+    at XMLHttpRequest.handleError (http://localhost:5173/node_modules/.vite/deps/axios.js?v=ab9a8867:2260:16)
+13:06:40 [vite] (client) [console.error] Error fetching ordenes AxiosError: Network Error
+    at XMLHttpRequest.handleError (http://localhost:5173/node_modules/.vite/deps/axios.js?v=ab9a8867:2260:16)
+13:06:41 [vite] (client) [console.error] Error cargando pacientes: AxiosError: Network Error
+    at XMLHttpRequest.handleError (http://localhost:5173/node_modules/.vite/deps/axios.js?v=ab9a8867:2260:16)
+13:06:42 [vite] (client) [console.error] Error cargando pacientes: AxiosError: Network Error
+    at XMLHttpRequest.handleError (http://localhost:5173/node_modules/.vite/deps/axios.js?v=ab9a8867:2260:16)
+13:06:54 [vite] (client) [console.error] Error fetching pacientes AxiosError: Network Error
+    at XMLHttpRequest.handleError (http://localhost:5173/node_modules/.vite/deps/axios.js?v=ab9a8867:2260:16)
+13:06:55 [vite] (client) [console.error] Error fetching pacientes AxiosError: Network Error
+    at XMLHttpRequest.handleError (http://localhost:5173/node_modules/.vite/deps/axios.js?v=ab9a8867:2260:16)
+13:07:05 [vite] (client) [console.error] Error fetching ordenes AxiosError: Network Error
+    at XMLHttpRequest.handleError (http://localhost:5173/node_modules/.vite/deps/axios.js?v=ab9a8867:2260:16)
+13:07:05 [vite] (client) [console.error] Error cargando pacientes: AxiosError: Network Error
+    at XMLHttpRequest.handleError (http://localhost:5173/node_modules/.vite/deps/axios.js?v=ab9a8867:2260:16)
+13:07:06 [vite] (client) [console.error] Error fetching ordenes AxiosError: Network Error
+    at XMLHttpRequest.handleError (http://localhost:5173/node_modules/.vite/deps/axios.js?v=ab9a8867:2260:16)
+13:07:07 [vite] (client) [console.error] Error cargando pacientes: AxiosError: Network Error
+    at XMLHttpRequest.handleError (http://localhost:5173/node_modules/.vite/deps/axios.js?v=ab9a8867:2260:16)
+13:07:44 [vite] (client) [console.error] Error buscando parametros: AxiosError: Network Error
+    at XMLHttpRequest.handleError (http://localhost:5173/node_modules/.vite/deps/axios.js?v=ab9a8867:2260:16)
+13:07:44 [vite] (client) [console.error] Error buscando parametros: AxiosError: Network Error
+    at XMLHttpRequest.handleError (http://localhost:5173/node_modules/.vite/deps/axios.js?v=ab9a8867:2260:16)
+13:07:46 [vite] (client) [console.error] Error buscando parametros: AxiosError: Network Error
+    at XMLHttpRequest.handleError (http://localhost:5173/node_modules/.vite/deps/axios.js?v=ab9a8867:2260:16)
+13:08:10 [vite] (client) [console.error] Error fetching pacientes AxiosError: Network Error
+    at XMLHttpRequest.handleError (http://localhost:5173/node_modules/.vite/deps/axios.js?v=ab9a8867:2260:16)
+13:08:11 [vite] (client) [console.error] Error fetching pacientes AxiosError: Network Error
+    at XMLHttpRequest.handleError (http://localhost:5173/node_modules/.vite/deps/axios.js?v=ab9a8867:2260:16)
+13:08:31 [vite] (client) [console.error] Error guardando paciente: AxiosError: Network Error
+    at XMLHttpRequest.handleError (http://localhost:5173/node_modules/.vite/deps/axios.js?v=ab9a8867:2260:16)
+13:09:26 [vite] (client) [console.error] Error fetching ordenes AxiosError: Network Error
+    at XMLHttpRequest.handleError (http://localhost:5173/node_modules/.vite/deps/axios.js?v=ab9a8867:2260:16)
+13:09:26 [vite] (client) [console.error] Error fetching ordenes AxiosError: Network Error
+    at XMLHttpRequest.handleError (http://localhost:5173/node_modules/.vite/deps/axios.js?v=ab9a8867:2260:16)
+13:09:31 [vite] (client) [console.error] Error cargando pacientes: AxiosError: Network Error
+    at XMLHttpRequest.handleError (http://localhost:5173/node_modules/.vite/deps/axios.js?v=ab9a8867:2260:16)
+13:09:31 [vite] (client) [console.error] Error cargando pacientes: AxiosError: Network Error
+    at XMLHttpRequest.handleError (http://localhost:5173/node_modules/.vite/deps/axios.js?v=ab9a8867:2260:16)
+13:42:15 [vite] (client) hmr update /src/index.css
+13:43:00 [vite] (client) [console.error] Error cargando pacientes: AxiosError: Network Error
+    at XMLHttpRequest.handleError (http://localhost:5173/node_modules/.vite/deps/axios.js?v=ab9a8867:2260:16)
+13:43:01 [vite] (client) [console.error] Error cargando pacientes: AxiosError: Network Error
+    at XMLHttpRequest.handleError (http://localhost:5173/node_modules/.vite/deps/axios.js?v=ab9a8867:2260:16)
+13:43:04 [vite] (client) [console.error] Error fetching pacientes AxiosError: Network Error
+    at XMLHttpRequest.handleError (http://localhost:5173/node_modules/.vite/deps/axios.js?v=ab9a8867:2260:16)
+13:43:05 [vite] (client) [console.error] Error fetching pacientes AxiosError: Network Error
+    at XMLHttpRequest.handleError (http://localhost:5173/node_modules/.vite/deps/axios.js?v=ab9a8867:2260:16)
+13:43:10 [vite] (client) [console.error] Error fetching ordenes AxiosError: Network Error
+    at XMLHttpRequest.handleError (http://localhost:5173/node_modules/.vite/deps/axios.js?v=ab9a8867:2260:16)
+13:43:10 [vite] (client) [console.error] Error cargando pacientes: AxiosError: Network Error
+    at XMLHttpRequest.handleError (http://localhost:5173/node_modules/.vite/deps/axios.js?v=ab9a8867:2260:16)
+13:43:11 [vite] (client) [console.error] Error fetching ordenes AxiosError: Network Error
+    at XMLHttpRequest.handleError (http://localhost:5173/node_modules/.vite/deps/axios.js?v=ab9a8867:2260:16)
+13:43:11 [vite] (client) [console.error] Error cargando pacientes: AxiosError: Network Error
+    at XMLHttpRequest.handleError (http://localhost:5173/node_modules/.vite/deps/axios.js?v=ab9a8867:2260:16)
+13:43:18 [vite] (client) [console.error] Error buscando parametros: AxiosError: Network Error
+    at XMLHttpRequest.handleError (http://localhost:5173/node_modules/.vite/deps/axios.js?v=ab9a8867:2260:16)
+13:43:18 [vite] (client) [console.error] Error buscando parametros: AxiosError: Network Error
+    at XMLHttpRequest.handleError (http://localhost:5173/node_modules/.vite/deps/axios.js?v=ab9a8867:2260:16)
+13:43:19 [vite] (client) [console.error] Error buscando parametros: AxiosError: Network Error
+    at XMLHttpRequest.handleError (http://localhost:5173/node_modules/.vite/deps/axios.js?v=ab9a8867:2260:16)
+13:43:34 [vite] (client) [console.error] Error fetching pacientes AxiosError: Network Error
+    at XMLHttpRequest.handleError (http://localhost:5173/node_modules/.vite/deps/axios.js?v=ab9a8867:2260:16)
+13:43:34 [vite] (client) [console.error] Error fetching pacientes AxiosError: Network Error
+    at XMLHttpRequest.handleError (http://localhost:5173/node_modules/.vite/deps/axios.js?v=ab9a8867:2260:16)
+13:43:35 [vite] (client) [console.error] Error fetching ordenes AxiosError: Network Error
+    at XMLHttpRequest.handleError (http://localhost:5173/node_modules/.vite/deps/axios.js?v=ab9a8867:2260:16)
+13:43:35 [vite] (client) [console.error] Error fetching ordenes AxiosError: Network Error
+    at XMLHttpRequest.handleError (http://localhost:5173/node_modules/.vite/deps/axios.js?v=ab9a8867:2260:16)
+13:43:40 [vite] (client) [console.error] Error cargando pacientes: AxiosError: Network Error
+    at XMLHttpRequest.handleError (http://localhost:5173/node_modules/.vite/deps/axios.js?v=ab9a8867:2260:16)
+13:43:40 [vite] (client) [console.error] Error cargando pacientes: AxiosError: Network Error
+    at XMLHttpRequest.handleError (http://localhost:5173/node_modules/.vite/deps/axios.js?v=ab9a8867:2260:16)
+13:43:45 [vite] (client) [console.error] Error fetching pacientes AxiosError: Network Error
+    at XMLHttpRequest.handleError (http://localhost:5173/node_modules/.vite/deps/axios.js?v=ab9a8867:2260:16)
+13:43:45 [vite] (client) [console.error] Error fetching pacientes AxiosError: Network Error
+    at XMLHttpRequest.handleError (http://localhost:5173/node_modules/.vite/deps/axios.js?v=ab9a8867:2260:16)
+13:43:46 [vite] (client) [console.error] Error fetching ordenes AxiosError: Network Error
+    at XMLHttpRequest.handleError (http://localhost:5173/node_modules/.vite/deps/axios.js?v=ab9a8867:2260:16)
+13:43:47 [vite] (client) [console.error] Error fetching ordenes AxiosError: Network Error
+    at XMLHttpRequest.handleError (http://localhost:5173/node_modules/.vite/deps/axios.js?v=ab9a8867:2260:16)
+13:45:28 [vite] (client) [console.error] Error fetching pacientes AxiosError: Network Error
+    at XMLHttpRequest.handleError (http://localhost:5173/node_modules/.vite/deps/axios.js?v=ab9a8867:2260:16)
+13:45:28 [vite] (client) [console.error] Error fetching pacientes AxiosError: Network Error
+    at XMLHttpRequest.handleError (http://localhost:5173/node_modules/.vite/deps/axios.js?v=ab9a8867:2260:16)
+13:45:36 [vite] (client) [console.error] Error fetching ordenes AxiosError: Network Error
+    at XMLHttpRequest.handleError (http://localhost:5173/node_modules/.vite/deps/axios.js?v=ab9a8867:2260:16)
+13:45:36 [vite] (client) [console.error] Error fetching ordenes AxiosError: Network Error
+    at XMLHttpRequest.handleError (http://localhost:5173/node_modules/.vite/deps/axios.js?v=ab9a8867:2260:16)
+13:45:37 [vite] (client) [console.error] Error cargando pacientes: AxiosError: Network Error
+    at XMLHttpRequest.handleError (http://localhost:5173/node_modules/.vite/deps/axios.js?v=ab9a8867:2260:16)
+13:45:38 [vite] (client) [console.error] Error cargando pacientes: AxiosError: Network Error
+    at XMLHttpRequest.handleError (http://localhost:5173/node_modules/.vite/deps/axios.js?v=ab9a8867:2260:16)
+13:46:12 [vite] (client) [console.error] Error fetching pacientes AxiosError: Network Error
+    at XMLHttpRequest.handleError (http://localhost:5173/node_modules/.vite/deps/axios.js?v=ab9a8867:2260:16)
+13:46:13 [vite] (client) [console.error] Error fetching pacientes AxiosError: Network Error
+    at XMLHttpRequest.handleError (http://localhost:5173/node_modules/.vite/deps/axios.js?v=ab9a8867:2260:16)
+13:46:55 [vite] (client) [console.error] Error guardando paciente: AxiosError: Network Error
+    at XMLHttpRequest.handleError (http://localhost:5173/node_modules/.vite/deps/axios.js?v=ab9a8867:2260:16)
+13:49:41 [vite] (client) hmr update /src/index.css, /src/components/NuevoIngresoModal.jsx
+13:50:21 [vite] (client) [console.error] Error guardando paciente: AxiosError: Request failed with status code 400
+    at settle (http://localhost:5173/node_modules/.vite/deps/axios.js?v=ab9a8867:1838:14)
+    at XMLHttpRequest.onloadend (http://localhost:5173/node_modules/.vite/deps/axios.js?v=ab9a8867:2231:4)
+13:51:04 [vite] (client) [console.error] Error guardando paciente: AxiosError: Request failed with status code 400
+    at settle (http://localhost:5173/node_modules/.vite/deps/axios.js?v=ab9a8867:1838:14)
+    at XMLHttpRequest.onloadend (http://localhost:5173/node_modules/.vite/deps/axios.js?v=ab9a8867:2231:4)
+13:56:02 [vite] (client) hmr update /src/index.css, /src/components/ResultadosModal.jsx
+13:57:46 [vite] (client) hmr update /src/index.css, /src/components/ResultadosModal.jsx

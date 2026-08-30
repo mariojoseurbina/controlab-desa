@@ -1,0 +1,34 @@
+
+-------------------------------------------------------------------------------
+   ROBOCOPY     ::     Herramienta para copia eficaz de archivos         
+-------------------------------------------------------------------------------
+
+  Inicio: martes, 7 de julio de 202619:46:44
+   Origen : c:\controlab-ia\
+     Destino : c:\controlab-desa\
+
+    Archivos: *.*
+	    
+Arch. ejecutables: Controlab_Ejecutable*
+	    
+ Dirs. de ejecutables: .git
+	    .vs
+	    
+  Opciones: *.* /NDL /NFL /S /E /DCOPY:DA /COPY:DAT /NP /R:1000000 /W:30 
+
+------------------------------------------------------------------------------
+
+
+------------------------------------------------------------------------------
+
+               Total   Copiado   OmitidoNo coincidencia     ERROR    Extras
+Director.:     11639     11637         2         0         0         0
+ Archivos:    140044    140042         2         0         0         0
+    Bytes:   2.649 g   2.168 g  493.14 m         0         0         0
+   Tiempo:   0:02:47   0:02:32                       0:00:00   0:00:14
+
+
+Velocidad:            15243978 Bytes/s
+Velocidad:             872.267 Megabytes/min
+   Finalizado: martes, 7 de julio de 2026 19:49:32
+

@@ -1,0 +1,14 @@
+SQL Server 2019 transmite informaci�n a Microsoft sobre la experiencia con la instalaci�n, as� como otros datos de uso y rendimiento, para ayudar a mejorar el producto. Para obtener m�s informaci�n sobre el procesamiento de los datos y los controles de privacidad de SQL Server 2019, vea la Declaraci�n de privacidad.
+
+Aviso: Se ha proporcionado una clave de producto de la edici�n de SQL�Server de pago para la acci�n actual (Enterprise). Aseg�rese de que tiene una licencia apropiada que le autorice a usar la edici�n de SQL�Server para la clave de producto (edici�n) que se ha proporcionado.
+Error:
+El directorio especificado, 'C:\Program Files\Microsoft SQL Server\', para el par�metro INSTALLSHAREDDIR no es v�lido porque este directorio est� comprimido o est� en un directorio comprimido. Especifique un directorio que no est� comprimido.
+
+Resultado de error: -2054422498
+C�digo de componente del resultado: 1420
+C�digo de error del resultado: 30
+
+Revise el registro summary.txt para obtener m�s detalles
+Microsoft (R) SQL Server 2019 15.00.2000.05
+Copyright (c) 2019 Microsoft. Todos los derechos reservados.
+

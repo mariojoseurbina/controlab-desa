@@ -1,0 +1,5 @@
+{
+  "artifactType": "ARTIFACT_TYPE_WALKTHROUGH",
+  "summary": "Walkthrough summarizing the architecture refactoring, subsequent routing fixes, and resolution of the unauthenticated direct fetch calls from the frontend components.",
+  "updatedAt": "2026-05-24T17:22:28.171646500Z"
+}

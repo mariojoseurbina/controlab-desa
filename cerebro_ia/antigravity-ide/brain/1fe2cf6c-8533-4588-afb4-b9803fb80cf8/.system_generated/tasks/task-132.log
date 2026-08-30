@@ -1,0 +1,9 @@
+Successfully scheduled one-shot timer.
+Expected to fire at: 2026-07-01T14:31:25-04:00
+Prompt: Check silent SQL Server upgrade progress after 45s
+
+[2026-07-01T14:30:50-04:00] Still waiting. Remaining time: 35s
+[2026-07-01T14:31:00-04:00] Still waiting. Remaining time: 25s
+[2026-07-01T14:31:10-04:00] Still waiting. Remaining time: 15s
+[2026-07-01T14:31:20-04:00] Still waiting. Remaining time: 5s
+[2026-07-01T14:31:25-04:00] Timer fired.

@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "notistack": "^3.0.2",
+    "recharts": "^3.8.1"
+  }
+}

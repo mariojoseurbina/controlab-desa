@@ -1,0 +1,6 @@
+Successfully scheduled one-shot timer.
+Expected to fire at: 2026-06-18T16:56:32-04:00
+Prompt: Check if production build has finished after unique validation fix
+
+[2026-06-18T16:56:22-04:00] Still waiting. Remaining time: 10s
+[2026-06-18T16:56:32-04:00] Timer fired.

@@ -1,0 +1,8 @@
+Successfully scheduled one-shot timer.
+Expected to fire at: 2026-07-07T19:49:59-04:00
+Prompt: Wait for robocopy to progress further
+
+[2026-07-07T19:49:09-04:00] Still waiting. Remaining time: 50s
+[2026-07-07T19:49:19-04:00] Still waiting. Remaining time: 40s
+[2026-07-07T19:49:29-04:00] Still waiting. Remaining time: 30s
+[2026-07-07T19:49:32-04:00] Timer cancelled: agent received a message during wait.

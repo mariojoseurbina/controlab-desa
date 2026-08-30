@@ -1,0 +1,8 @@
+curl : No es posible conectar con el servidor remoto
+En l�nea: 1 Car�cter: 1
++ curl http://localhost:5003/api/pacientes
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (System.Net.HttpWebRequest:HttpWebRequest) [Invoke-WebRequest], WebExc 
+   eption
+    + FullyQualifiedErrorId : WebCmdletWebResponseException,Microsoft.PowerShell.Commands.InvokeWebRequestCommand
+ 

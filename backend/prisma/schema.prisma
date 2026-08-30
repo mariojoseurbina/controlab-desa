@@ -1,0 +1,493 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlserver"
+  url      = env("DATABASE_URL")
+}
+
+model ItemInventario {
+  id                  Int              @id(map: "PK__items_in__3213E83F2F9A3526") @default(autoincrement())
+  codigo              String           @unique(map: "UQ__items_in__40F9A206FF1A9DC8") @db.NVarChar(50)
+  nombre              String           @db.NVarChar(100)
+  descripcion         String?          @db.NVarChar(500)
+  categoria           String           @db.NVarChar(50)
+  unidad              String           @db.NVarChar(20)
+  stock_actual        Decimal?         @default(0, map: "DF__items_inv__stock__1920BF5C") @db.Decimal(10, 2)
+  stock_minimo        Decimal?         @default(0, map: "DF__items_inv__stock__1A14E395") @db.Decimal(10, 2)
+  stock_maximo        Decimal?         @default(0, map: "DF__items_inv__stock__1B0907CE") @db.Decimal(10, 2)
+  stock_critico       Decimal?         @default(0, map: "DF__items_inv__stock__1BFD2C07") @db.Decimal(10, 2)
+  proveedor           String?          @db.NVarChar(100)
+  precio_costo        Decimal?         @db.Decimal(10, 2)
+  precio_venta        Decimal?         @db.Decimal(10, 2)
+  ubicacion           String?          @db.NVarChar(50)
+  fecha_vencimiento   DateTime?        @db.Date
+  activo              Boolean?         @default(true, map: "DF__items_inv__activ__1CF15040")
+  creado_por          Int?
+  fecha_creacion      DateTime?        @default(now(), map: "DF__items_inv__fecha__1ED998B2")
+  fecha_actualizacion DateTime?        @default(now(), map: "DF__items_inv__fecha__1FCDBCEB") @updatedAt
+  area_operativa      String?          @db.NVarChar(100)
+  naturaleza          String?          @db.NVarChar(50)
+  regimen_fiscal      String?          @default("EXENTO") @db.NVarChar(50)
+  porcentaje_impuesto_especial Decimal? @default(0.00) @db.Decimal(5, 2)
+  estado_calidad      String?          @default("ACTIVO") @db.NVarChar(50)
+  nota_desincorporacion String?        @db.NVarChar(500)
+  marca               String?          @db.NVarChar(100)
+  codigo_barra        String?          @db.NVarChar(100)
+  referencia          String?          @db.NVarChar(50)
+  grupo               String?          @db.NVarChar(50)
+  panel               String?          @db.NVarChar(100)
+  control_asociado    String?          @db.NVarChar(100)
+  calibradores_asociados String?       @db.NVarChar(200)
+  unidad_manejo       String?          @db.NVarChar(20)
+  cantidad_unidades   Decimal?         @default(1) @db.Decimal(10, 2)
+  unidad_test         Decimal?         @default(180) @db.Decimal(10, 2)
+  costo_unitario_manejo Decimal?       @db.Decimal(10, 4)
+  aplica_iva          Boolean?         @default(false)
+  porcentaje_utilidad Decimal?         @db.Decimal(5, 2)
+  stock_promedio      Decimal?         @default(0) @db.Decimal(10, 2)
+  unidad_negocio      String?          @db.NVarChar(100)
+  equipo_asociado     String?          @db.NVarChar(100)
+  consumo_indicado    Decimal?         @db.Decimal(10, 4)
+  consumo_real        Decimal?         @db.Decimal(10, 4)
+  desviacion_consumo  Decimal?         @db.Decimal(5, 2)
+  usuarios            usuarios?        @relation(fields: [creado_por], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK__items_inv__cread__1DE57479")
+  stock_sucursales    StockPorAlmacen[]
+  LotesReactivos      LotesReactivos[]
+  reactivos           reactivos[]
+  vinculos            vinculo_prueba_item[]
+  consumibles         ConsumiblePrueba[]
+
+  @@map("items_inventario")
+}
+
+model MovimientoInventario {
+  id               Int       @id(map: "PK__movimien__3213E83F39FAF8EC") @default(autoincrement())
+  item_id          Int
+  tipo_movimiento  String    @db.VarChar(20)
+  cantidad         Decimal   @db.Decimal(10, 2)
+  stock_anterior   Decimal   @db.Decimal(10, 2)
+  stock_nuevo      Decimal   @db.Decimal(10, 2)
+  motivo           String?   @db.VarChar(255)
+  referencia       String?   @db.VarChar(100)
+  fecha_movimiento DateTime? @default(now(), map: "DF__movimient__fecha__39E294A9") @db.DateTime
+  creado_por       Int?      @default(1, map: "DF__movimient__cread__3AD6B8E2")
+  
+  // Multi-Almacén fields
+  almacen_id          Int?      
+  almacen_destino_id  Int?      
+
+  almacen             Almacen?  @relation("AlmacenMovimiento", fields: [almacen_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  almacen_destino     Almacen?  @relation("AlmacenOrigen", fields: [almacen_destino_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  // Performance Indexes for high latency VPNs
+  @@index([almacen_id], map: "IX_movimientos_almacen")
+  @@index([item_id], map: "IX_movimientos_item")
+  @@index([fecha_movimiento], map: "IX_movimientos_fecha")
+  @@map("movimientos_inventario")
+}
+
+model compras_inventario {
+  id                  Int       @id(map: "PK__compras___3213E83FC6909137") @default(autoincrement())
+  proveedor_id        Int?
+  numero_factura      String?   @db.NVarChar(100)
+  fecha_compra        DateTime? @db.Date
+  fecha_recibido      DateTime? @db.Date
+  item_id             Int?
+  cantidad            Decimal?  @db.Decimal(18, 2)
+  precio_unitario     Decimal?  @db.Decimal(18, 2)
+  total_linea         Decimal?  @db.Decimal(18, 2)
+  estado              String?   @db.NVarChar(50)
+  creado_por          String?   @db.NVarChar(100)
+  fecha_creacion      DateTime? @default(now(), map: "DF__compras_i__fecha__5CD6CB2B") @db.DateTime
+  fecha_actualizacion DateTime? @default(now(), map: "DF__compras_i__fecha__5DCAEF64") @db.DateTime
+  tasa_cambio         Decimal?  @db.Decimal(18, 4)
+  moneda_factura      String?   @default("USD") @db.VarChar(10)
+  precio_unitario_usd Decimal?  @db.Decimal(18, 2)
+  precio_unitario_ves Decimal?  @db.Decimal(18, 2)
+  porcentaje_impuesto Decimal?  @default(0.00) @db.Decimal(5, 2)
+  monto_impuesto_usd  Decimal?  @db.Decimal(18, 2)
+  monto_impuesto_ves  Decimal?  @db.Decimal(18, 2)
+  subtotal_usd        Decimal?  @db.Decimal(18, 2)
+  subtotal_ves        Decimal?  @db.Decimal(18, 2)
+  total_linea_usd     Decimal?  @db.Decimal(18, 2)
+  total_linea_ves     Decimal?  @db.Decimal(18, 2)
+}
+
+model DetalleImportacionPruebas {
+  Id                   Int                   @id(map: "PK__DetalleI__3214EC076BA6D14C") @default(autoincrement())
+  ImportacionId        Int?
+  LoteId               Int?
+  PruebasRealizadas    Int?
+  ReactivoConsumido    Decimal?              @db.Decimal(18, 4)
+  FechaPrueba          DateTime?             @db.Date
+  Estado               String?               @db.NVarChar(50)
+  FechaRegistro        DateTime?             @default(now(), map: "DF__DetalleIm__Fecha__72C60C4A") @db.DateTime
+  TipoPrueba           String?               @db.NVarChar(100)
+  ImportacionesPruebas ImportacionesPruebas? @relation(fields: [ImportacionId], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK__DetalleIm__Impor__73BA3083")
+}
+
+model examen_kit_vinculo {
+  id               Int       @id(map: "PK__examen_k__3213E83F11773CBE") @default(autoincrement())
+  examen_nombre    String    @unique(map: "UQ__examen_k__45CF96D8C433B529") @db.VarChar(100)
+  codigo_kit       String    @db.VarChar(50)
+  fecha_creacion   DateTime? @default(now(), map: "DF__examen_ki__fecha__76619304") @db.DateTime
+  usuario_creacion String?   @db.VarChar(50)
+}
+
+model examenes_maestra {
+  id             Int       @id(map: "PK__examenes__3213E83F545A60B9") @default(autoincrement())
+  nombre_examen  String    @db.VarChar(200)
+  codigo_interno String?   @db.VarChar(50)
+  tipo_examen    String?   @db.VarChar(50)
+  activo         Boolean?  @default(true, map: "DF__examenes___activ__05A3D694")
+  cliente_id     Int?
+  created_at     DateTime? @default(now(), map: "DF__examenes___creat__0697FACD") @db.DateTime
+}
+
+model ImportacionesPruebas {
+  Id                        Int                         @id(map: "PK__Importac__3214EC074A43467A") @default(autoincrement())
+  NombreArchivo             String?                     @db.NVarChar(255)
+  FechaImportacion          DateTime?                   @default(now(), map: "DF__Importaci__Fecha__6FE99F9F") @db.DateTime
+  TotalRegistros            Int?
+  TotalPruebas              Int?
+  TotalReactivosConsumidos  Decimal?                    @db.Decimal(18, 4)
+  Estado                    String?                     @db.NVarChar(50)
+  UsuarioId                 Int?
+  Comentarios               String?                     @db.NVarChar(Max)
+  DetalleImportacionPruebas DetalleImportacionPruebas[]
+}
+
+model kit_reactivos {
+  id            Int         @id(map: "PK__kit_reac__3213E83FAE217393") @default(autoincrement())
+  kit_id        Int
+  inventario_id Int
+  ml_por_prueba Decimal     @db.Decimal(10, 4)
+  obligatorio   Boolean?    @default(true, map: "DF__kit_react__oblig__793DFFAF")
+  created_at    DateTime?   @default(now(), map: "DF__kit_react__creat__7A3223E8") @db.DateTime
+  kits_prueba   kits_prueba @relation(fields: [kit_id], references: [id], onUpdate: NoAction, map: "FK__kit_react__kit_i__7B264821")
+}
+
+
+model kits_prueba {
+  id                 Int                  @id(map: "PK__kits_pru__3213E83F4C7509AE") @default(autoincrement())
+  codigo_kit         String               @unique(map: "UQ__kits_pru__28ED92BAA03C8DF7") @db.VarChar(50)
+  nombre_kit         String               @db.VarChar(255)
+  descripcion        String?              @db.Text
+  tipo_prueba        String?              @db.VarChar(50)
+  activo             Boolean?             @default(true, map: "DF__kits_prue__activ__17F790F9")
+  created_at         DateTime?            @default(now(), map: "DF__kits_prue__creat__18EBB532") @db.DateTime
+  kit_reactivos      kit_reactivos[]
+  pruebas_realizadas pruebas_realizadas[]
+}
+
+model log_proceso_automatico {
+  id                  Int       @id(map: "PK__log_proc__3213E83FFDDDF0B8") @default(autoincrement())
+  fecha_ejecucion     DateTime? @default(now(), map: "DF__log_proce__fecha__7E02B4CC") @db.DateTime
+  examenes_procesados Int?
+  reactivos_afectados Int?
+  estado              String?   @db.VarChar(20)
+  mensaje_error       String?   @db.VarChar(Max)
+}
+
+model LotesReactivos {
+  Id                        Int            @id(map: "PK__LotesRea__3214EC074B906A49") @default(autoincrement())
+  InventarioId              Int
+  NumeroLote                String         @db.VarChar(100)
+  FechaFabricacion          DateTime       @db.Date
+  FechaVencimiento          DateTime       @db.Date
+  CantidadInicial           Decimal        @db.Decimal(18, 4)
+  CantidadActual            Decimal        @db.Decimal(18, 4)
+  ConsumoPorPrueba          Decimal?       @db.Decimal(10, 4)
+  VolumenTrabajoPractico    Decimal?       @db.Decimal(10, 2)
+  TemperaturaAlmacenamiento String?        @db.VarChar(50)
+  CondicionesEspeciales     String?        @db.Text
+  Estado                    String?        @default("Activo", map: "DF__LotesReac__Estad__571DF1D5") @db.VarChar(50)
+  FechaRegistro             DateTime?      @default(now(), map: "DF__LotesReac__Fecha__5812160E") @db.DateTime
+  FechaActualizacion        DateTime?      @default(now(), map: "DF__LotesReac__Fecha__59063A47") @db.DateTime
+  VolumenTrabajoTeorico     Decimal?       @db.Decimal(33, 15)
+  PorcentajeMerma           Decimal?       @default(0) @db.Decimal(5, 2)
+  Rendimiento               Decimal?       @db.Decimal(38, 11)
+  PruebasTeoricas           Int?           @default(0, map: "DF_PruebasTeoricas")
+  PruebasRestantes          Int?           @default(0, map: "DF_PruebasRestantes")
+  ReactivoPorPrueba         Decimal?       @default(0, map: "DF_ReactivoPorPrueba") @db.Decimal(10, 4)
+  EsBiReactivo              Boolean?       @default(false)
+  CantidadInicialR2         Decimal?       @db.Decimal(18, 4)
+  CantidadActualR2          Decimal?       @db.Decimal(18, 4)
+  ConsumoPorPruebaR2        Decimal?       @db.Decimal(10, 4)
+  FechaApertura             DateTime?      @db.Date
+  UsuarioApertura           String?        @db.VarChar(100)
+  items_inventario          ItemInventario @relation(fields: [InventarioId], references: [id], onUpdate: NoAction, map: "FK_LotesReactivos_Inventario")
+
+  @@index([Estado], map: "IX_LotesReactivos_Estado")
+  @@index([FechaVencimiento], map: "IX_LotesReactivos_FechaVencimiento")
+  @@index([InventarioId], map: "IX_LotesReactivos_InventarioId")
+  @@index([NumeroLote], map: "IX_LotesReactivos_NumeroLote")
+}
+
+model mapeo_pruebas_reactivos {
+  id                  Int       @id(map: "PK__mapeo_pr__3213E83F646F845B") @default(autoincrement())
+  nombre_prueba       String?   @db.NVarChar(100)
+  tipo_mapeo          String?   @db.NVarChar(20)
+  reactivo_id         Int?
+  categoria_reactivo  String?   @db.NVarChar(100)
+  patron_busqueda     String?   @db.NVarChar(100)
+  prioridad           Int?      @default(1, map: "DF__mapeo_pru__prior__531856C7")
+  activo              Boolean?  @default(true, map: "DF__mapeo_pru__activ__540C7B00")
+  consumo_por_prueba  Decimal?  @db.Decimal(10, 4)
+  fecha_actualizacion DateTime? @default(now(), map: "DF__mapeo_pru__fecha__0C1BC9F9") @db.DateTime
+}
+
+model notificaciones {
+  id             Int       @id(map: "PK__notifica__3213E83F5DBF972E") @default(autoincrement())
+  tipo           String    @db.NVarChar(50)
+  titulo         String    @db.NVarChar(200)
+  mensaje        String    @db.NVarChar(500)
+  leida          Boolean?  @default(false, map: "DF__notificac__leida__33D4B598")
+  creada_para    Int?
+  fecha_creacion DateTime? @default(now(), map: "DF__notificac__fecha__35BCFE0A")
+  usuarios       usuarios? @relation(fields: [creada_para], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK__notificac__cread__34C8D9D1")
+}
+
+model pruebas_realizadas {
+  id                Int          @id(map: "PK__pruebas___3213E83F725DD33F") @default(autoincrement())
+  id_kit            Int?
+  cantidad          Int?         @default(1, map: "DF__pruebas_r__canti__25518C17")
+  observaciones     String?      @db.Text
+  usuario_id        Int?
+  fecha_realizacion DateTime?    @default(now(), map: "DF__pruebas_r__fecha__2645B050") @db.DateTime
+  kits_prueba       kits_prueba? @relation(fields: [id_kit], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK__pruebas_r__id_ki__2739D489")
+}
+
+model reactivos {
+  id                         Int             @id(map: "PK__reactivo__3213E83F5960F220") @default(autoincrement())
+  item_id                    Int?
+  numero_cas                 String?         @db.NVarChar(50)
+  formula_molecular          String?         @db.NVarChar(100)
+  peso_molecular             Decimal?        @db.Decimal(10, 4)
+  pureza                     Decimal?        @db.Decimal(5, 2)
+  condiciones_almacenamiento String?         @db.NVarChar(200)
+  nivel_riesgo               String?         @db.NVarChar(20)
+  url_msds                   String?         @db.NVarChar(500)
+  items_inventario           ItemInventario? @relation(fields: [item_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK__reactivos__item___286302EC")
+}
+
+model sysdiagrams {
+  name         String @db.NVarChar(128)
+  principal_id Int
+  diagram_id   Int    @id(map: "PK__sysdiagr__C2B05B616EAA693E") @default(autoincrement())
+  version      Int?
+  definition   Bytes?
+
+  @@unique([principal_id, name], map: "UK_principal_name")
+}
+
+model tmp_importacion_examenes {
+  id                  Int       @id(map: "PK__tmp_impo__3213E83F780A727E") @default(autoincrement())
+  fecha               DateTime  @db.Date
+  examen_nombre       String    @db.VarChar(200)
+  cantidad            Int
+  fuente              String?   @default("LIS", map: "DF__tmp_impor__fuent__2116E6DF") @db.VarChar(50)
+  fecha_importacion   DateTime? @default(now(), map: "DF__tmp_impor__fecha__220B0B18") @db.DateTime
+  procesado           Boolean?  @default(false, map: "DF__tmp_impor__proce__22FF2F51")
+  fecha_procesamiento DateTime? @db.DateTime
+}
+
+model tmp_reactivos_auto {
+  id                  Int       @id(map: "PK__tmp_reac__3213E83F518E8BAA") @default(autoincrement())
+  nombre_prueba       String?   @db.NVarChar(100)
+  cantidad            Int?
+  archivo_origen      String?   @db.NVarChar(255)
+  fecha_importacion   DateTime? @default(now(), map: "DF__tmp_react__fecha__4F47C5E3") @db.DateTime
+  estado              String?   @default("PENDIENTE", map: "DF__tmp_react__estad__503BEA1C") @db.NVarChar(50)
+  lote_asignado       String?   @db.NVarChar(100)
+  ml_descontados      Decimal?  @db.Decimal(10, 2)
+  inventario_id       Int?
+  fecha_procesamiento DateTime? @db.DateTime
+}
+
+model usuarios {
+  id                  Int              @id(map: "PK__usuarios__3213E83F11CB3707") @default(autoincrement())
+  usuario             String           @unique(map: "UQ__usuarios__9AFF8FC6C374AA21") @db.NVarChar(50)
+  correo              String           @unique(map: "UQ__usuarios__2A586E0BFBA5D72B") @db.NVarChar(100)
+  contrase_a          String           @map("contraseña") @db.NVarChar(255)
+  rol                 String           @db.NVarChar(20)
+  nombre_completo     String           @db.NVarChar(100)
+  activo              Boolean?         @default(true, map: "DF__usuarios__activo__1367E606")
+  fecha_creacion      DateTime?        @default(now(), map: "DF__usuarios__fecha___145C0A3F")
+  fecha_actualizacion DateTime?        @default(now(), map: "DF__usuarios__fecha___15502E78")
+  items_inventario    ItemInventario[]
+  notificaciones      notificaciones[]
+  registro_trazabilidad RegistroTrazabilidad[]
+}
+
+model proveedores {
+  id                  Int       @id @default(autoincrement())
+  nombre              String    @unique @db.NVarChar(150)
+  creado_por          String?   @default("admin") @db.NVarChar(100)
+  fecha_creacion      DateTime? @default(now()) @db.DateTime
+  fecha_actualizacion DateTime? @default(now()) @db.DateTime
+}
+
+model pruebas_maestra {
+  id             Int                   @id @default(autoincrement())
+  nombre_prueba  String                @unique @db.NVarChar(100)
+  activo         Boolean?              @default(true)
+  fecha_creacion DateTime?             @default(now()) @db.DateTime
+  vinculos       vinculo_prueba_item[]
+  costoConfig    CostoPruebaConfig?
+}
+
+model vinculo_prueba_item {
+  id             Int             @id @default(autoincrement())
+  prueba_id      Int
+  item_id        Int
+  activo         Boolean?        @default(true)
+  fecha_vinculo  DateTime?       @default(now()) @db.DateTime
+  prueba         pruebas_maestra @relation(fields: [prueba_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  item           ItemInventario  @relation(fields: [item_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+// ConfiguraciÃ³n de Costos Operativos Globales Mensuales
+model GastoMensualGlobal {
+  id                   Int      @id @default(autoincrement())
+  mes                  Int      // 1-12
+  anio                 Int      // AÃ±o
+  gastos_administrativos Decimal  @db.Decimal(18, 2)
+  gastos_personal       Decimal  @db.Decimal(18, 2)
+  total_pruebas_mes     Int      
+  desglose_admin       String?  @db.NVarChar(Max)
+  fecha_registro       DateTime @default(now())
+  
+  @@unique([mes, anio])
+  @@map("gastos_mensual_global")
+}
+
+// ConfiguraciÃ³n de Soluciones y Calibradores por Equipo/Ã rea
+model CostoEquipoSolucion {
+  id                  Int      @id @default(autoincrement())
+  nombre_equipo       String   @db.NVarChar(100)
+  gasto_soluciones    Decimal  @db.Decimal(18, 2)
+  gasto_calibradores  Decimal  @db.Decimal(18, 2)
+  gasto_controles     Decimal  @db.Decimal(18, 2)
+  total_pruebas_equipo Int      
+  configs             CostoPruebaConfig[]
+  
+  @@map("costo_equipo_solucion")
+}
+
+// ConfiguraciÃ³n especÃ­fica de costos unitarios de una prueba
+model CostoPruebaConfig {
+  id                 Int                  @id @default(autoincrement())
+  prueba_id          Int                  @unique
+  precio_venta       Decimal              @db.Decimal(18, 2)
+  desperdicio_pct    Decimal              @default(5.00) @db.Decimal(5, 2)
+  pruebas_por_kit    Int                  
+  reactivo_id        Int                  
+  equipo_id          Int?
+  equipo             CostoEquipoSolucion? @relation(fields: [equipo_id], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  consumibles        ConsumiblePrueba[]
+  prueba             pruebas_maestra      @relation(fields: [prueba_id], references: [id], onDelete: Cascade)
+  
+  @@map("costo_prueba_config")
+}
+
+// Consumibles detallados vinculados a una prueba genÃ©rica
+model ConsumiblePrueba {
+  id                 Int                @id @default(autoincrement())
+  costo_config_id    Int
+  item_id            Int                
+  cantidad           Decimal            @db.Decimal(10, 2)
+  fase               String             @db.NVarChar(50)   // "TOMA_MUESTRA" o "PROCESAMIENTO"
+  costo_config       CostoPruebaConfig  @relation(fields: [costo_config_id], references: [id], onDelete: Cascade)
+  item               ItemInventario     @relation(fields: [item_id], references: [id])
+  
+  @@map("consumible_prueba")
+}
+
+// Volumen de pruebas procesadas por Ã¡rea en un mes especÃ­fico
+model VolumenAreaMensual {
+  id        Int      @id @default(autoincrement())
+  mes       Int      // 1-12
+  anio      Int      // AÃ±o
+  area      String   @db.NVarChar(100)
+  volumen   Int      // NÃºmero de pruebas del Ã¡rea en el mes
+  
+  @@unique([mes, anio, area], name: "mes_anio_area")
+  @@map("volumen_area_mensual")
+}
+
+
+// Registro de Auditoría de Red (Sniffer)
+model LogSniffer {
+  id              Int       @id @default(autoincrement())
+  test_name       String    @db.VarChar(100)
+  patient_id      String    @db.VarChar(100)
+  is_qc           Boolean   @default(false)
+  raw_frame       String?   @db.VarChar(Max)
+  fecha_registro  DateTime  @default(now())
+  procesado       Boolean   @default(false)
+  equipo_origen   String?   @db.VarChar(100)
+  is_calibracion  Boolean   @default(false)
+  is_repeticion   Boolean   @default(false)
+  lote_afectado_id Int?
+  ml_descontados  Decimal?  @db.Decimal(10, 4)
+  
+  @@map("log_sniffer")
+}
+
+// 1. Catálogo de Almacenes/Sucursales
+model Almacen {
+  id                  Int                 @id @default(autoincrement())
+  nombre              String              @db.NVarChar(100)
+  descripcion         String?             @db.NVarChar(255)
+  activo              Boolean             @default(true)
+  fecha_creacion      DateTime            @default(now())
+  stock_sucursales    StockPorAlmacen[]
+  
+  // Relaciones
+  movimientos         MovimientoInventario[] @relation("AlmacenMovimiento")
+  transferencias_env  MovimientoInventario[] @relation("AlmacenOrigen")
+
+  @@map("almacenes")
+}
+
+// 2. Stock por Ubicación
+model StockPorAlmacen {
+  id             Int            @id @default(autoincrement())
+  item_id        Int
+  almacen_id     Int
+  stock_actual   Decimal        @default(0.00) @db.Decimal(10, 2)
+  ubicacion      String?        @db.NVarChar(100)
+  
+  item           ItemInventario @relation(fields: [item_id], references: [id], onDelete: Cascade)
+  almacen        Almacen        @relation(fields: [almacen_id], references: [id], onDelete: Cascade)
+
+  // Búsqueda instantánea de stock por producto en sucursal (VPN-Safe)
+  @@unique([item_id, almacen_id], map: "UQ_stock_item_almacen")
+  @@map("stock_por_almacen")
+}
+
+// ---------------------------------------------------------
+// SISTEMA DE TRAZABILIDAD (AUDIT LOG)
+// ---------------------------------------------------------
+model RegistroTrazabilidad {
+  id              Int      @id @default(autoincrement())
+  usuario_id      Int
+  accion          String   @db.NVarChar(100) // EJ: CREAR, EDITAR, ELIMINAR, ABRIR
+  entidad         String   @db.NVarChar(100) // EJ: LOTE, ITEM, MOVIMIENTO
+  entidad_id      Int?
+  detalles_json   String?  @db.NVarChar(Max)
+  direccion_ip    String?  @db.NVarChar(50)
+  fecha_registro  DateTime @default(now()) @db.DateTime
+
+  // Relación opcional con usuarios (No action on delete para que no borre historial)
+  usuario         usuarios @relation(fields: [usuario_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([usuario_id], map: "IX_Trazabilidad_Usuario")
+  @@index([entidad, entidad_id], map: "IX_Trazabilidad_Entidad")
+  @@index([fecha_registro], map: "IX_Trazabilidad_Fecha")
+  
+  @@map("registro_trazabilidad")
+}

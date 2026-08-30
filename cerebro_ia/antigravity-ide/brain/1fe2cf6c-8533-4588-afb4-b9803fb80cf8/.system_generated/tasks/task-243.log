@@ -1,0 +1,10 @@
+Successfully scheduled one-shot timer.
+Expected to fire at: 2026-07-01T14:43:45-04:00
+Prompt: Check if Enterprise upgrade has completed successfully after 60s
+
+[2026-07-01T14:42:55-04:00] Still waiting. Remaining time: 50s
+[2026-07-01T14:43:05-04:00] Still waiting. Remaining time: 40s
+[2026-07-01T14:43:15-04:00] Still waiting. Remaining time: 30s
+[2026-07-01T14:43:25-04:00] Still waiting. Remaining time: 20s
+[2026-07-01T14:43:35-04:00] Still waiting. Remaining time: 10s
+[2026-07-01T14:43:45-04:00] Timer fired.

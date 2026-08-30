@@ -1,0 +1,30 @@
+Sending prompt: Calcula el punto de equilibrio mensual: ¿cuántas pruebas debemos realizar para cubrir nuestros costos fijos?
+[Agent] Enviando prompt inicial a Gemini...
+[Agent] Gemini solicitó ejecutar la herramienta: calculateBreakEvenPoint
+Error en calculateBreakEvenPoint: PrismaClientValidationError: 
+Invalid `prisma.gastoMensualGlobal.findFirst()` invocation in
+C:\controlab-ia\backend\src\modules\agent\tools\costTools.js:229:52
+
+  226  */
+  227 async function calculateBreakEvenPoint() {
+  228   try {
+→ 229     const global = await prisma.gastoMensualGlobal.findFirst({
+            orderBy: {
+              anio: "desc",
+              mes: "desc"
+            }
+            ~~~~~~~~~~~~~~
+          })
+
+Argument `orderBy`: Invalid value provided. Expected GastoMensualGlobalOrderByWithRelationInput[], provided Object.
+    at wn (C:\controlab-ia\backend\node_modules\@prisma\client\runtime\library.js:29:1363)
+    at $n.handleRequestError (C:\controlab-ia\backend\node_modules\@prisma\client\runtime\library.js:121:6958)
+    at $n.handleAndLogRequestError (C:\controlab-ia\backend\node_modules\@prisma\client\runtime\library.js:121:6623)
+    at $n.request (C:\controlab-ia\backend\node_modules\@prisma\client\runtime\library.js:121:6307)
+    at async l (C:\controlab-ia\backend\node_modules\@prisma\client\runtime\library.js:130:9633)
+    at async Object.calculateBreakEvenPoint (C:\controlab-ia\backend\src\modules\agent\tools\costTools.js:229:20)
+    at async AgentService.processChat (C:\controlab-ia\backend\src\modules\agent\agent.service.js:242:79)
+    at async test (C:\controlab-ia\backend\test_agent.js:7:20) {
+  clientVersion: '5.22.0'
+}
+[Agent] Devolviendo 1 resultados de herramientas a Gemini...

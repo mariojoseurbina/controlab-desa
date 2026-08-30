@@ -1,0 +1,5 @@
+Successfully scheduled one-shot timer.
+Expected to fire at: 2026-06-01T00:01:04-04:00
+Prompt: Check if Enterprise upgrade has completed successfully with time sync disabled
+
+[2026-06-01T00:00:42-04:00] Timer cancelled: agent received a message during wait.

@@ -1,0 +1,12 @@
+> pkg@5.8.1
+> Fetching base Node.js binaries to PKG_CACHE_PATH
+
+
+> Warning Cannot include file %1 into executable.
+  The file must be distributed with executable as %2.
+  %1: node_modules\open\xdg-open
+  %2: path-to-executable/xdg-open
+> Warning Cannot include file %1 into executable.
+  The file must be distributed with executable as %2.
+  %1: node_modules\open\xdg-open
+  %2: path-to-executable/xdg-open

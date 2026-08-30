@@ -1,0 +1,48 @@
+npm warn EBADENGINE Unsupported engine {
+npm warn EBADENGINE   package: '@azure/msal-node@1.18.4',
+npm warn EBADENGINE   required: { node: '10 || 12 || 14 || 16 || 18' },
+npm warn EBADENGINE   current: { node: 'v24.12.0', npm: '11.6.2' }
+npm warn EBADENGINE }
+
+added 1 package, and audited 469 packages in 26s
+
+105 packages are looking for funding
+  run `npm fund` for details
+
+21 vulnerabilities (12 moderate, 9 high)
+
+To address issues that do not require attention, run:
+  npm audit fix
+
+To address all issues possible (including breaking changes), run:
+  npm audit fix --force
+
+Some issues need review, and may require choosing
+a different dependency.
+
+Run `npm audit` for details.
+npm warn EBADENGINE Unsupported engine {
+npm warn EBADENGINE   package: '@azure/msal-node@1.18.4',
+npm warn EBADENGINE   required: { node: '10 || 12 || 14 || 16 || 18' },
+npm warn EBADENGINE   current: { node: 'v24.12.0', npm: '11.6.2' }
+npm warn EBADENGINE }
+npm warn deprecated @esbuild-kit/esm-loader@2.6.5: Merged into tsx: https://tsx.is
+npm warn deprecated @esbuild-kit/core-utils@3.3.2: Merged into tsx: https://tsx.is
+
+added 15 packages, and audited 484 packages in 5s
+
+107 packages are looking for funding
+  run `npm fund` for details
+
+25 vulnerabilities (16 moderate, 9 high)
+
+To address issues that do not require attention, run:
+  npm audit fix
+
+To address all issues possible (including breaking changes), run:
+  npm audit fix --force
+
+Some issues need review, and may require choosing
+a different dependency.
+
+Run `npm audit` for details.

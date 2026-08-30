@@ -1,0 +1,7 @@
+Successfully scheduled one-shot timer.
+Expected to fire at: 2026-07-01T14:40:32-04:00
+Prompt: Check if folder decompression has completed
+
+[2026-07-01T14:40:12-04:00] Still waiting. Remaining time: 20s
+[2026-07-01T14:40:22-04:00] Still waiting. Remaining time: 10s
+[2026-07-01T14:40:28-04:00] Timer cancelled: agent received a message during wait.

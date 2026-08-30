@@ -1,0 +1,1 @@
+{"id":"e0d1acaa-e712-435e-9bd3-ccba0f3ca62c","recipient":"4f894206-a59a-4843-b8a2-37d0ed08b9c9","sender":"4f894206-a59a-4843-b8a2-37d0ed08b9c9/task-675","priority":"MESSAGE_PRIORITY_HIGH","timestamp":"2026-06-18T20:42:28.946762500Z","renderDetails":{"messageTitle":"Build wait timer: Timer has expired"},"content":"Check if production build has finished after state isolation fix"}

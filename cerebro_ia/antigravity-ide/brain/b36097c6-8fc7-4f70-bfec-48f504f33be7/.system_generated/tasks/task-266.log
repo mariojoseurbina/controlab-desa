@@ -1,0 +1,40 @@
+
+> frontend@0.0.0 dev
+> vite
+
+9:51:31 [vite] (client) Re-optimizing dependencies because lockfile has changed
+
+  VITE v8.1.2  ready in 918 ms
+
+  ➜  Local:   http://localhost:5173/
+  ➜  Network: use --host to expose
+9:52:30 [vite] (client) [console.warn] No routes matched location "/ordenes" 
+9:52:30 [vite] (client) [console.warn] No routes matched location "/ordenes" 
+9:52:32 [vite] (client) [console.warn] No routes matched location "/resultados" 
+9:52:32 [vite] (client) [console.warn] No routes matched location "/resultados" 
+9:52:33 [vite] (client) [console.warn] No routes matched location "/config" 
+9:52:33 [vite] (client) [console.warn] No routes matched location "/config" 
+9:53:51 [vite] (client) [console.warn] No routes matched location "/dashboard" 
+9:53:51 [vite] (client) [console.warn] No routes matched location "/dashboard" 
+9:54:36 [vite] (client) [console.warn] No routes matched location "/dashboard" 
+9:54:36 [vite] (client) [console.warn] No routes matched location "/dashboard" 
+9:54:39 [vite] (client) [console.warn] No routes matched location "/ordenes" 
+9:54:39 [vite] (client) [console.warn] No routes matched location "/ordenes" 
+9:54:40 [vite] (client) [console.warn] No routes matched location "/resultados" 
+9:54:40 [vite] (client) [console.warn] No routes matched location "/resultados" 
+9:54:41 [vite] (client) [console.warn] No routes matched location "/config" 
+9:54:41 [vite] (client) [console.warn] No routes matched location "/config" 
+10:05:57 [vite] (client) hmr update /src/pages/PacientesDashboard.jsx, /src/index.css
+10:05:58 [vite] (client) dependency optimized: axios
+10:05:59 [vite] (client) [console.error] Error fetching pacientes AxiosError: Network Error
+    at XMLHttpRequest.handleError (http://localhost:5173/node_modules/.vite/deps/axios.js?v=1048ae13:2260:16)
+10:05:59 [vite] (client) [console.error] Error fetching pacientes AxiosError: Network Error
+    at XMLHttpRequest.handleError (http://localhost:5173/node_modules/.vite/deps/axios.js?v=1048ae13:2260:16)
+10:08:12 [vite] (client) [console.error] Error guardando paciente: AxiosError: Network Error
+    at XMLHttpRequest.handleError (http://localhost:5173/node_modules/.vite/deps/axios.js?v=1048ae13:2260:16)
+10:08:40 [vite] (client) hmr update /src/App.jsx, /src/index.css
+10:10:40 [vite] (client) hmr update /src/components/NuevoIngresoModal.jsx, /src/index.css
+10:11:54 [vite] (client) [console.error] Error guardando paciente: AxiosError: Network Error
+    at XMLHttpRequest.handleError (http://localhost:5173/node_modules/.vite/deps/axios.js?v=1048ae13:2260:16)
+10:12:11 [vite] (client) [console.error] Error guardando paciente: AxiosError: Network Error
+    at XMLHttpRequest.handleError (http://localhost:5173/node_modules/.vite/deps/axios.js?v=1048ae13:2260:16)

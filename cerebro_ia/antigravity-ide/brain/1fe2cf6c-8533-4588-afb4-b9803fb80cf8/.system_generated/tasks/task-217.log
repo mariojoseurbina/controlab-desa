@@ -1,0 +1,5 @@
+Successfully scheduled one-shot timer.
+Expected to fire at: 2026-06-01T00:01:23-04:00
+Prompt: Check if SQL Server upgrade to Enterprise task has completed
+
+[2026-06-01T00:00:58-04:00] Timer cancelled: agent received a message during wait.

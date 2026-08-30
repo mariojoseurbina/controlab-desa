@@ -1,0 +1,11 @@
+
+> controlab-ia-backend@1.0.0 dev
+> nodemon server.js
+
+[nodemon] 3.1.10
+[nodemon] to restart at any time, enter `rs`
+[nodemon] watching path(s): *.*
+[nodemon] watching extensions: js,mjs,cjs,json
+[nodemon] starting `node server.js`
+🚀 Servidor Controlab - IA ejecutándose en puerto 5002
+📊 Entorno: development

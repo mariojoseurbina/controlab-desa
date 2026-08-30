@@ -1,0 +1,22 @@
+🔌 Conectando a Infolab...
+✅ Conectado a Infolab.
+🔄 Obteniendo Pacientes de Infolab...
+📦 Encontrados 68584 pacientes.
+⏳ Insertando pacientes en Controlab H (Prisma)...
+🎉 Migración de Pacientes completada. Nuevos: 0, Existentes: 68584
+🔄 Obteniendo Órdenes/Exámenes de Infolab...
+📦 Encontrados 50000 órdenes (limitado a 50k recientes para prueba/migración).
+⏳ Insertando 50000 órdenes/exámenes en batch...
+✅ Insertados órdenes hasta el índice 5000
+✅ Insertados órdenes hasta el índice 10000
+✅ Insertados órdenes hasta el índice 15000
+✅ Insertados órdenes hasta el índice 20000
+✅ Insertados órdenes hasta el índice 25000
+✅ Insertados órdenes hasta el índice 30000
+✅ Insertados órdenes hasta el índice 35000
+✅ Insertados órdenes hasta el índice 40000
+✅ Insertados órdenes hasta el índice 45000
+✅ Insertados órdenes hasta el índice 50000
+🎉 Migración de Órdenes completada. Nuevas: 50000, Existentes/Saltadas: 0
+🔌 Conexión a Infolab cerrada.
+🔌 Conexión a Prisma cerrada.

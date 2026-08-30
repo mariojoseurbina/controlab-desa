@@ -1,0 +1,35 @@
+Sending prompt: ¿Cuál es la prueba de laboratorio que nos deja el mayor margen de ganancia neta?
+[Agent] Enviando prompt inicial a Gemini...
+[Agent] Gemini solicitó ejecutar la herramienta: calculateTestMargins
+[Agent] Devolviendo 1 resultados de herramientas a Gemini...
+Error en AgentService (Gemini): ApiError: {"error":{"code":400,"message":"* GenerateContentRequest.contents[2].parts[0].data: required oneof field 'data' must have one initialized field\n","status":"INVALID_ARGUMENT"}}
+    at throwErrorIfNotOK (C:\controlab-ia\backend\node_modules\@google\genai\dist\node\index.cjs:13673:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async C:\controlab-ia\backend\node_modules\@google\genai\dist\node\index.cjs:13373:13
+    at async Models.generateContent (C:\controlab-ia\backend\node_modules\@google\genai\dist\node\index.cjs:14781:24)
+    at async C:\controlab-ia\backend\node_modules\@google\genai\dist\node\index.cjs:7388:30
+    at async Chat.sendMessage (C:\controlab-ia\backend\node_modules\@google\genai\dist\node\index.cjs:7404:9)
+    at async AgentService.processChat (C:\controlab-ia\backend\src\modules\agent\agent.service.js:249:20)
+    at async test (C:\controlab-ia\backend\test_agent.js:7:20) {
+  status: 400
+}
+Error occurred: ApiError: {"error":{"code":400,"message":"* GenerateContentRequest.contents[2].parts[0].data: required oneof field 'data' must have one initialized field\n","status":"INVALID_ARGUMENT"}}
+    at throwErrorIfNotOK (C:\controlab-ia\backend\node_modules\@google\genai\dist\node\index.cjs:13673:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async C:\controlab-ia\backend\node_modules\@google\genai\dist\node\index.cjs:13373:13
+    at async Models.generateContent (C:\controlab-ia\backend\node_modules\@google\genai\dist\node\index.cjs:14781:24)
+    at async C:\controlab-ia\backend\node_modules\@google\genai\dist\node\index.cjs:7388:30
+    at async Chat.sendMessage (C:\controlab-ia\backend\node_modules\@google\genai\dist\node\index.cjs:7404:9)
+    at async AgentService.processChat (C:\controlab-ia\backend\src\modules\agent\agent.service.js:249:20)
+    at async test (C:\controlab-ia\backend\test_agent.js:7:20) {
+  status: 400
+}
+ApiError: {"error":{"code":400,"message":"* GenerateContentRequest.contents[2].parts[0].data: required oneof field 'data' must have one initialized field\n","status":"INVALID_ARGUMENT"}}
+    at throwErrorIfNotOK (C:\controlab-ia\backend\node_modules\@google\genai\dist\node\index.cjs:13673:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async C:\controlab-ia\backend\node_modules\@google\genai\dist\node\index.cjs:13373:13
+    at async Models.generateContent (C:\controlab-ia\backend\node_modules\@google\genai\dist\node\index.cjs:14781:24)
+    at async C:\controlab-ia\backend\node_modules\@google\genai\dist\node\index.cjs:7388:30
+    at async Chat.sendMessage (C:\controlab-ia\backend\node_modules\@google\genai\dist\node\index.cjs:7404:9)
+    at async AgentService.processChat (C:\controlab-ia\backend\src\modules\agent\agent.service.js:249:20)
+    at async test (C:\controlab-ia\backend\test_agent.js:7:20)

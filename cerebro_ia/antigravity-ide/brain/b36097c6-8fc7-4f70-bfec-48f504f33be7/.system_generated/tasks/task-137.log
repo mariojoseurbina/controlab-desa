@@ -1,0 +1,21 @@
+
+
+    Directorio: C:\controlab-h\backend
+
+
+Mode                LastWriteTime         Length Name                                                                  
+----                -------------         ------ ----                                                                  
+d-----       01/07/2026      9:20                src                                                                   
+
+
+    Directorio: C:\controlab-h\backend\src
+
+
+Mode                LastWriteTime         Length Name                                                                  
+----                -------------         ------ ----                                                                  
+d-----       01/07/2026      9:20                controllers                                                           
+d-----       01/07/2026      9:20                routes                                                                
+d-----       01/07/2026      9:20                services                                                              
+d-----       01/07/2026      9:20                utils                                                                 
+
+

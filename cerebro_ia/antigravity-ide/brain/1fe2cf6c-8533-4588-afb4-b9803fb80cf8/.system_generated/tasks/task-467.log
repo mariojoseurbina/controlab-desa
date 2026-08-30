@@ -1,0 +1,811 @@
+
+> controlab-ia-backend@1.0.0 dev
+> nodemon server.js
+
+[nodemon] 3.1.10
+[nodemon] to restart at any time, enter `rs`
+[nodemon] watching path(s): *.*
+[nodemon] watching extensions: js,mjs,cjs,json
+[nodemon] starting `node server.js`
+node:internal/modules/cjs/loader:1424
+  throw err;
+  ^
+
+Error: Cannot find module '../../middleware/authMiddleware'
+Require stack:
+- C:\controlab-ia\backend\src\modules\human\human.routes.js
+- C:\controlab-ia\backend\server.js
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1421:15)
+    at defaultResolveImpl (node:internal/modules/cjs/loader:1059:19)
+    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1064:22)
+    at Module._load (node:internal/modules/cjs/loader:1227:37)
+    at TracingChannel.traceSync (node:diagnostics_channel:328:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:245:24)
+    at Module.require (node:internal/modules/cjs/loader:1504:12)
+    at require (node:internal/modules/helpers:152:16)
+    at Object.<anonymous> (C:\controlab-ia\backend\src\modules\human\human.routes.js:4:31)
+    at Module._compile (node:internal/modules/cjs/loader:1761:14) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [
+    'C:\\controlab-ia\\backend\\src\\modules\\human\\human.routes.js',
+    'C:\\controlab-ia\\backend\\server.js'
+  ]
+}
+
+Node.js v24.12.0
+[nodemon] app crashed - waiting for file changes before starting...
+[nodemon] restarting due to changes...
+[nodemon] starting `node server.js`
+🚀 Servidor Controlab - IA ejecutándose en puerto 5000
+📊 Entorno: development
+📊 Obteniendo métricas del dashboard...
+🔄 Inicializando Pool de Base de Datos...
+✅ Pool de base de datos conectado y listo.
+✅ Métricas obtenidas correctamente
+📊 Obteniendo métricas del dashboard...
+✅ Métricas obtenidas correctamente
+📊 GET /api/dashboard/category-distribution - Solicitado
+✅ Distribución por categoría obtenida: 7 filas
+📊 GET /api/dashboard/weekly-movements - Solicitado
+📊 GET /api/dashboard/category-distribution - Solicitado
+✅ Movimientos semanales obtenidos: { entradasTotal: 0, salidasTotal: 0 }
+✅ Distribución por categoría obtenida: 7 filas
+📊 GET /api/dashboard/weekly-movements - Solicitado
+✅ Movimientos semanales obtenidos: { entradasTotal: 0, salidasTotal: 0 }
+👥 Obteniendo pacientes...
+👥 Obteniendo pacientes...
+🔬 Obteniendo exámenes humanos...
+🔬 Obteniendo exámenes humanos...
+👥 Obteniendo pacientes...
+👥 Obteniendo pacientes...
+📋 Obteniendo catálogos humanos...
+📋 Obteniendo catálogos humanos...
+➕ Creando orden de examen humano...
+🔬 Obteniendo exámenes humanos...
+👥 Obteniendo pacientes...
+📋 Obteniendo catálogos humanos...
+🏢 Obteniendo laboratorios de referencia...
+🏢 Obteniendo laboratorios de referencia...
+🔬 Obteniendo exámenes humanos...
+🔬 Obteniendo exámenes humanos...
+🔬 Obteniendo exámenes humanos...
+🔬 Obteniendo exámenes humanos...
+🔬 Obteniendo examen ID: 2
+⚡ Simulando transmisión automática desde analizador...
+🔬 Obteniendo exámenes humanos...
+🔬 Obteniendo exámenes humanos...
+📦 Obteniendo inventario (Screaming Architecture)...
+✅ Inventario obtenido: 116 items
+📦 Obteniendo inventario (Screaming Architecture)...
+✅ Inventario obtenido: 116 items
+🛒 Obteniendo compras...
+🛒 Obteniendo compras...
+🚚 Obteniendo lista de pruebas maestras...
+🚚 Obteniendo lista de pruebas maestras...
+📊 Generando análisis consolidado de costos...
+📊 Generando análisis consolidado de costos...
+📊 Generando reporte de impacto fiscal por área operativa...
+📊 Generando reporte de impacto fiscal por área operativa...
+📦 Obteniendo inventario (Screaming Architecture)...
+✅ Inventario obtenido: 116 items
+📦 Obteniendo inventario (Screaming Architecture)...
+📊 Obteniendo gastos globales mensuales...
+✅ Inventario obtenido: 116 items
+📊 Obteniendo gastos globales mensuales...
+🔬 Obteniendo costos por equipo...
+🔬 Obteniendo costos por equipo...
+Error al obtener kits: RequestError: Invalid column name 'id_kit'.
+    at handleError (C:\controlab-ia\backend\node_modules\mssql\lib\tedious\request.js:384:15)
+    at Connection.emit (node:events:508:28)
+    at Connection.emit (C:\controlab-ia\backend\node_modules\tedious\lib\connection.js:1040:18)
+    at RequestTokenHandler.onErrorMessage (C:\controlab-ia\backend\node_modules\tedious\lib\token\handler.js:365:21)
+    at Readable.<anonymous> (C:\controlab-ia\backend\node_modules\tedious\lib\token\token-stream-parser.js:26:33)
+    at Readable.emit (node:events:508:28)
+    at addChunk (node:internal/streams/readable:559:12)
+    at readableAddChunkPushObjectMode (node:internal/streams/readable:536:3)
+    at Readable.push (node:internal/streams/readable:391:5)
+    at nextAsync (node:internal/streams/from:194:22) {
+  code: 'EREQUEST',
+  originalError: Error: Invalid column name 'id_kit'.
+      at handleError (C:\controlab-ia\backend\node_modules\mssql\lib\tedious\request.js:382:19)
+      at Connection.emit (node:events:508:28)
+      at Connection.emit (C:\controlab-ia\backend\node_modules\tedious\lib\connection.js:1040:18)
+      at RequestTokenHandler.onErrorMessage (C:\controlab-ia\backend\node_modules\tedious\lib\token\handler.js:365:21)
+      at Readable.<anonymous> (C:\controlab-ia\backend\node_modules\tedious\lib\token\token-stream-parser.js:26:33)
+      at Readable.emit (node:events:508:28)
+      at addChunk (node:internal/streams/readable:559:12)
+      at readableAddChunkPushObjectMode (node:internal/streams/readable:536:3)
+      at Readable.push (node:internal/streams/readable:391:5)
+      at nextAsync (node:internal/streams/from:194:22) {
+    info: ErrorMessageToken {
+      name: 'ERROR',
+      handlerName: 'onErrorMessage',
+      number: 207,
+      state: 1,
+      class: 16,
+      message: "Invalid column name 'id_kit'.",
+      serverName: 'CONTROLAB-IA',
+      procName: '',
+      lineNumber: 12
+    }
+  },
+  number: 207,
+  lineNumber: 12,
+  state: 1,
+  class: 16,
+  serverName: 'CONTROLAB-IA',
+  procName: '',
+  precedingErrors: []
+}
+Error al obtener kits: RequestError: Invalid column name 'id_kit'.
+    at handleError (C:\controlab-ia\backend\node_modules\mssql\lib\tedious\request.js:384:15)
+    at Connection.emit (node:events:508:28)
+    at Connection.emit (C:\controlab-ia\backend\node_modules\tedious\lib\connection.js:1040:18)
+    at RequestTokenHandler.onErrorMessage (C:\controlab-ia\backend\node_modules\tedious\lib\token\handler.js:365:21)
+    at Readable.<anonymous> (C:\controlab-ia\backend\node_modules\tedious\lib\token\token-stream-parser.js:26:33)
+    at Readable.emit (node:events:508:28)
+    at addChunk (node:internal/streams/readable:559:12)
+    at readableAddChunkPushObjectMode (node:internal/streams/readable:536:3)
+    at Readable.push (node:internal/streams/readable:391:5)
+    at nextAsync (node:internal/streams/from:194:22) {
+  code: 'EREQUEST',
+  originalError: Error: Invalid column name 'id_kit'.
+      at handleError (C:\controlab-ia\backend\node_modules\mssql\lib\tedious\request.js:382:19)
+      at Connection.emit (node:events:508:28)
+      at Connection.emit (C:\controlab-ia\backend\node_modules\tedious\lib\connection.js:1040:18)
+      at RequestTokenHandler.onErrorMessage (C:\controlab-ia\backend\node_modules\tedious\lib\token\handler.js:365:21)
+      at Readable.<anonymous> (C:\controlab-ia\backend\node_modules\tedious\lib\token\token-stream-parser.js:26:33)
+      at Readable.emit (node:events:508:28)
+      at addChunk (node:internal/streams/readable:559:12)
+      at readableAddChunkPushObjectMode (node:internal/streams/readable:536:3)
+      at Readable.push (node:internal/streams/readable:391:5)
+      at nextAsync (node:internal/streams/from:194:22) {
+    info: ErrorMessageToken {
+      name: 'ERROR',
+      handlerName: 'onErrorMessage',
+      number: 207,
+      state: 1,
+      class: 16,
+      message: "Invalid column name 'id_kit'.",
+      serverName: 'CONTROLAB-IA',
+      procName: '',
+      lineNumber: 12
+    }
+  },
+  number: 207,
+  lineNumber: 12,
+  state: 1,
+  class: 16,
+  serverName: 'CONTROLAB-IA',
+  procName: '',
+  precedingErrors: []
+}
+📦 Obteniendo inventario (Screaming Architecture)...
+✅ Inventario obtenido: 116 items
+📦 Obteniendo inventario (Screaming Architecture)...
+✅ Inventario obtenido: 116 items
+🔌 Intentando conectar a SQL Server...
+📋 Configuración: {
+  server: 'localhost',
+  database: 'ControlabIA',
+  user: 'controlab_user'
+}
+✅ Conectado exitosamente a SQL Server
+❌ Error en reporte veterinario consolidado: Invalid object name 'especies_vet'.
+❌ Error en reporte veterinario consolidado: Invalid object name 'especies_vet'.
+📊 Obteniendo métricas del dashboard...
+✅ Métricas obtenidas correctamente
+📊 Obteniendo métricas del dashboard...
+✅ Métricas obtenidas correctamente
+📊 GET /api/dashboard/category-distribution - Solicitado
+✅ Distribución por categoría obtenida: 7 filas
+📊 GET /api/dashboard/weekly-movements - Solicitado
+📊 GET /api/dashboard/category-distribution - Solicitado
+✅ Movimientos semanales obtenidos: { entradasTotal: 0, salidasTotal: 0 }
+✅ Distribución por categoría obtenida: 7 filas
+📊 GET /api/dashboard/weekly-movements - Solicitado
+✅ Movimientos semanales obtenidos: { entradasTotal: 0, salidasTotal: 0 }
+👥 Obteniendo pacientes...
+👥 Obteniendo pacientes...
+➕ Creando paciente: mario urbina
+👥 Obteniendo pacientes...
+🔬 Obteniendo exámenes humanos...
+🔬 Obteniendo exámenes humanos...
+👥 Obteniendo pacientes...
+👥 Obteniendo pacientes...
+📋 Obteniendo catálogos humanos...
+📋 Obteniendo catálogos humanos...
+➕ Creando orden de examen humano...
+🔬 Obteniendo exámenes humanos...
+👥 Obteniendo pacientes...
+📋 Obteniendo catálogos humanos...
+🔬 Obteniendo examen ID: 3
+💾 Guardando resultados para examen ID: 3
+🔬 Obteniendo exámenes humanos...
+👥 Obteniendo pacientes...
+📋 Obteniendo catálogos humanos...
+🏢 Obteniendo laboratorios de referencia...
+🏢 Obteniendo laboratorios de referencia...
+🔬 Obteniendo exámenes humanos...
+🔬 Obteniendo exámenes humanos...
+🔬 Obteniendo exámenes humanos...
+🔬 Obteniendo exámenes humanos...
+🔬 Obteniendo examen ID: 1
+⚡ Simulando transmisión automática desde analizador...
+🔬 Obteniendo exámenes humanos...
+🔬 Obteniendo exámenes humanos...
+📦 Obteniendo inventario (Screaming Architecture)...
+✅ Inventario obtenido: 116 items
+📦 Obteniendo inventario (Screaming Architecture)...
+✅ Inventario obtenido: 116 items
+🛒 Obteniendo compras...
+🛒 Obteniendo compras...
+🚚 Obteniendo lista de pruebas maestras...
+🚚 Obteniendo lista de pruebas maestras...
+📊 Generando análisis consolidado de costos...
+📊 Generando análisis consolidado de costos...
+📊 Generando reporte de impacto fiscal por área operativa...
+📊 Generando reporte de impacto fiscal por área operativa...
+📦 Obteniendo inventario (Screaming Architecture)...
+✅ Inventario obtenido: 116 items
+📦 Obteniendo inventario (Screaming Architecture)...
+📊 Obteniendo gastos globales mensuales...
+✅ Inventario obtenido: 116 items
+📊 Obteniendo gastos globales mensuales...
+🔬 Obteniendo costos por equipo...
+🔬 Obteniendo costos por equipo...
+Error al obtener kits: RequestError: Invalid column name 'id_kit'.
+    at handleError (C:\controlab-ia\backend\node_modules\mssql\lib\tedious\request.js:384:15)
+    at Connection.emit (node:events:508:28)
+    at Connection.emit (C:\controlab-ia\backend\node_modules\tedious\lib\connection.js:1040:18)
+    at RequestTokenHandler.onErrorMessage (C:\controlab-ia\backend\node_modules\tedious\lib\token\handler.js:365:21)
+    at Readable.<anonymous> (C:\controlab-ia\backend\node_modules\tedious\lib\token\token-stream-parser.js:26:33)
+    at Readable.emit (node:events:508:28)
+    at addChunk (node:internal/streams/readable:559:12)
+    at readableAddChunkPushObjectMode (node:internal/streams/readable:536:3)
+    at Readable.push (node:internal/streams/readable:391:5)
+    at nextAsync (node:internal/streams/from:194:22) {
+  code: 'EREQUEST',
+  originalError: Error: Invalid column name 'id_kit'.
+      at handleError (C:\controlab-ia\backend\node_modules\mssql\lib\tedious\request.js:382:19)
+      at Connection.emit (node:events:508:28)
+      at Connection.emit (C:\controlab-ia\backend\node_modules\tedious\lib\connection.js:1040:18)
+      at RequestTokenHandler.onErrorMessage (C:\controlab-ia\backend\node_modules\tedious\lib\token\handler.js:365:21)
+      at Readable.<anonymous> (C:\controlab-ia\backend\node_modules\tedious\lib\token\token-stream-parser.js:26:33)
+      at Readable.emit (node:events:508:28)
+      at addChunk (node:internal/streams/readable:559:12)
+      at readableAddChunkPushObjectMode (node:internal/streams/readable:536:3)
+      at Readable.push (node:internal/streams/readable:391:5)
+      at nextAsync (node:internal/streams/from:194:22) {
+    info: ErrorMessageToken {
+      name: 'ERROR',
+      handlerName: 'onErrorMessage',
+      number: 207,
+      state: 1,
+      class: 16,
+      message: "Invalid column name 'id_kit'.",
+      serverName: 'CONTROLAB-IA',
+      procName: '',
+      lineNumber: 12
+    }
+  },
+  number: 207,
+  lineNumber: 12,
+  state: 1,
+  class: 16,
+  serverName: 'CONTROLAB-IA',
+  procName: '',
+  precedingErrors: []
+}
+Error al obtener kits: RequestError: Invalid column name 'id_kit'.
+    at handleError (C:\controlab-ia\backend\node_modules\mssql\lib\tedious\request.js:384:15)
+    at Connection.emit (node:events:508:28)
+    at Connection.emit (C:\controlab-ia\backend\node_modules\tedious\lib\connection.js:1040:18)
+    at RequestTokenHandler.onErrorMessage (C:\controlab-ia\backend\node_modules\tedious\lib\token\handler.js:365:21)
+    at Readable.<anonymous> (C:\controlab-ia\backend\node_modules\tedious\lib\token\token-stream-parser.js:26:33)
+    at Readable.emit (node:events:508:28)
+    at addChunk (node:internal/streams/readable:559:12)
+    at readableAddChunkPushObjectMode (node:internal/streams/readable:536:3)
+    at Readable.push (node:internal/streams/readable:391:5)
+    at nextAsync (node:internal/streams/from:194:22) {
+  code: 'EREQUEST',
+  originalError: Error: Invalid column name 'id_kit'.
+      at handleError (C:\controlab-ia\backend\node_modules\mssql\lib\tedious\request.js:382:19)
+      at Connection.emit (node:events:508:28)
+      at Connection.emit (C:\controlab-ia\backend\node_modules\tedious\lib\connection.js:1040:18)
+      at RequestTokenHandler.onErrorMessage (C:\controlab-ia\backend\node_modules\tedious\lib\token\handler.js:365:21)
+      at Readable.<anonymous> (C:\controlab-ia\backend\node_modules\tedious\lib\token\token-stream-parser.js:26:33)
+      at Readable.emit (node:events:508:28)
+      at addChunk (node:internal/streams/readable:559:12)
+      at readableAddChunkPushObjectMode (node:internal/streams/readable:536:3)
+      at Readable.push (node:internal/streams/readable:391:5)
+      at nextAsync (node:internal/streams/from:194:22) {
+    info: ErrorMessageToken {
+      name: 'ERROR',
+      handlerName: 'onErrorMessage',
+      number: 207,
+      state: 1,
+      class: 16,
+      message: "Invalid column name 'id_kit'.",
+      serverName: 'CONTROLAB-IA',
+      procName: '',
+      lineNumber: 12
+    }
+  },
+  number: 207,
+  lineNumber: 12,
+  state: 1,
+  class: 16,
+  serverName: 'CONTROLAB-IA',
+  procName: '',
+  precedingErrors: []
+}
+📦 Obteniendo inventario (Screaming Architecture)...
+✅ Inventario obtenido: 116 items
+📦 Obteniendo inventario (Screaming Architecture)...
+✅ Inventario obtenido: 116 items
+❌ Error en reporte veterinario consolidado: Invalid object name 'especies_vet'.
+❌ Error en reporte veterinario consolidado: Invalid object name 'especies_vet'.
+🔐 Login intent: admin
+📊 Obteniendo métricas del dashboard...
+✅ Métricas obtenidas correctamente
+📊 Obteniendo métricas del dashboard...
+✅ Métricas obtenidas correctamente
+📊 GET /api/dashboard/category-distribution - Solicitado
+✅ Distribución por categoría obtenida: 7 filas
+📊 GET /api/dashboard/weekly-movements - Solicitado
+📊 GET /api/dashboard/category-distribution - Solicitado
+✅ Movimientos semanales obtenidos: { entradasTotal: 0, salidasTotal: 0 }
+✅ Distribución por categoría obtenida: 7 filas
+📊 GET /api/dashboard/weekly-movements - Solicitado
+✅ Movimientos semanales obtenidos: { entradasTotal: 0, salidasTotal: 0 }
+👥 Obteniendo pacientes...
+👥 Obteniendo pacientes...
+📊 Obteniendo métricas del dashboard...
+✅ Métricas obtenidas correctamente
+📊 Obteniendo métricas del dashboard...
+✅ Métricas obtenidas correctamente
+📊 GET /api/dashboard/category-distribution - Solicitado
+📊 GET /api/dashboard/weekly-movements - Solicitado
+✅ Distribución por categoría obtenida: 7 filas
+✅ Movimientos semanales obtenidos: { entradasTotal: 0, salidasTotal: 0 }
+📊 GET /api/dashboard/category-distribution - Solicitado
+📊 GET /api/dashboard/weekly-movements - Solicitado
+✅ Movimientos semanales obtenidos: { entradasTotal: 0, salidasTotal: 0 }
+✅ Distribución por categoría obtenida: 7 filas
+👥 Obteniendo pacientes...
+👥 Obteniendo pacientes...
+🔬 Obteniendo exámenes humanos...
+🔬 Obteniendo exámenes humanos...
+👥 Obteniendo pacientes...
+👥 Obteniendo pacientes...
+📋 Obteniendo catálogos humanos...
+📋 Obteniendo catálogos humanos...
+📦 Obteniendo inventario (Screaming Architecture)...
+✅ Inventario obtenido: 116 items
+📦 Obteniendo inventario (Screaming Architecture)...
+✅ Inventario obtenido: 116 items
+🛒 Obteniendo compras...
+🛒 Obteniendo compras...
+🚚 Obteniendo lista de pruebas maestras...
+🚚 Obteniendo lista de pruebas maestras...
+📊 Generando análisis consolidado de costos...
+📊 Generando análisis consolidado de costos...
+📊 Generando reporte de impacto fiscal por área operativa...
+📊 Generando reporte de impacto fiscal por área operativa...
+📦 Obteniendo inventario (Screaming Architecture)...
+✅ Inventario obtenido: 116 items
+📦 Obteniendo inventario (Screaming Architecture)...
+📊 Obteniendo gastos globales mensuales...
+✅ Inventario obtenido: 116 items
+📊 Obteniendo gastos globales mensuales...
+🔬 Obteniendo costos por equipo...
+🔬 Obteniendo costos por equipo...
+Error al obtener kits: RequestError: Invalid column name 'id_kit'.
+    at handleError (C:\controlab-ia\backend\node_modules\mssql\lib\tedious\request.js:384:15)
+    at Connection.emit (node:events:508:28)
+    at Connection.emit (C:\controlab-ia\backend\node_modules\tedious\lib\connection.js:1040:18)
+    at RequestTokenHandler.onErrorMessage (C:\controlab-ia\backend\node_modules\tedious\lib\token\handler.js:365:21)
+    at Readable.<anonymous> (C:\controlab-ia\backend\node_modules\tedious\lib\token\token-stream-parser.js:26:33)
+    at Readable.emit (node:events:508:28)
+    at addChunk (node:internal/streams/readable:559:12)
+    at readableAddChunkPushObjectMode (node:internal/streams/readable:536:3)
+    at Readable.push (node:internal/streams/readable:391:5)
+    at nextAsync (node:internal/streams/from:194:22) {
+  code: 'EREQUEST',
+  originalError: Error: Invalid column name 'id_kit'.
+      at handleError (C:\controlab-ia\backend\node_modules\mssql\lib\tedious\request.js:382:19)
+      at Connection.emit (node:events:508:28)
+      at Connection.emit (C:\controlab-ia\backend\node_modules\tedious\lib\connection.js:1040:18)
+      at RequestTokenHandler.onErrorMessage (C:\controlab-ia\backend\node_modules\tedious\lib\token\handler.js:365:21)
+      at Readable.<anonymous> (C:\controlab-ia\backend\node_modules\tedious\lib\token\token-stream-parser.js:26:33)
+      at Readable.emit (node:events:508:28)
+      at addChunk (node:internal/streams/readable:559:12)
+      at readableAddChunkPushObjectMode (node:internal/streams/readable:536:3)
+      at Readable.push (node:internal/streams/readable:391:5)
+      at nextAsync (node:internal/streams/from:194:22) {
+    info: ErrorMessageToken {
+      name: 'ERROR',
+      handlerName: 'onErrorMessage',
+      number: 207,
+      state: 1,
+      class: 16,
+      message: "Invalid column name 'id_kit'.",
+      serverName: 'CONTROLAB-IA',
+      procName: '',
+      lineNumber: 12
+    }
+  },
+  number: 207,
+  lineNumber: 12,
+  state: 1,
+  class: 16,
+  serverName: 'CONTROLAB-IA',
+  procName: '',
+  precedingErrors: []
+}
+Error al obtener kits: RequestError: Invalid column name 'id_kit'.
+    at handleError (C:\controlab-ia\backend\node_modules\mssql\lib\tedious\request.js:384:15)
+    at Connection.emit (node:events:508:28)
+    at Connection.emit (C:\controlab-ia\backend\node_modules\tedious\lib\connection.js:1040:18)
+    at RequestTokenHandler.onErrorMessage (C:\controlab-ia\backend\node_modules\tedious\lib\token\handler.js:365:21)
+    at Readable.<anonymous> (C:\controlab-ia\backend\node_modules\tedious\lib\token\token-stream-parser.js:26:33)
+    at Readable.emit (node:events:508:28)
+    at addChunk (node:internal/streams/readable:559:12)
+    at readableAddChunkPushObjectMode (node:internal/streams/readable:536:3)
+    at Readable.push (node:internal/streams/readable:391:5)
+    at nextAsync (node:internal/streams/from:194:22) {
+  code: 'EREQUEST',
+  originalError: Error: Invalid column name 'id_kit'.
+      at handleError (C:\controlab-ia\backend\node_modules\mssql\lib\tedious\request.js:382:19)
+      at Connection.emit (node:events:508:28)
+      at Connection.emit (C:\controlab-ia\backend\node_modules\tedious\lib\connection.js:1040:18)
+      at RequestTokenHandler.onErrorMessage (C:\controlab-ia\backend\node_modules\tedious\lib\token\handler.js:365:21)
+      at Readable.<anonymous> (C:\controlab-ia\backend\node_modules\tedious\lib\token\token-stream-parser.js:26:33)
+      at Readable.emit (node:events:508:28)
+      at addChunk (node:internal/streams/readable:559:12)
+      at readableAddChunkPushObjectMode (node:internal/streams/readable:536:3)
+      at Readable.push (node:internal/streams/readable:391:5)
+      at nextAsync (node:internal/streams/from:194:22) {
+    info: ErrorMessageToken {
+      name: 'ERROR',
+      handlerName: 'onErrorMessage',
+      number: 207,
+      state: 1,
+      class: 16,
+      message: "Invalid column name 'id_kit'.",
+      serverName: 'CONTROLAB-IA',
+      procName: '',
+      lineNumber: 12
+    }
+  },
+  number: 207,
+  lineNumber: 12,
+  state: 1,
+  class: 16,
+  serverName: 'CONTROLAB-IA',
+  procName: '',
+  precedingErrors: []
+}
+📊 Obteniendo métricas del dashboard...
+✅ Métricas obtenidas correctamente
+📊 Obteniendo métricas del dashboard...
+✅ Métricas obtenidas correctamente
+📊 GET /api/dashboard/category-distribution - Solicitado
+✅ Distribución por categoría obtenida: 7 filas
+📊 GET /api/dashboard/weekly-movements - Solicitado
+📊 GET /api/dashboard/category-distribution - Solicitado
+✅ Movimientos semanales obtenidos: { entradasTotal: 0, salidasTotal: 0 }
+✅ Distribución por categoría obtenida: 7 filas
+📊 GET /api/dashboard/weekly-movements - Solicitado
+✅ Movimientos semanales obtenidos: { entradasTotal: 0, salidasTotal: 0 }
+📊 Obteniendo métricas del dashboard...
+✅ Métricas obtenidas correctamente
+📊 Obteniendo métricas del dashboard...
+✅ Métricas obtenidas correctamente
+📊 GET /api/dashboard/category-distribution - Solicitado
+✅ Distribución por categoría obtenida: 7 filas
+📊 GET /api/dashboard/weekly-movements - Solicitado
+📊 GET /api/dashboard/category-distribution - Solicitado
+✅ Movimientos semanales obtenidos: { entradasTotal: 0, salidasTotal: 0 }
+✅ Distribución por categoría obtenida: 7 filas
+📊 GET /api/dashboard/weekly-movements - Solicitado
+✅ Movimientos semanales obtenidos: { entradasTotal: 0, salidasTotal: 0 }
+📦 Obteniendo inventario (Screaming Architecture)...
+✅ Inventario obtenido: 116 items
+📦 Obteniendo inventario (Screaming Architecture)...
+✅ Inventario obtenido: 116 items
+🛒 Obteniendo compras...
+🛒 Obteniendo compras...
+📦 Obteniendo inventario (Screaming Architecture)...
+✅ Inventario obtenido: 116 items
+📦 Obteniendo inventario (Screaming Architecture)...
+✅ Inventario obtenido: 116 items
+🛒 Obteniendo compras...
+🛒 Obteniendo compras...
+📊 Obteniendo métricas del dashboard...
+✅ Métricas obtenidas correctamente
+📊 Obteniendo métricas del dashboard...
+✅ Métricas obtenidas correctamente
+📊 GET /api/dashboard/category-distribution - Solicitado
+📊 GET /api/dashboard/weekly-movements - Solicitado
+✅ Distribución por categoría obtenida: 7 filas
+✅ Movimientos semanales obtenidos: { entradasTotal: 0, salidasTotal: 0 }
+📊 GET /api/dashboard/category-distribution - Solicitado
+📊 GET /api/dashboard/weekly-movements - Solicitado
+✅ Distribución por categoría obtenida: 7 filas
+✅ Movimientos semanales obtenidos: { entradasTotal: 0, salidasTotal: 0 }
+👥 Obteniendo pacientes...
+👥 Obteniendo pacientes...
+🔬 Obteniendo exámenes humanos...
+🔬 Obteniendo exámenes humanos...
+👥 Obteniendo pacientes...
+👥 Obteniendo pacientes...
+📋 Obteniendo catálogos humanos...
+📋 Obteniendo catálogos humanos...
+[nodemon] restarting due to changes...
+[nodemon] restarting due to changes...
+[nodemon] starting `node server.js`
+🚀 Servidor Controlab - IA ejecutándose en puerto 5000
+📊 Entorno: development
+[nodemon] restarting due to changes...
+[nodemon] starting `node server.js`
+🚀 Servidor Controlab - IA ejecutándose en puerto 5000
+📊 Entorno: development
+[nodemon] restarting due to changes...
+[nodemon] starting `node server.js`
+🚀 Servidor Controlab - IA ejecutándose en puerto 5000
+📊 Entorno: development
+[nodemon] restarting due to changes...
+[nodemon] starting `node server.js`
+🚀 Servidor Controlab - IA ejecutándose en puerto 5000
+📊 Entorno: development
+[nodemon] restarting due to changes...
+[nodemon] starting `node server.js`
+🚀 Servidor Controlab - IA ejecutándose en puerto 5000
+📊 Entorno: development
+[nodemon] restarting due to changes...
+[nodemon] starting `node server.js`
+🚀 Servidor Controlab - IA ejecutándose en puerto 5000
+📊 Entorno: development
+[nodemon] restarting due to changes...
+[nodemon] starting `node server.js`
+🚀 Servidor Controlab - IA ejecutándose en puerto 5000
+📊 Entorno: development
+[nodemon] restarting due to changes...
+[nodemon] starting `node server.js`
+🚀 Servidor Controlab - IA ejecutándose en puerto 5000
+📊 Entorno: development
+[nodemon] restarting due to changes...
+[nodemon] starting `node server.js`
+🚀 Servidor Controlab - IA ejecutándose en puerto 5000
+📊 Entorno: development
+[nodemon] restarting due to changes...
+[nodemon] starting `node server.js`
+🚀 Servidor Controlab - IA ejecutándose en puerto 5000
+📊 Entorno: development
+🔬 Obteniendo examen ID: 3
+💾 Guardando resultados para examen ID: 3
+🔬 Obteniendo exámenes humanos...
+👥 Obteniendo pacientes...
+👥 Obteniendo pacientes...
+👥 Obteniendo pacientes...
+👥 Obteniendo pacientes...
+👥 Obteniendo pacientes...
+👥 Obteniendo pacientes...
+📋 Obteniendo catálogos humanos...
+👥 Obteniendo pacientes...
+👥 Obteniendo pacientes...
+👥 Obteniendo pacientes...
+👥 Obteniendo pacientes...
+👥 Obteniendo pacientes...
+👥 Obteniendo pacientes...
+👥 Obteniendo pacientes...
+👥 Obteniendo pacientes...
+👥 Obteniendo pacientes...
+👥 Obteniendo pacientes...
+👥 Obteniendo pacientes...
+👥 Obteniendo pacientes...
+👥 Obteniendo pacientes...
+👥 Obteniendo pacientes...
+📊 Obteniendo métricas del dashboard...
+🔄 Inicializando Pool de Base de Datos...
+✅ Pool de base de datos conectado y listo.
+✅ Métricas obtenidas correctamente
+📊 Obteniendo métricas del dashboard...
+✅ Métricas obtenidas correctamente
+📊 GET /api/dashboard/category-distribution - Solicitado
+✅ Distribución por categoría obtenida: 7 filas
+📊 GET /api/dashboard/weekly-movements - Solicitado
+📊 GET /api/dashboard/category-distribution - Solicitado
+✅ Movimientos semanales obtenidos: { entradasTotal: 0, salidasTotal: 0 }
+✅ Distribución por categoría obtenida: 7 filas
+📊 GET /api/dashboard/weekly-movements - Solicitado
+✅ Movimientos semanales obtenidos: { entradasTotal: 0, salidasTotal: 0 }
+👥 Obteniendo pacientes...
+👥 Obteniendo pacientes...
+🔬 Obteniendo exámenes humanos...
+👥 Obteniendo pacientes...
+🔬 Obteniendo exámenes humanos...
+👥 Obteniendo pacientes...
+👥 Obteniendo pacientes...
+👥 Obteniendo pacientes...
+👥 Obteniendo pacientes...
+👥 Obteniendo pacientes...
+[nodemon] restarting due to changes...
+[nodemon] starting `node server.js`
+🚀 Servidor Controlab - IA ejecutándose en puerto 5000
+📊 Entorno: development
+📊 Obteniendo métricas del dashboard...
+🔄 Inicializando Pool de Base de Datos...
+✅ Pool de base de datos conectado y listo.
+✅ Métricas obtenidas correctamente
+📊 Obteniendo métricas del dashboard...
+✅ Métricas obtenidas correctamente
+📊 GET /api/dashboard/category-distribution - Solicitado
+📊 GET /api/dashboard/weekly-movements - Solicitado
+✅ Distribución por categoría obtenida: 7 filas
+✅ Movimientos semanales obtenidos: { entradasTotal: 0, salidasTotal: 0 }
+📊 GET /api/dashboard/category-distribution - Solicitado
+📊 GET /api/dashboard/weekly-movements - Solicitado
+✅ Distribución por categoría obtenida: 7 filas
+✅ Movimientos semanales obtenidos: { entradasTotal: 0, salidasTotal: 0 }
+👥 Obteniendo pacientes...
+👥 Obteniendo pacientes...
+👥 Obteniendo pacientes...
+[nodemon] restarting due to changes...
+[nodemon] starting `node server.js`
+🚀 Servidor Controlab - IA ejecutándose en puerto 5000
+📊 Entorno: development
+👥 Obteniendo pacientes...
+👥 Obteniendo pacientes...
+🔬 Obteniendo exámenes humanos...
+👥 Obteniendo pacientes...
+🔬 Obteniendo exámenes humanos...
+👥 Obteniendo pacientes...
+🔬 Obteniendo exámenes humanos...
+🔌 Intentando conectar a SQL Server...
+📋 Configuración: {
+  server: 'localhost',
+  database: 'ControlabIA',
+  user: 'controlab_user'
+}
+✅ Conectado exitosamente a SQL Server
+❌ Error en reporte veterinario consolidado: Invalid object name 'especies_vet'.
+❌ Error en reporte veterinario consolidado: Invalid object name 'especies_vet'.
+👥 Obteniendo pacientes...
+👥 Obteniendo pacientes...
+🔬 Obteniendo exámenes humanos...
+👥 Obteniendo pacientes...
+🔬 Obteniendo exámenes humanos...
+👥 Obteniendo pacientes...
+📋 Obteniendo catálogos humanos...
+🔬 Obteniendo exámenes humanos...
+👥 Obteniendo pacientes...
+👥 Obteniendo pacientes...
+🔬 Obteniendo exámenes humanos...
+👥 Obteniendo pacientes...
+📋 Obteniendo catálogos humanos...
+🔬 Obteniendo exámenes humanos...
+👥 Obteniendo pacientes...
+📋 Obteniendo catálogos humanos...
+❌ Error obteniendo exámenes humanos: 
+Invalid `prisma.examenHumano.findMany()` invocation in
+C:\controlab-ia\backend\src\modules\human\human.service.js:182:46
+
+  179 if (pacienteId) where.paciente_id = parseInt(pacienteId, 10);
+  180 if (estado) where.estado = estado;
+  181 
+→ 182 const examenes = await prisma.examenHumano.findMany(
+Failed to convert rust `String` into napi `string`
+[nodemon] restarting due to changes...
+[nodemon] starting `node server.js`
+🚀 Servidor Controlab - IA ejecutándose en puerto 5000
+📊 Entorno: development
+👥 Obteniendo pacientes...
+👥 Obteniendo pacientes...
+👥 Obteniendo pacientes...
+👥 Obteniendo pacientes...
+👥 Obteniendo pacientes...
+👥 Obteniendo pacientes...
+👥 Obteniendo pacientes...
+🔬 Obteniendo exámenes humanos...
+👥 Obteniendo pacientes...
+👥 Obteniendo pacientes...
+🔬 Obteniendo exámenes humanos...
+➕ Creando paciente: MARIO URBINA
+❌ Error creando paciente: 
+Invalid `prisma.paciente.create()` invocation in
+C:\controlab-ia\backend\src\modules\human\human.service.js:76:32
+
+  73  * Registra un nuevo paciente
+  74  */
+  75 async function createPaciente(data) {
+→ 76   return await prisma.paciente.create(
+Unique constraint failed on the constraint: `dbo.pacientes_h`
+🔬 Obteniendo exámenes humanos...
+🔬 Obteniendo exámenes humanos...
+❌ Error obteniendo exámenes humanos: 
+Invalid `prisma.examenHumano.findMany()` invocation in
+C:\controlab-ia\backend\src\modules\human\human.service.js:182:46
+
+  179 if (pacienteId) where.paciente_id = parseInt(pacienteId, 10);
+  180 if (estado) where.estado = estado;
+  181 
+→ 182 const examenes = await prisma.examenHumano.findMany(
+Failed to convert rust `String` into napi `string`
+❌ Error obteniendo exámenes humanos: 
+Invalid `prisma.examenHumano.findMany()` invocation in
+C:\controlab-ia\backend\src\modules\human\human.service.js:182:46
+
+  179 if (pacienteId) where.paciente_id = parseInt(pacienteId, 10);
+  180 if (estado) where.estado = estado;
+  181 
+→ 182 const examenes = await prisma.examenHumano.findMany(
+Failed to convert rust `String` into napi `string`
+❌ Error obteniendo exámenes humanos: 
+Invalid `prisma.examenHumano.findMany()` invocation in
+C:\controlab-ia\backend\src\modules\human\human.service.js:182:46
+
+  179 if (pacienteId) where.paciente_id = parseInt(pacienteId, 10);
+  180 if (estado) where.estado = estado;
+  181 
+→ 182 const examenes = await prisma.examenHumano.findMany(
+Failed to convert rust `String` into napi `string`
+👥 Obteniendo pacientes...
+👥 Obteniendo pacientes...
+🔬 Obteniendo exámenes humanos...
+🏢 Obteniendo laboratorios de referencia...
+🏢 Obteniendo laboratorios de referencia...
+🔬 Obteniendo exámenes humanos...
+❌ Error obteniendo exámenes humanos: 
+Invalid `prisma.examenHumano.findMany()` invocation in
+C:\controlab-ia\backend\src\modules\human\human.service.js:182:46
+
+  179 if (pacienteId) where.paciente_id = parseInt(pacienteId, 10);
+  180 if (estado) where.estado = estado;
+  181 
+→ 182 const examenes = await prisma.examenHumano.findMany(
+Failed to convert rust `String` into napi `string`
+🔬 Obteniendo exámenes humanos...
+🔬 Obteniendo exámenes humanos...
+❌ Error obteniendo exámenes humanos: 
+Invalid `prisma.examenHumano.findMany()` invocation in
+C:\controlab-ia\backend\src\modules\human\human.service.js:182:46
+
+  179 if (pacienteId) where.paciente_id = parseInt(pacienteId, 10);
+  180 if (estado) where.estado = estado;
+  181 
+→ 182 const examenes = await prisma.examenHumano.findMany(
+Failed to convert rust `String` into napi `string`
+❌ Error obteniendo exámenes humanos: 
+Invalid `prisma.examenHumano.findMany()` invocation in
+C:\controlab-ia\backend\src\modules\human\human.service.js:182:46
+
+  179 if (pacienteId) where.paciente_id = parseInt(pacienteId, 10);
+  180 if (estado) where.estado = estado;
+  181 
+→ 182 const examenes = await prisma.examenHumano.findMany(
+Failed to convert rust `String` into napi `string`
+❌ Error obteniendo exámenes humanos: 
+Invalid `prisma.examenHumano.findMany()` invocation in
+C:\controlab-ia\backend\src\modules\human\human.service.js:182:46
+
+  179 if (pacienteId) where.paciente_id = parseInt(pacienteId, 10);
+  180 if (estado) where.estado = estado;
+  181 
+→ 182 const examenes = await prisma.examenHumano.findMany(
+Failed to convert rust `String` into napi `string`
+❌ Error obteniendo exámenes humanos: 
+Invalid `prisma.examenHumano.findMany()` invocation in
+C:\controlab-ia\backend\src\modules\human\human.service.js:182:46
+
+  179 if (pacienteId) where.paciente_id = parseInt(pacienteId, 10);
+  180 if (estado) where.estado = estado;
+  181 
+→ 182 const examenes = await prisma.examenHumano.findMany(
+Failed to convert rust `String` into napi `string`
+[nodemon] restarting due to changes...
+[nodemon] starting `node server.js`
+🚀 Servidor Controlab - IA ejecutándose en puerto 5000
+📊 Entorno: development

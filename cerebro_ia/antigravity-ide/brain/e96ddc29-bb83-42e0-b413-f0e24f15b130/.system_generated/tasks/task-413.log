@@ -1,0 +1,68 @@
+🔄 Inicializando Pool de Base de Datos...
+✅ Pool de base de datos conectado y listo.
+Category: [
+  {
+    categoria: 'Material',
+    items: 47,
+    stock_total: 11659,
+    valor_total: 139309.8,
+    precio_prom: 10.138666,
+    criticos: 6,
+    bajos: 5
+  },
+  {
+    categoria: 'Consumible',
+    items: 25,
+    stock_total: 2726,
+    valor_total: 8026.4,
+    precio_prom: 14.82,
+    criticos: 6,
+    bajos: 1
+  },
+  {
+    categoria: 'Reactivo',
+    items: 20,
+    stock_total: 1806,
+    valor_total: 15560,
+    precio_prom: 10.294117,
+    criticos: 2,
+    bajos: 0
+  },
+  {
+    categoria: 'Plastico/Reutizable',
+    items: 10,
+    stock_total: 106,
+    valor_total: 0,
+    precio_prom: null,
+    criticos: 2,
+    bajos: 0
+  },
+  {
+    categoria: 'vidriería',
+    items: 3,
+    stock_total: 5078,
+    valor_total: 51631.2,
+    precio_prom: 14.1,
+    criticos: 0,
+    bajos: 0
+  },
+  {
+    categoria: 'Equipo',
+    items: 3,
+    stock_total: 1109,
+    valor_total: 329280,
+    precio_prom: 352.5,
+    criticos: 1,
+    bajos: 0
+  },
+  {
+    categoria: 'material_plastico',
+    items: 2,
+    stock_total: 17,
+    valor_total: 687,
+    precio_prom: 41.75,
+    criticos: 0,
+    bajos: 0
+  }
+]
+Weekly: { entradasTotal: 100, salidasTotal: 0 }

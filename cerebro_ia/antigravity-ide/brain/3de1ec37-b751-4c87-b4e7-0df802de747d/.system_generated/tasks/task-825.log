@@ -1,0 +1,16 @@
+Sending prompt: ¿Qué lotes de reactivos vencen en los próximos 30 días?
+[Agent] Enviando prompt inicial a Gemini...
+[Agent] Gemini solicitó ejecutar la herramienta: checkExpiringLots
+[Agent] Devolviendo 1 resultados de herramientas a Gemini...
+Error en AgentService (Gemini): TypeError: Cannot read properties of undefined (reading 'length')
+    at AgentService.processChat (C:\controlab-ia\backend\src\modules\agent\agent.service.js:209:115)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async test (C:\controlab-ia\backend\test_agent.js:7:20)
+Error occurred: TypeError: Cannot read properties of undefined (reading 'length')
+    at AgentService.processChat (C:\controlab-ia\backend\src\modules\agent\agent.service.js:209:115)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async test (C:\controlab-ia\backend\test_agent.js:7:20)
+TypeError: Cannot read properties of undefined (reading 'length')
+    at AgentService.processChat (C:\controlab-ia\backend\src\modules\agent\agent.service.js:209:115)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async test (C:\controlab-ia\backend\test_agent.js:7:20)

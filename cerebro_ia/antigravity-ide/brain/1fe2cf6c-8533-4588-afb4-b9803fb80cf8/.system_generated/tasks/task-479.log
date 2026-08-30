@@ -1,0 +1,556 @@
+
+> controlab-ia-frontend@1.0.0 start
+> react-scripts start
+
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+(node:11436) [DEP0176] DeprecationWarning: fs.F_OK is deprecated, use fs.constants.F_OK instead
+(Use `node --trace-deprecation ...` to show where the warning was created)
+Browserslist: browsers data (caniuse-lite) is 9 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+(node:11436) [DEP_WEBPACK_DEV_SERVER_ON_AFTER_SETUP_MIDDLEWARE] DeprecationWarning: 'onAfterSetupMiddleware' option is deprecated. Please use the 'setupMiddlewares' option.
+(node:11436) [DEP_WEBPACK_DEV_SERVER_ON_BEFORE_SETUP_MIDDLEWARE] DeprecationWarning: 'onBeforeSetupMiddleware' option is deprecated. Please use the 'setupMiddlewares' option.
+Starting the development server...
+
+Compiled successfully!
+
+You can now view controlab-ia-frontend in the browser.
+
+  http://localhost:3000
+
+Note that the development build is not optimized.
+To create a production build, use npm run build.
+
+webpack compiled successfully
+(node:11436) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Compiling...
+Failed to compile.
+
+Module not found: Error: Can't resolve 'framer-motion' in 'C:\controlab-ia\frontend\src\features\human-lis\pages'
+ERROR in ./src/features/human-lis/pages/Historial.js 9:0-56
+Module not found: Error: Can't resolve 'framer-motion' in 'C:\controlab-ia\frontend\src\features\human-lis\pages'
+
+webpack compiled with 1 error
+Compiling...
+Failed to compile.
+
+Module not found: Error: Can't resolve 'framer-motion' in 'C:\controlab-ia\frontend\src\features\human-lis\pages'
+ERROR in ./src/features/human-lis/pages/Historial.js 9:0-56
+Module not found: Error: Can't resolve 'framer-motion' in 'C:\controlab-ia\frontend\src\features\human-lis\pages'
+
+webpack compiled with 1 error
+Compiling...
+Failed to compile.
+
+Module not found: Error: Can't resolve 'framer-motion' in 'C:\controlab-ia\frontend\src\features\human-lis\pages'
+ERROR in ./src/features/human-lis/pages/Historial.js 9:0-56
+Module not found: Error: Can't resolve 'framer-motion' in 'C:\controlab-ia\frontend\src\features\human-lis\pages'
+
+webpack compiled with 1 error
+Compiling...
+Failed to compile.
+
+Module not found: Error: Can't resolve 'framer-motion' in 'C:\controlab-ia\frontend\src\features\human-lis\pages'
+LOG from webpack.FileSystemInfo
+<w> Managed item C:\controlab-ia\frontend\node_modules\framer-motion isn't a directory or doesn't contain a package.json (see snapshot.managedPaths option)
++ 13 hidden lines
+
+ERROR in ./src/features/human-lis/pages/Historial.js 9:0-56
+Module not found: Error: Can't resolve 'framer-motion' in 'C:\controlab-ia\frontend\src\features\human-lis\pages'
+
+webpack compiled with 1 error
+Watchpack Error (stats): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+Watchpack Error (stats): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+Compiling...
+Watchpack Error (stats): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+Watchpack Error (stats): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+Watchpack Error (stats): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+Failed to compile.
+
+Module not found: Error: Can't resolve 'framer-motion' in 'C:\controlab-ia\frontend\src\features\human-lis\pages'
+ERROR in ./src/features/human-lis/pages/Historial.js 9:0-56
+Module not found: Error: Can't resolve 'framer-motion' in 'C:\controlab-ia\frontend\src\features\human-lis\pages'
+
+webpack compiled with 1 error
+Compiling...
+Watchpack Error (stats): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+Watchpack Error (stats): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+Watchpack Error (stats): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+Watchpack Error (stats): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+Watchpack Error (stats): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+Watchpack Error (stats): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+Watchpack Error (stats): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+Watchpack Error (stats): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+Watchpack Error (stats): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+Compiled successfully!
+webpack compiled successfully
+Compiling...
+Watchpack Error (stats): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+Compiled successfully!
+webpack compiled successfully
+Watchpack Error (stats): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+Watchpack Error (stats): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+Watchpack Error (stats): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+Watchpack Error (stats): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+Watchpack Error (stats): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+Watchpack Error (stats): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+Watchpack Error (stats): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+Watchpack Error (stats): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+Watchpack Error (stats): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+Watchpack Error (stats): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+Watchpack Error (stats): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+Watchpack Error (stats): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+Watchpack Error (stats): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+Watchpack Error (stats): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+Watchpack Error (stats): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+Watchpack Error (stats): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+Watchpack Error (stats): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+Watchpack Error (stats): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+Watchpack Error (stats): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+Watchpack Error (stats): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+Watchpack Error (stats): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+Watchpack Error (stats): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Compiling...
+Failed to compile.
+
+[eslint] 
+src\features\human-lis\pages\ReporteExamenes.js
+Syntax error: Missing semicolon. (45:17) (45:17)
+ERROR in ./src/features/human-lis/pages/ReporteExamenes.js
+Module build failed (from ./node_modules/babel-loader/lib/index.js):
+SyntaxError: C:\controlab-ia\frontend\src\features\human-lis\pages\ReporteExamenes.js: Missing semicolon. (45:17)
+
+  43 |   };
+  44 |     paciente_id: '',
+> 45 |     fecha_muestra: new Date().toISOString().slice(0, 10),
+     |                  ^
+  46 |     laboratorio_referencia_id: '',
+  47 |     parametro_ids: [],
+  48 |     observaciones: ''
+    at constructor (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:367:19)
+    at FlowParserMixin.raise (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:6630:19)
+    at FlowParserMixin.semicolon (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:6926:10)
+    at FlowParserMixin.parseExpressionStatement (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:13294:10)
+    at FlowParserMixin.parseExpressionStatement (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:2971:18)
+    at FlowParserMixin.parseStatementContent (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:12908:19)
+    at FlowParserMixin.parseStatementLike (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:12776:17)
+    at FlowParserMixin.parseStatementLike (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:2949:24)
+    at FlowParserMixin.parseStatement (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:12769:17)
+    at FlowParserMixin.parseLabeledStatement (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:13287:95)
+    at FlowParserMixin.parseStatementContent (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:12906:19)
+    at FlowParserMixin.parseStatementLike (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:12776:17)
+    at FlowParserMixin.parseStatementLike (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:2949:24)
+    at FlowParserMixin.parseStatementListItem (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:12756:17)
+    at FlowParserMixin.parseBlockOrModuleBlockBody (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:13325:61)
+    at FlowParserMixin.parseBlockBody (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:13318:10)
+    at FlowParserMixin.parseBlock (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:13306:10)
+    at FlowParserMixin.parseFunctionBody (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:12110:24)
+    at FlowParserMixin.parseFunctionBody (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:2926:11)
+    at FlowParserMixin.parseFunctionBodyAndFinish (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:12096:10)
+    at FlowParserMixin.parseFunctionBodyAndFinish (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:2934:18)
+    at C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:13454:12
+    at FlowParserMixin.withSmartMixTopicForbiddingContext (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:12413:14)
+    at FlowParserMixin.parseFunction (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:13453:10)
+    at FlowParserMixin.parseExportDefaultExpression (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:13916:19)
+    at FlowParserMixin.parseExportDefaultExpression (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:2997:18)
+    at FlowParserMixin.parseExport (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:13837:25)
+    at FlowParserMixin.parseStatementContent (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:12887:27)
+    at FlowParserMixin.parseStatementLike (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:12776:17)
+    at FlowParserMixin.parseStatementLike (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:2949:24)
+    at FlowParserMixin.parseModuleItem (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:12753:17)
+    at FlowParserMixin.parseBlockOrModuleBlockBody (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:13325:36)
+    at FlowParserMixin.parseBlockBody (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:13318:10)
+    at FlowParserMixin.parseProgram (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:12634:10)
+    at FlowParserMixin.parseTopLevel (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:12624:25)
+    at FlowParserMixin.parseTopLevel (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:3718:28)
+    at FlowParserMixin.parse (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:14501:10)
+    at parse (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:14535:38)
+    at parser (C:\controlab-ia\frontend\node_modules\@babel\core\lib\parser\index.js:41:34)
+    at parser.next (<anonymous>)
+    at normalizeFile (C:\controlab-ia\frontend\node_modules\@babel\core\lib\transformation\normalize-file.js:64:37)
+    at normalizeFile.next (<anonymous>)
+    at run (C:\controlab-ia\frontend\node_modules\@babel\core\lib\transformation\index.js:22:50)
+    at run.next (<anonymous>)
+    at transform (C:\controlab-ia\frontend\node_modules\@babel\core\lib\transform.js:22:33)
+    at transform.next (<anonymous>)
+    at step (C:\controlab-ia\frontend\node_modules\gensync\index.js:261:32)
+    at C:\controlab-ia\frontend\node_modules\gensync\index.js:273:13
+    at async.call.result.err.err (C:\controlab-ia\frontend\node_modules\gensync\index.js:223:11)
+
+ERROR in [eslint] 
+src\features\human-lis\pages\ReporteExamenes.js
+  Line 45:17:  Parsing error: Missing semicolon. (45:17)
+
+
+
+webpack compiled with 2 errors
+Compiling...
+Failed to compile.
+
+[eslint] 
+src\features\human-lis\pages\ReporteExamenes.js
+Syntax error: Identifier 'handleOpenCreate' has already been declared. (75:8) (75:8)
+ERROR in ./src/features/human-lis/pages/ReporteExamenes.js
+Module build failed (from ./node_modules/babel-loader/lib/index.js):
+SyntaxError: C:\controlab-ia\frontend\src\features\human-lis\pages\ReporteExamenes.js: Identifier 'handleOpenCreate' has already been declared. (75:8)
+
+  73 |   }, []);
+  74 |
+> 75 |   const handleOpenCreate = () => {
+     |         ^
+  76 |     setNewExam({
+  77 |       paciente_id: '',
+  78 |       fecha_muestra: new Date().toISOString().slice(0, 10),
+    at constructor (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:367:19)
+    at FlowParserMixin.raise (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:6630:19)
+    at FlowScopeHandler.checkRedeclarationInScope (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:1647:19)
+    at FlowScopeHandler.declareName (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:1613:12)
+    at FlowScopeHandler.declareName (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:1714:11)
+    at FlowParserMixin.declareNameFromIdentifier (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:7594:16)
+    at FlowParserMixin.checkIdentifier (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:7590:12)
+    at FlowParserMixin.checkLVal (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:7529:12)
+    at FlowParserMixin.parseVarId (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:13421:10)
+    at FlowParserMixin.parseVarId (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:3507:11)
+    at FlowParserMixin.parseVar (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:13392:12)
+    at FlowParserMixin.parseVarStatement (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:13239:10)
+    at FlowParserMixin.parseStatementContent (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:12860:23)
+    at FlowParserMixin.parseStatementLike (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:12776:17)
+    at FlowParserMixin.parseStatementLike (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:2949:24)
+    at FlowParserMixin.parseStatementListItem (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:12756:17)
+    at FlowParserMixin.parseBlockOrModuleBlockBody (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:13325:61)
+    at FlowParserMixin.parseBlockBody (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:13318:10)
+    at FlowParserMixin.parseBlock (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:13306:10)
+    at FlowParserMixin.parseFunctionBody (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:12110:24)
+    at FlowParserMixin.parseFunctionBody (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:2926:11)
+    at FlowParserMixin.parseFunctionBodyAndFinish (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:12096:10)
+    at FlowParserMixin.parseFunctionBodyAndFinish (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:2934:18)
+    at C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:13454:12
+    at FlowParserMixin.withSmartMixTopicForbiddingContext (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:12413:14)
+    at FlowParserMixin.parseFunction (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:13453:10)
+    at FlowParserMixin.parseExportDefaultExpression (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:13916:19)
+    at FlowParserMixin.parseExportDefaultExpression (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:2997:18)
+    at FlowParserMixin.parseExport (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:13837:25)
+    at FlowParserMixin.parseStatementContent (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:12887:27)
+    at FlowParserMixin.parseStatementLike (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:12776:17)
+    at FlowParserMixin.parseStatementLike (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:2949:24)
+    at FlowParserMixin.parseModuleItem (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:12753:17)
+    at FlowParserMixin.parseBlockOrModuleBlockBody (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:13325:36)
+    at FlowParserMixin.parseBlockBody (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:13318:10)
+    at FlowParserMixin.parseProgram (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:12634:10)
+    at FlowParserMixin.parseTopLevel (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:12624:25)
+    at FlowParserMixin.parseTopLevel (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:3718:28)
+    at FlowParserMixin.parse (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:14501:10)
+    at parse (C:\controlab-ia\frontend\node_modules\@babel\parser\lib\index.js:14535:38)
+    at parser (C:\controlab-ia\frontend\node_modules\@babel\core\lib\parser\index.js:41:34)
+    at parser.next (<anonymous>)
+    at normalizeFile (C:\controlab-ia\frontend\node_modules\@babel\core\lib\transformation\normalize-file.js:64:37)
+    at normalizeFile.next (<anonymous>)
+    at run (C:\controlab-ia\frontend\node_modules\@babel\core\lib\transformation\index.js:22:50)
+    at run.next (<anonymous>)
+    at transform (C:\controlab-ia\frontend\node_modules\@babel\core\lib\transform.js:22:33)
+    at transform.next (<anonymous>)
+    at step (C:\controlab-ia\frontend\node_modules\gensync\index.js:261:32)
+    at C:\controlab-ia\frontend\node_modules\gensync\index.js:273:13
+
+ERROR in [eslint] 
+src\features\human-lis\pages\ReporteExamenes.js
+  Line 75:8:  Parsing error: Identifier 'handleOpenCreate' has already been declared. (75:8)
+
+
+
+webpack compiled with 2 errors
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Proxy error: Could not proxy request /api/human/exams from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNRESET).
+
+Proxy error: Could not proxy request /api/human/exams from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNRESET).
+
+Proxy error: Could not proxy request /api/human/exams from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNRESET).
+
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Proxy error: Could not proxy request /api/human/exams from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNRESET).
+
+Watchpack Error (stats): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+Watchpack Error (stats): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+Watchpack Error (stats): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+Watchpack Error (stats): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+Watchpack Error (stats): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+Watchpack Error (stats): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+Watchpack Error (stats): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+Watchpack Error (stats): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+Watchpack Error (stats): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+Watchpack Error (stats): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+Watchpack Error (stats): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+Watchpack Error (stats): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+Watchpack Error (stats): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+Watchpack Error (stats): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+Watchpack Error (stats): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+Watchpack Error (stats): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+Watchpack Error (stats): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+Watchpack Error (stats): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+Watchpack Error (stats): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+Proxy error: Could not proxy request /api/human/exams from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNRESET).
+
+Proxy error: Could not proxy request /api/human/exams from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNRESET).
+
+Proxy error: Could not proxy request /api/human/exams from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNRESET).
+
+Proxy error: Could not proxy request /api/human/exams from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNRESET).
+
+Proxy error: Could not proxy request /api/human/exams from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNRESET).
+
+Proxy error: Could not proxy request /api/human/exams from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNRESET).
+
+Proxy error: Could not proxy request /favicon.ico from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/human/catalogos from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/human/catalogos from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /favicon.ico from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/human/patients?search=84558078 from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/human/patients?search=10002537 from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/human/patients from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/human/patients from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /favicon.ico from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/human/patients from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/human/patients from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/human/patients from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/human/patients from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/human/patients from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/human/patients from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/human/patients from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/human/patients from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/human/patients from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/human/patients from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/human/patients from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/human/patients from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/human/patients from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/human/patients from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/human/patients from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/human/patients from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/human/patients from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/human/patients from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/human/patients from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/human/patients from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/human/patients from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/human/patients from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/human/patients from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/human/patients from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/human/patients from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/human/patients from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/human/patients from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/human/patients from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/human/patients from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/human/patients from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/human/patients from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/human/patients from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/human/patients from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/human/patients from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/human/patients from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/human/patients from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/human/patients from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/human/patients from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/human/patients from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/human/patients from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Failed to compile.
+
+Module not found: Error: Can't resolve './features/human-lis/pages/Pacientes' in 'C:\controlab-ia\frontend\src'
+ERROR in ./src/App.js 36:0-61
+Module not found: Error: Can't resolve './features/human-lis/pages/Pacientes' in 'C:\controlab-ia\frontend\src'
+
+ERROR in ./src/App.js 37:0-73
+Module not found: Error: Can't resolve './features/human-lis/pages/ReporteExamenes' in 'C:\controlab-ia\frontend\src'
+
+ERROR in ./src/App.js 38:0-87
+Module not found: Error: Can't resolve './features/human-lis/pages/LaboratoriosReferencia' in 'C:\controlab-ia\frontend\src'
+
+ERROR in ./src/App.js 39:0-81
+Module not found: Error: Can't resolve './features/human-lis/pages/SimuladorAnalizador' in 'C:\controlab-ia\frontend\src'
+
+ERROR in ./src/App.js 40:0-61
+Module not found: Error: Can't resolve './features/human-lis/pages/Historial' in 'C:\controlab-ia\frontend\src'
+
+ERROR in ./src/App.js 41:0-63
+Module not found: Error: Can't resolve './features/human-lis/pages/NuevaOrden' in 'C:\controlab-ia\frontend\src'
+
+webpack compiled with 6 errors
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Proxy error: Could not proxy request /favicon.ico from localhost:3000 to http://localhost:5000/.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Watchpack Error (stats): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Watchpack Error (stats): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Compiling...
+Compiled successfully!
+webpack compiled successfully

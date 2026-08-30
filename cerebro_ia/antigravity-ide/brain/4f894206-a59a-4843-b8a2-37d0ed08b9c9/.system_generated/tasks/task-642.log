@@ -1,0 +1,6 @@
+Successfully scheduled one-shot timer.
+Expected to fire at: 2026-06-18T16:27:01-04:00
+Prompt: Check if production build has finished after export fix (second wait)
+
+[2026-06-18T16:26:56-04:00] Still waiting. Remaining time: 5s
+[2026-06-18T16:26:59-04:00] Timer cancelled: agent received a message during wait.

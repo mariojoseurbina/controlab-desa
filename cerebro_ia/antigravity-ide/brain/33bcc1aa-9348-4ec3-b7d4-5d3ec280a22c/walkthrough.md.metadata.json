@@ -1,0 +1,5 @@
+{
+  "artifactType": "ARTIFACT_TYPE_WALKTHROUGH",
+  "summary": "Detailed architectural walkthrough of the newly developed Estructura de Costos module, covering database schema extensions, backend API integrations, frontend UI tabs (Análisis, Configuración de Vínculos, Impacto Fiscal), and updates to the purchases registration process.",
+  "updatedAt": "2026-06-09T21:09:23.854348Z"
+}

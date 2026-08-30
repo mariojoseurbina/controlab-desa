@@ -1,0 +1,95 @@
+====================================================
+🤖 SIMULADOR MULTIEQUIPO - CONTROLAB IA (DESARROLLO)
+====================================================
+Seleccione el Analizador Clínico a Simular:
+1. CLIA CL 900 (Inmunologia) [IP: 192.168.1.50]
+2. BS 230 Mindray (Quimica) [IP: 192.168.1.51]
+3. BC 5000 Mindray (Hematologia) [IP: 192.168.1.52]
+4. BC 5380 Mindray (Hematologia) [IP: 192.168.1.53]
+5. CA 500 Sysmex (Coagulacion) [IP: 192.168.1.54]
+6. Salir
+====================================================
+Elija una opción (1-6): 
+----------------------------------------------------
+Pruebas disponibles para BS 230 Mindray (Quimica):
+1. GLUCOSA
+2. UREA
+3. COLESTEROL
+4. ACIDO URICO
+----------------------------------------------------
+Elija la prueba (1-4): 
+----------------------------------------------------
+Seleccione el Tipo de Corrida/Simulación:
+1. Paciente Normal (PAC-777)
+2. Control de Calidad (QC_LEVEL_1)
+3. Calibrador (CALIB_STD)
+4. Repetición (Muestra repetida en corto tiempo)
+----------------------------------------------------
+Elija una opción (1-4): 
+📡 Generando y enviando trama del equipo...
+
+====================================================
+📥 RESPUESTA DEL SERVIDOR CONTROLAB IA:
+====================================================
+Estado: ✅ EXITO
+Mensaje: Log registrado y descontados 0.25ml del lote LOTE-GLUC-0010.
+Corrida Identificada Como: [QC]
+¿Descuento Realizado?: SÍ, en lote
+Lote Afectado ID: 11034
+Volumen Descontado: 0.25 ml
+====================================================
+
+Presione ENTER para volver al menú...====================================================
+🤖 SIMULADOR MULTIEQUIPO - CONTROLAB IA (DESARROLLO)
+====================================================
+Seleccione el Analizador Clínico a Simular:
+1. CLIA CL 900 (Inmunologia) [IP: 192.168.1.50]
+2. BS 230 Mindray (Quimica) [IP: 192.168.1.51]
+3. BC 5000 Mindray (Hematologia) [IP: 192.168.1.52]
+4. BC 5380 Mindray (Hematologia) [IP: 192.168.1.53]
+5. CA 500 Sysmex (Coagulacion) [IP: 192.168.1.54]
+6. Salir
+====================================================
+Elija una opción (1-6): 
+----------------------------------------------------
+Pruebas disponibles para CA 500 Sysmex (Coagulacion):
+1. TP
+----------------------------------------------------
+Elija la prueba (1-1): 
+----------------------------------------------------
+Seleccione el Tipo de Corrida/Simulación:
+1. Paciente Normal (PAC-777)
+2. Control de Calidad (QC_LEVEL_1)
+3. Calibrador (CALIB_STD)
+4. Repetición (Muestra repetida en corto tiempo)
+----------------------------------------------------
+Elija una opción (1-4): 
+📡 Enviando la PRIMERA prueba de la muestra...
+-> Primera prueba: Log registrado y descontados 0.2ml del lote LOTE-TP-500.
+
+⏳ Esperando 2 segundos para simular repetición inmediata...
+📡 Enviando la SEGUNDA prueba (Repetición)...
+
+====================================================
+📥 RESPUESTA DE LA REPETICION AUTO-DETECTADA:
+====================================================
+Estado: ✅ EXITO
+Mensaje: Log registrado y descontados 0.2ml del lote LOTE-TP-500.
+Corrida Identificada Como: [REPETICION]
+¿Descuento Realizado?: SÍ, en lote
+Lote Afectado ID: 11037
+Volumen Descontado: 0.2 ml
+====================================================
+
+Presione ENTER para volver al menú...====================================================
+🤖 SIMULADOR MULTIEQUIPO - CONTROLAB IA (DESARROLLO)
+====================================================
+Seleccione el Analizador Clínico a Simular:
+1. CLIA CL 900 (Inmunologia) [IP: 192.168.1.50]
+2. BS 230 Mindray (Quimica) [IP: 192.168.1.51]
+3. BC 5000 Mindray (Hematologia) [IP: 192.168.1.52]
+4. BC 5380 Mindray (Hematologia) [IP: 192.168.1.53]
+5. CA 500 Sysmex (Coagulacion) [IP: 192.168.1.54]
+6. Salir
+====================================================
+Elija una opción (1-6): 

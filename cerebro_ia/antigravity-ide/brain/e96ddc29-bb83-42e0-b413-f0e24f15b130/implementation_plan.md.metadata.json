@@ -1,0 +1,6 @@
+{
+  "artifactType": "ARTIFACT_TYPE_IMPLEMENTATION_PLAN",
+  "summary": "Plan de implementación detallado para el diseño de la base de datos (tablas, relaciones y esquema prisma) para soportar la estructura de costos, regímenes fiscales, tasa de cambio y mapeo marcas-prueba en el Controlab Brain Agent.",
+  "updatedAt": "2026-06-06T17:34:12.882109200Z",
+  "requestFeedback": true
+}

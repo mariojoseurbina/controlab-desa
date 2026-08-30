@@ -1,0 +1,6 @@
+{
+  "artifactType": "ARTIFACT_TYPE_IMPLEMENTATION_PLAN",
+  "summary": "Implementation plan to make the Purchases (Compras) module fully operational. This includes creating a backend module (purchases.routes.js, purchases.controller.js, purchases.service.js, purchases.repository.js) using Prisma ORM to save to database and manage stock updates. It also includes updating the frontend pages (ListaCompras.jsx, FormularioCompra.jsx, DetalleCompra.js) to consume these endpoints instead of using mock data.",
+  "updatedAt": "2026-06-07T15:18:40.419753800Z",
+  "requestFeedback": true
+}

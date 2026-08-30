@@ -1,0 +1,60 @@
+
+> controlab-ia-backend@1.0.0 dev
+> nodemon server.js
+
+[nodemon] 3.1.10
+[nodemon] to restart at any time, enter `rs`
+[nodemon] watching path(s): *.*
+[nodemon] watching extensions: js,mjs,cjs,json
+[nodemon] starting `node server.js`
+🚀 Servidor Controlab - IA ejecutándose en puerto 5000
+📊 Entorno: development
+[Agent] Modo Demostración Offline Activado. Procesando localmente...
+🔄 Inicializando Pool de Base de Datos...
+✅ Pool de base de datos conectado y listo.
+🔐 Login intent: admin
+📊 Obteniendo métricas del dashboard...
+✅ Métricas obtenidas correctamente
+📊 Obteniendo métricas del dashboard...
+✅ Métricas obtenidas correctamente
+📊 GET /api/dashboard/category-distribution - Solicitado
+✅ Distribución por categoría obtenida: 7 filas
+📊 GET /api/dashboard/weekly-movements - Solicitado
+📊 GET /api/dashboard/category-distribution - Solicitado
+✅ Movimientos semanales obtenidos: { entradasTotal: 22, salidasTotal: 49.24 }
+✅ Distribución por categoría obtenida: 7 filas
+📊 GET /api/dashboard/weekly-movements - Solicitado
+✅ Movimientos semanales obtenidos: { entradasTotal: 22, salidasTotal: 49.24 }
+🔐 Login intent: admin
+📊 Obteniendo métricas del dashboard...
+✅ Métricas obtenidas correctamente
+📊 Obteniendo métricas del dashboard...
+✅ Métricas obtenidas correctamente
+📊 GET /api/dashboard/category-distribution - Solicitado
+✅ Distribución por categoría obtenida: 7 filas
+📊 GET /api/dashboard/weekly-movements - Solicitado
+✅ Movimientos semanales obtenidos: { entradasTotal: 22, salidasTotal: 49.24 }
+📊 GET /api/dashboard/category-distribution - Solicitado
+✅ Distribución por categoría obtenida: 7 filas
+📊 GET /api/dashboard/weekly-movements - Solicitado
+✅ Movimientos semanales obtenidos: { entradasTotal: 22, salidasTotal: 49.24 }
+📦 Obteniendo inventario (Screaming Architecture)...
+✅ Inventario obtenido: 118 items
+📦 Obteniendo inventario (Screaming Architecture)...
+✅ Inventario obtenido: 118 items
+📦 Obteniendo inventario (Screaming Architecture)...
+✅ Inventario obtenido: 118 items
+📦 Obteniendo inventario (Screaming Architecture)...
+✅ Inventario obtenido: 118 items
+🛒 Obteniendo compras...
+🛒 Obteniendo compras...
+📦 Obteniendo inventario (Screaming Architecture)...
+✅ Inventario obtenido: 118 items
+📦 Obteniendo inventario (Screaming Architecture)...
+🚚 Obteniendo proveedores...
+✅ Inventario obtenido: 118 items
+🚚 Obteniendo proveedores...
+📦 Obteniendo inventario (Screaming Architecture)...
+✅ Inventario obtenido: 118 items
+📦 Obteniendo inventario (Screaming Architecture)...
+✅ Inventario obtenido: 118 items

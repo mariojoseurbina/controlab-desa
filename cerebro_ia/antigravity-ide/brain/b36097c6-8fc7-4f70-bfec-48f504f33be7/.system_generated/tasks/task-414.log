@@ -1,0 +1,6 @@
+[MIGRACIÓN] Iniciando extracción silenciosa de Exámenes desde Infolab...
+[MIGRACIÓN] Leyendo catálogo de exámenes...
+[MIGRACIÓN] Se extrajeron 2216 exámenes del catálogo sin generar bloqueos.
+[MIGRACIÓN EXITO] Se migraron 2216 exámenes hacia Controlab H.
+[MIGRACIÓN] Conexión sigilosa cerrada.
+Proceso ETL Finalizado.

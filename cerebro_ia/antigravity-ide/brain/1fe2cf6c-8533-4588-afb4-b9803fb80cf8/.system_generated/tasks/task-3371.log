@@ -1,0 +1,7 @@
+Successfully scheduled one-shot timer.
+Expected to fire at: 2026-07-06T18:18:49-04:00
+Prompt: Wait for tar to finish
+
+[2026-07-06T18:18:29-04:00] Still waiting. Remaining time: 20s
+[2026-07-06T18:18:39-04:00] Still waiting. Remaining time: 10s
+[2026-07-06T18:18:49-04:00] Timer fired.

@@ -1,0 +1,490 @@
+🚀 Servidor Controlab - IA ejecutándose en puerto 5000
+📊 Entorno: development
+🔐 Login intent: admin
+📊 Obteniendo métricas del dashboard...
+🔄 Inicializando Pool de Base de Datos...
+✅ Pool de base de datos conectado y listo.
+✅ Métricas obtenidas correctamente
+📦 Obteniendo inventario (Screaming Architecture)...
+✅ Inventario obtenido: 109 items
+📊 Obteniendo métricas del dashboard...
+✅ Métricas obtenidas correctamente
+📊 Obteniendo métricas del dashboard...
+✅ Métricas obtenidas correctamente
+📦 Obteniendo inventario (Screaming Architecture)...
+✅ Inventario obtenido: 109 items
+📦 Obteniendo inventario (Screaming Architecture)...
+✅ Inventario obtenido: 109 items
+📦 Obteniendo inventario (Screaming Architecture)...
+✅ Inventario obtenido: 109 items
+📦 Obteniendo inventario (Screaming Architecture)...
+✅ Inventario obtenido: 109 items
+🤖 Pregunta recibida (Screaming Arch): Items por vencer
+🤖 Pregunta recibida (Screaming Arch): Resumen del inventario
+🤖 Pregunta recibida (Screaming Arch): Movimientos recientes
+🔌 Intentando conectar a SQL Server...
+📋 Configuración: {
+  server: 'localhost',
+  database: 'ControlabIA',
+  user: 'controlab_user'
+}
+✅ Conectado exitosamente a SQL Server - Controlab IA
+📊 Obteniendo métricas del dashboard...
+✅ Métricas obtenidas correctamente
+📊 Obteniendo métricas del dashboard...
+✅ Métricas obtenidas correctamente
+📦 Obteniendo inventario (Screaming Architecture)...
+✅ Inventario obtenido: 109 items
+📦 Obteniendo inventario (Screaming Architecture)...
+✅ Inventario obtenido: 109 items
+📦 Obteniendo inventario (Screaming Architecture)...
+✅ Inventario obtenido: 109 items
+📊 Obteniendo métricas del dashboard...
+✅ Métricas obtenidas correctamente
+📊 Obteniendo métricas del dashboard...
+✅ Métricas obtenidas correctamente
+📦 Obteniendo inventario (Screaming Architecture)...
+✅ Inventario obtenido: 109 items
+📦 Obteniendo inventario (Screaming Architecture)...
+✅ Inventario obtenido: 109 items
+Error actualizando lote: RequestError: The column "Rendimiento" cannot be modified because it is either a computed column or is the result of a UNION operator.
+    at handleError (C:\controlab-ia\backend\node_modules\mssql\lib\tedious\request.js:384:15)
+    at Connection.emit (node:events:508:28)
+    at Connection.emit (C:\controlab-ia\backend\node_modules\tedious\lib\connection.js:1040:18)
+    at RequestTokenHandler.onErrorMessage (C:\controlab-ia\backend\node_modules\tedious\lib\token\handler.js:365:21)
+    at Readable.<anonymous> (C:\controlab-ia\backend\node_modules\tedious\lib\token\token-stream-parser.js:26:33)
+    at Readable.emit (node:events:508:28)
+    at addChunk (node:internal/streams/readable:559:12)
+    at readableAddChunkPushObjectMode (node:internal/streams/readable:536:3)
+    at Readable.push (node:internal/streams/readable:391:5)
+    at nextAsync (node:internal/streams/from:194:22) {
+  code: 'EREQUEST',
+  originalError: Error: The column "Rendimiento" cannot be modified because it is either a computed column or is the result of a UNION operator.
+      at handleError (C:\controlab-ia\backend\node_modules\mssql\lib\tedious\request.js:382:19)
+      at Connection.emit (node:events:508:28)
+      at Connection.emit (C:\controlab-ia\backend\node_modules\tedious\lib\connection.js:1040:18)
+      at RequestTokenHandler.onErrorMessage (C:\controlab-ia\backend\node_modules\tedious\lib\token\handler.js:365:21)
+      at Readable.<anonymous> (C:\controlab-ia\backend\node_modules\tedious\lib\token\token-stream-parser.js:26:33)
+      at Readable.emit (node:events:508:28)
+      at addChunk (node:internal/streams/readable:559:12)
+      at readableAddChunkPushObjectMode (node:internal/streams/readable:536:3)
+      at Readable.push (node:internal/streams/readable:391:5)
+      at nextAsync (node:internal/streams/from:194:22) {
+    info: ErrorMessageToken {
+      name: 'ERROR',
+      handlerName: 'onErrorMessage',
+      number: 271,
+      state: 1,
+      class: 16,
+      message: 'The column "Rendimiento" cannot be modified because it is either a computed column or is the result of a UNION operator.',
+      serverName: 'CONTROLAB-IA',
+      procName: '',
+      lineNumber: 2
+    }
+  },
+  number: 271,
+  lineNumber: 2,
+  state: 1,
+  class: 16,
+  serverName: 'CONTROLAB-IA',
+  procName: '',
+  precedingErrors: [
+    RequestError: The column "VolumenTrabajoTeorico" cannot be modified because it is either a computed column or is the result of a UNION operator.
+        at handleError (C:\controlab-ia\backend\node_modules\mssql\lib\tedious\request.js:384:15)
+        at Connection.emit (node:events:508:28)
+        at Connection.emit (C:\controlab-ia\backend\node_modules\tedious\lib\connection.js:1040:18)
+        at RequestTokenHandler.onErrorMessage (C:\controlab-ia\backend\node_modules\tedious\lib\token\handler.js:365:21)
+        at Readable.<anonymous> (C:\controlab-ia\backend\node_modules\tedious\lib\token\token-stream-parser.js:26:33)
+        at Readable.emit (node:events:508:28)
+        at addChunk (node:internal/streams/readable:559:12)
+        at readableAddChunkPushObjectMode (node:internal/streams/readable:536:3)
+        at Readable.push (node:internal/streams/readable:391:5)
+        at nextAsync (node:internal/streams/from:194:22) {
+      code: 'EREQUEST',
+      originalError: [Error],
+      number: 271,
+      lineNumber: 2,
+      state: 1,
+      class: 16,
+      serverName: 'CONTROLAB-IA',
+      procName: ''
+    }
+  ]
+}
+Error actualizando lote: RequestError: The column "Rendimiento" cannot be modified because it is either a computed column or is the result of a UNION operator.
+    at handleError (C:\controlab-ia\backend\node_modules\mssql\lib\tedious\request.js:384:15)
+    at Connection.emit (node:events:508:28)
+    at Connection.emit (C:\controlab-ia\backend\node_modules\tedious\lib\connection.js:1040:18)
+    at RequestTokenHandler.onErrorMessage (C:\controlab-ia\backend\node_modules\tedious\lib\token\handler.js:365:21)
+    at Readable.<anonymous> (C:\controlab-ia\backend\node_modules\tedious\lib\token\token-stream-parser.js:26:33)
+    at Readable.emit (node:events:508:28)
+    at addChunk (node:internal/streams/readable:559:12)
+    at readableAddChunkPushObjectMode (node:internal/streams/readable:536:3)
+    at Readable.push (node:internal/streams/readable:391:5)
+    at nextAsync (node:internal/streams/from:194:22) {
+  code: 'EREQUEST',
+  originalError: Error: The column "Rendimiento" cannot be modified because it is either a computed column or is the result of a UNION operator.
+      at handleError (C:\controlab-ia\backend\node_modules\mssql\lib\tedious\request.js:382:19)
+      at Connection.emit (node:events:508:28)
+      at Connection.emit (C:\controlab-ia\backend\node_modules\tedious\lib\connection.js:1040:18)
+      at RequestTokenHandler.onErrorMessage (C:\controlab-ia\backend\node_modules\tedious\lib\token\handler.js:365:21)
+      at Readable.<anonymous> (C:\controlab-ia\backend\node_modules\tedious\lib\token\token-stream-parser.js:26:33)
+      at Readable.emit (node:events:508:28)
+      at addChunk (node:internal/streams/readable:559:12)
+      at readableAddChunkPushObjectMode (node:internal/streams/readable:536:3)
+      at Readable.push (node:internal/streams/readable:391:5)
+      at nextAsync (node:internal/streams/from:194:22) {
+    info: ErrorMessageToken {
+      name: 'ERROR',
+      handlerName: 'onErrorMessage',
+      number: 271,
+      state: 1,
+      class: 16,
+      message: 'The column "Rendimiento" cannot be modified because it is either a computed column or is the result of a UNION operator.',
+      serverName: 'CONTROLAB-IA',
+      procName: '',
+      lineNumber: 2
+    }
+  },
+  number: 271,
+  lineNumber: 2,
+  state: 1,
+  class: 16,
+  serverName: 'CONTROLAB-IA',
+  procName: '',
+  precedingErrors: [
+    RequestError: The column "VolumenTrabajoTeorico" cannot be modified because it is either a computed column or is the result of a UNION operator.
+        at handleError (C:\controlab-ia\backend\node_modules\mssql\lib\tedious\request.js:384:15)
+        at Connection.emit (node:events:508:28)
+        at Connection.emit (C:\controlab-ia\backend\node_modules\tedious\lib\connection.js:1040:18)
+        at RequestTokenHandler.onErrorMessage (C:\controlab-ia\backend\node_modules\tedious\lib\token\handler.js:365:21)
+        at Readable.<anonymous> (C:\controlab-ia\backend\node_modules\tedious\lib\token\token-stream-parser.js:26:33)
+        at Readable.emit (node:events:508:28)
+        at addChunk (node:internal/streams/readable:559:12)
+        at readableAddChunkPushObjectMode (node:internal/streams/readable:536:3)
+        at Readable.push (node:internal/streams/readable:391:5)
+        at nextAsync (node:internal/streams/from:194:22) {
+      code: 'EREQUEST',
+      originalError: [Error],
+      number: 271,
+      lineNumber: 2,
+      state: 1,
+      class: 16,
+      serverName: 'CONTROLAB-IA',
+      procName: ''
+    }
+  ]
+}
+Error actualizando lote: RequestError: The column "Rendimiento" cannot be modified because it is either a computed column or is the result of a UNION operator.
+    at handleError (C:\controlab-ia\backend\node_modules\mssql\lib\tedious\request.js:384:15)
+    at Connection.emit (node:events:508:28)
+    at Connection.emit (C:\controlab-ia\backend\node_modules\tedious\lib\connection.js:1040:18)
+    at RequestTokenHandler.onErrorMessage (C:\controlab-ia\backend\node_modules\tedious\lib\token\handler.js:365:21)
+    at Readable.<anonymous> (C:\controlab-ia\backend\node_modules\tedious\lib\token\token-stream-parser.js:26:33)
+    at Readable.emit (node:events:508:28)
+    at addChunk (node:internal/streams/readable:559:12)
+    at readableAddChunkPushObjectMode (node:internal/streams/readable:536:3)
+    at Readable.push (node:internal/streams/readable:391:5)
+    at nextAsync (node:internal/streams/from:194:22) {
+  code: 'EREQUEST',
+  originalError: Error: The column "Rendimiento" cannot be modified because it is either a computed column or is the result of a UNION operator.
+      at handleError (C:\controlab-ia\backend\node_modules\mssql\lib\tedious\request.js:382:19)
+      at Connection.emit (node:events:508:28)
+      at Connection.emit (C:\controlab-ia\backend\node_modules\tedious\lib\connection.js:1040:18)
+      at RequestTokenHandler.onErrorMessage (C:\controlab-ia\backend\node_modules\tedious\lib\token\handler.js:365:21)
+      at Readable.<anonymous> (C:\controlab-ia\backend\node_modules\tedious\lib\token\token-stream-parser.js:26:33)
+      at Readable.emit (node:events:508:28)
+      at addChunk (node:internal/streams/readable:559:12)
+      at readableAddChunkPushObjectMode (node:internal/streams/readable:536:3)
+      at Readable.push (node:internal/streams/readable:391:5)
+      at nextAsync (node:internal/streams/from:194:22) {
+    info: ErrorMessageToken {
+      name: 'ERROR',
+      handlerName: 'onErrorMessage',
+      number: 271,
+      state: 1,
+      class: 16,
+      message: 'The column "Rendimiento" cannot be modified because it is either a computed column or is the result of a UNION operator.',
+      serverName: 'CONTROLAB-IA',
+      procName: '',
+      lineNumber: 2
+    }
+  },
+  number: 271,
+  lineNumber: 2,
+  state: 1,
+  class: 16,
+  serverName: 'CONTROLAB-IA',
+  procName: '',
+  precedingErrors: [
+    RequestError: The column "VolumenTrabajoTeorico" cannot be modified because it is either a computed column or is the result of a UNION operator.
+        at handleError (C:\controlab-ia\backend\node_modules\mssql\lib\tedious\request.js:384:15)
+        at Connection.emit (node:events:508:28)
+        at Connection.emit (C:\controlab-ia\backend\node_modules\tedious\lib\connection.js:1040:18)
+        at RequestTokenHandler.onErrorMessage (C:\controlab-ia\backend\node_modules\tedious\lib\token\handler.js:365:21)
+        at Readable.<anonymous> (C:\controlab-ia\backend\node_modules\tedious\lib\token\token-stream-parser.js:26:33)
+        at Readable.emit (node:events:508:28)
+        at addChunk (node:internal/streams/readable:559:12)
+        at readableAddChunkPushObjectMode (node:internal/streams/readable:536:3)
+        at Readable.push (node:internal/streams/readable:391:5)
+        at nextAsync (node:internal/streams/from:194:22) {
+      code: 'EREQUEST',
+      originalError: [Error],
+      number: 271,
+      lineNumber: 2,
+      state: 1,
+      class: 16,
+      serverName: 'CONTROLAB-IA',
+      procName: ''
+    }
+  ]
+}
+Error actualizando lote: RequestError: The column "Rendimiento" cannot be modified because it is either a computed column or is the result of a UNION operator.
+    at handleError (C:\controlab-ia\backend\node_modules\mssql\lib\tedious\request.js:384:15)
+    at Connection.emit (node:events:508:28)
+    at Connection.emit (C:\controlab-ia\backend\node_modules\tedious\lib\connection.js:1040:18)
+    at RequestTokenHandler.onErrorMessage (C:\controlab-ia\backend\node_modules\tedious\lib\token\handler.js:365:21)
+    at Readable.<anonymous> (C:\controlab-ia\backend\node_modules\tedious\lib\token\token-stream-parser.js:26:33)
+    at Readable.emit (node:events:508:28)
+    at addChunk (node:internal/streams/readable:559:12)
+    at readableAddChunkPushObjectMode (node:internal/streams/readable:536:3)
+    at Readable.push (node:internal/streams/readable:391:5)
+    at nextAsync (node:internal/streams/from:194:22) {
+  code: 'EREQUEST',
+  originalError: Error: The column "Rendimiento" cannot be modified because it is either a computed column or is the result of a UNION operator.
+      at handleError (C:\controlab-ia\backend\node_modules\mssql\lib\tedious\request.js:382:19)
+      at Connection.emit (node:events:508:28)
+      at Connection.emit (C:\controlab-ia\backend\node_modules\tedious\lib\connection.js:1040:18)
+      at RequestTokenHandler.onErrorMessage (C:\controlab-ia\backend\node_modules\tedious\lib\token\handler.js:365:21)
+      at Readable.<anonymous> (C:\controlab-ia\backend\node_modules\tedious\lib\token\token-stream-parser.js:26:33)
+      at Readable.emit (node:events:508:28)
+      at addChunk (node:internal/streams/readable:559:12)
+      at readableAddChunkPushObjectMode (node:internal/streams/readable:536:3)
+      at Readable.push (node:internal/streams/readable:391:5)
+      at nextAsync (node:internal/streams/from:194:22) {
+    info: ErrorMessageToken {
+      name: 'ERROR',
+      handlerName: 'onErrorMessage',
+      number: 271,
+      state: 1,
+      class: 16,
+      message: 'The column "Rendimiento" cannot be modified because it is either a computed column or is the result of a UNION operator.',
+      serverName: 'CONTROLAB-IA',
+      procName: '',
+      lineNumber: 2
+    }
+  },
+  number: 271,
+  lineNumber: 2,
+  state: 1,
+  class: 16,
+  serverName: 'CONTROLAB-IA',
+  procName: '',
+  precedingErrors: [
+    RequestError: The column "VolumenTrabajoTeorico" cannot be modified because it is either a computed column or is the result of a UNION operator.
+        at handleError (C:\controlab-ia\backend\node_modules\mssql\lib\tedious\request.js:384:15)
+        at Connection.emit (node:events:508:28)
+        at Connection.emit (C:\controlab-ia\backend\node_modules\tedious\lib\connection.js:1040:18)
+        at RequestTokenHandler.onErrorMessage (C:\controlab-ia\backend\node_modules\tedious\lib\token\handler.js:365:21)
+        at Readable.<anonymous> (C:\controlab-ia\backend\node_modules\tedious\lib\token\token-stream-parser.js:26:33)
+        at Readable.emit (node:events:508:28)
+        at addChunk (node:internal/streams/readable:559:12)
+        at readableAddChunkPushObjectMode (node:internal/streams/readable:536:3)
+        at Readable.push (node:internal/streams/readable:391:5)
+        at nextAsync (node:internal/streams/from:194:22) {
+      code: 'EREQUEST',
+      originalError: [Error],
+      number: 271,
+      lineNumber: 2,
+      state: 1,
+      class: 16,
+      serverName: 'CONTROLAB-IA',
+      procName: ''
+    }
+  ]
+}
+Error actualizando lote: RequestError: The column "Rendimiento" cannot be modified because it is either a computed column or is the result of a UNION operator.
+    at handleError (C:\controlab-ia\backend\node_modules\mssql\lib\tedious\request.js:384:15)
+    at Connection.emit (node:events:508:28)
+    at Connection.emit (C:\controlab-ia\backend\node_modules\tedious\lib\connection.js:1040:18)
+    at RequestTokenHandler.onErrorMessage (C:\controlab-ia\backend\node_modules\tedious\lib\token\handler.js:365:21)
+    at Readable.<anonymous> (C:\controlab-ia\backend\node_modules\tedious\lib\token\token-stream-parser.js:26:33)
+    at Readable.emit (node:events:508:28)
+    at addChunk (node:internal/streams/readable:559:12)
+    at readableAddChunkPushObjectMode (node:internal/streams/readable:536:3)
+    at Readable.push (node:internal/streams/readable:391:5)
+    at nextAsync (node:internal/streams/from:194:22) {
+  code: 'EREQUEST',
+  originalError: Error: The column "Rendimiento" cannot be modified because it is either a computed column or is the result of a UNION operator.
+      at handleError (C:\controlab-ia\backend\node_modules\mssql\lib\tedious\request.js:382:19)
+      at Connection.emit (node:events:508:28)
+      at Connection.emit (C:\controlab-ia\backend\node_modules\tedious\lib\connection.js:1040:18)
+      at RequestTokenHandler.onErrorMessage (C:\controlab-ia\backend\node_modules\tedious\lib\token\handler.js:365:21)
+      at Readable.<anonymous> (C:\controlab-ia\backend\node_modules\tedious\lib\token\token-stream-parser.js:26:33)
+      at Readable.emit (node:events:508:28)
+      at addChunk (node:internal/streams/readable:559:12)
+      at readableAddChunkPushObjectMode (node:internal/streams/readable:536:3)
+      at Readable.push (node:internal/streams/readable:391:5)
+      at nextAsync (node:internal/streams/from:194:22) {
+    info: ErrorMessageToken {
+      name: 'ERROR',
+      handlerName: 'onErrorMessage',
+      number: 271,
+      state: 1,
+      class: 16,
+      message: 'The column "Rendimiento" cannot be modified because it is either a computed column or is the result of a UNION operator.',
+      serverName: 'CONTROLAB-IA',
+      procName: '',
+      lineNumber: 2
+    }
+  },
+  number: 271,
+  lineNumber: 2,
+  state: 1,
+  class: 16,
+  serverName: 'CONTROLAB-IA',
+  procName: '',
+  precedingErrors: [
+    RequestError: The column "VolumenTrabajoTeorico" cannot be modified because it is either a computed column or is the result of a UNION operator.
+        at handleError (C:\controlab-ia\backend\node_modules\mssql\lib\tedious\request.js:384:15)
+        at Connection.emit (node:events:508:28)
+        at Connection.emit (C:\controlab-ia\backend\node_modules\tedious\lib\connection.js:1040:18)
+        at RequestTokenHandler.onErrorMessage (C:\controlab-ia\backend\node_modules\tedious\lib\token\handler.js:365:21)
+        at Readable.<anonymous> (C:\controlab-ia\backend\node_modules\tedious\lib\token\token-stream-parser.js:26:33)
+        at Readable.emit (node:events:508:28)
+        at addChunk (node:internal/streams/readable:559:12)
+        at readableAddChunkPushObjectMode (node:internal/streams/readable:536:3)
+        at Readable.push (node:internal/streams/readable:391:5)
+        at nextAsync (node:internal/streams/from:194:22) {
+      code: 'EREQUEST',
+      originalError: [Error],
+      number: 271,
+      lineNumber: 2,
+      state: 1,
+      class: 16,
+      serverName: 'CONTROLAB-IA',
+      procName: ''
+    }
+  ]
+}
+📦 Obteniendo inventario (Screaming Architecture)...
+✅ Inventario obtenido: 109 items
+📦 Obteniendo inventario (Screaming Architecture)...
+✅ Inventario obtenido: 109 items
+📦 Obteniendo inventario (Screaming Architecture)...
+✅ Inventario obtenido: 109 items
+📦 Obteniendo inventario (Screaming Architecture)...
+✅ Inventario obtenido: 109 items
+📊 Obteniendo métricas del dashboard...
+✅ Métricas obtenidas correctamente
+📊 Obteniendo métricas del dashboard...
+✅ Métricas obtenidas correctamente
+🤖 Pregunta recibida (Screaming Arch): Mostrar stock crítico
+🤖 Pregunta recibida (Screaming Arch): Items por vencer
+🤖 Pregunta recibida (Screaming Arch): Movimientos recientes
+🤖 Pregunta recibida (Screaming Arch): Análisis por categorías
+🤖 Pregunta recibida (Screaming Arch): Pronóstico de reposición
+🤖 Pregunta recibida (Screaming Arch): Items agotados
+🤖 Pregunta recibida (Screaming Arch): Reactivos y Lotes Reactivos
+🤖 Pregunta recibida (Screaming Arch): Análisis de proveedores
+🤖 Pregunta recibida (Screaming Arch): Lista de precios de inventario
+🤖 Pregunta recibida (Screaming Arch): Análisis de márgenes y costos
+🔐 Login intent: admin
+📊 Obteniendo métricas del dashboard...
+✅ Métricas obtenidas correctamente
+📊 Obteniendo métricas del dashboard...
+✅ Métricas obtenidas correctamente
+📦 Obteniendo inventario (Screaming Architecture)...
+✅ Inventario obtenido: 109 items
+📦 Obteniendo inventario (Screaming Architecture)...
+✅ Inventario obtenido: 109 items
+➕ Creando nuevo item: 10000
+✅ Item creado exitosamente
+📦 Obteniendo inventario (Screaming Architecture)...
+✅ Inventario obtenido: 110 items
+📊 Obteniendo métricas del dashboard...
+✅ Métricas obtenidas correctamente
+📊 Obteniendo métricas del dashboard...
+✅ Métricas obtenidas correctamente
+📦 Obteniendo inventario (Screaming Architecture)...
+✅ Inventario obtenido: 109 items
+📦 Obteniendo inventario (Screaming Architecture)...
+✅ Inventario obtenido: 109 items
+📦 Obteniendo inventario (Screaming Architecture)...
+✅ Inventario obtenido: 109 items
+📦 Obteniendo inventario (Screaming Architecture)...
+✅ Inventario obtenido: 109 items
+🤖 Pregunta recibida (Screaming Arch): Items más costosos
+🤖 Pregunta recibida (Screaming Arch): Análisis por categorías
+📊 Obteniendo métricas del dashboard...
+✅ Métricas obtenidas correctamente
+📊 Obteniendo métricas del dashboard...
+✅ Métricas obtenidas correctamente
+📦 Obteniendo inventario (Screaming Architecture)...
+✅ Inventario obtenido: 109 items
+📦 Obteniendo inventario (Screaming Architecture)...
+✅ Inventario obtenido: 109 items
+Error actualizando lote: RequestError: The column "Rendimiento" cannot be modified because it is either a computed column or is the result of a UNION operator.
+    at handleError (C:\controlab-ia\backend\node_modules\mssql\lib\tedious\request.js:384:15)
+    at Connection.emit (node:events:508:28)
+    at Connection.emit (C:\controlab-ia\backend\node_modules\tedious\lib\connection.js:1040:18)
+    at RequestTokenHandler.onErrorMessage (C:\controlab-ia\backend\node_modules\tedious\lib\token\handler.js:365:21)
+    at Readable.<anonymous> (C:\controlab-ia\backend\node_modules\tedious\lib\token\token-stream-parser.js:26:33)
+    at Readable.emit (node:events:508:28)
+    at addChunk (node:internal/streams/readable:559:12)
+    at readableAddChunkPushObjectMode (node:internal/streams/readable:536:3)
+    at Readable.push (node:internal/streams/readable:391:5)
+    at nextAsync (node:internal/streams/from:194:22) {
+  code: 'EREQUEST',
+  originalError: Error: The column "Rendimiento" cannot be modified because it is either a computed column or is the result of a UNION operator.
+      at handleError (C:\controlab-ia\backend\node_modules\mssql\lib\tedious\request.js:382:19)
+      at Connection.emit (node:events:508:28)
+      at Connection.emit (C:\controlab-ia\backend\node_modules\tedious\lib\connection.js:1040:18)
+      at RequestTokenHandler.onErrorMessage (C:\controlab-ia\backend\node_modules\tedious\lib\token\handler.js:365:21)
+      at Readable.<anonymous> (C:\controlab-ia\backend\node_modules\tedious\lib\token\token-stream-parser.js:26:33)
+      at Readable.emit (node:events:508:28)
+      at addChunk (node:internal/streams/readable:559:12)
+      at readableAddChunkPushObjectMode (node:internal/streams/readable:536:3)
+      at Readable.push (node:internal/streams/readable:391:5)
+      at nextAsync (node:internal/streams/from:194:22) {
+    info: ErrorMessageToken {
+      name: 'ERROR',
+      handlerName: 'onErrorMessage',
+      number: 271,
+      state: 1,
+      class: 16,
+      message: 'The column "Rendimiento" cannot be modified because it is either a computed column or is the result of a UNION operator.',
+      serverName: 'CONTROLAB-IA',
+      procName: '',
+      lineNumber: 2
+    }
+  },
+  number: 271,
+  lineNumber: 2,
+  state: 1,
+  class: 16,
+  serverName: 'CONTROLAB-IA',
+  procName: '',
+  precedingErrors: [
+    RequestError: The column "VolumenTrabajoTeorico" cannot be modified because it is either a computed column or is the result of a UNION operator.
+        at handleError (C:\controlab-ia\backend\node_modules\mssql\lib\tedious\request.js:384:15)
+        at Connection.emit (node:events:508:28)
+        at Connection.emit (C:\controlab-ia\backend\node_modules\tedious\lib\connection.js:1040:18)
+        at RequestTokenHandler.onErrorMessage (C:\controlab-ia\backend\node_modules\tedious\lib\token\handler.js:365:21)
+        at Readable.<anonymous> (C:\controlab-ia\backend\node_modules\tedious\lib\token\token-stream-parser.js:26:33)
+        at Readable.emit (node:events:508:28)
+        at addChunk (node:internal/streams/readable:559:12)
+        at readableAddChunkPushObjectMode (node:internal/streams/readable:536:3)
+        at Readable.push (node:internal/streams/readable:391:5)
+        at nextAsync (node:internal/streams/from:194:22) {
+      code: 'EREQUEST',
+      originalError: [Error],
+      number: 271,
+      lineNumber: 2,
+      state: 1,
+      class: 16,
+      serverName: 'CONTROLAB-IA',
+      procName: ''
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+npm warn exec The following package was not found and will be installed: create-vite@9.1.1
+
+> npx
+> create-vite c:\controlab-h\frontend --template react
+
+|
+o  Scaffolding project in C:\controlab-h\ccontrolab-hfrontend...
+|
+—  Done. Now run:
+
+  cd ccontrolab-hfrontend
+  npm install
+  npm run dev
+
+cd : No se encuentra la ruta de acceso 'C:\controlab-h\frontend' porque no existe.
+En l�nea: 1 Car�cter: 69
++ ... ab-h\frontend -- --template react; cd c:\controlab-h\frontend; npm in ...
++                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (C:\controlab-h\frontend:String) [Set-Location], ItemNotFoundException
+    + FullyQualifiedErrorId : PathNotFound,Microsoft.PowerShell.Commands.SetLocationCommand
+ 
+npm error code ENOENT
+npm error syscall open
+npm error path C:\controlab-h\package.json
+npm error errno -4058
+npm error enoent Could not read package.json: Error: ENOENT: no such file or directory, open 'C:\controlab-h\package.json'
+npm error enoent This is related to npm not being able to find a file.
+npm error enoent
+npm error A complete log of this run can be found in: C:\Users\Administrador\AppData\Local\npm-cache\_logs\2026-07-01T13_25_24_327Z-debug-0.log
+
+added 15 packages in 5s
+
+7 packages are looking for funding
+  run `npm fund` for details
+npm error could not determine executable to run
+npm error A complete log of this run can be found in: C:\Users\Administrador\AppData\Local\npm-cache\_logs\2026-07-01T13_25_30_279Z-debug-0.log
+
+added 35 packages, and audited 51 packages in 13s
+
+14 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities

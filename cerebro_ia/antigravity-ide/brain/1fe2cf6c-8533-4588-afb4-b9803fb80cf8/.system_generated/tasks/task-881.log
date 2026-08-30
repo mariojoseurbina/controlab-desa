@@ -1,0 +1,21 @@
+🔄 Conectando a la base de datos infolab...
+❌ Error migrando exámenes: ConnectionError: Failed to connect to localhost\SQLEXPRESS in 15000ms
+    at C:\controlab-ia\backend\node_modules\mssql\lib\tedious\connection-pool.js:85:17
+    at Connection.onConnect (C:\controlab-ia\backend\node_modules\tedious\lib\connection.js:1012:9)
+    at Object.onceWrapper (node:events:623:26)
+    at Connection.emit (node:events:508:28)
+    at Connection.emit (C:\controlab-ia\backend\node_modules\tedious\lib\connection.js:1040:18)
+    at Connection.connectTimeout (C:\controlab-ia\backend\node_modules\tedious\lib\connection.js:1254:10)
+    at Timeout._onTimeout (C:\controlab-ia\backend\node_modules\tedious\lib\connection.js:1199:12)
+    at listOnTimeout (node:internal/timers:605:17)
+    at process.processTimers (node:internal/timers:541:7) {
+  code: 'ETIMEOUT',
+  originalError: ConnectionError: Failed to connect to localhost\SQLEXPRESS in 15000ms
+      at Connection.connectTimeout (C:\controlab-ia\backend\node_modules\tedious\lib\connection.js:1254:26)
+      at Timeout._onTimeout (C:\controlab-ia\backend\node_modules\tedious\lib\connection.js:1199:12)
+      at listOnTimeout (node:internal/timers:605:17)
+      at process.processTimers (node:internal/timers:541:7) {
+    code: 'ETIMEOUT',
+    isTransient: undefined
+  }
+}

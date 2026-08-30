@@ -1,0 +1,5 @@
+C:\controlab-ia\InventarioAutoProcessor\obj\Debug\InventarioAutoProcessor.csproj.AssemblyReference.cache
+C:\controlab-ia\InventarioAutoProcessor\obj\Debug\InventarioAutoProcessor.csproj.SuggestedBindingRedirects.cache
+C:\controlab-ia\InventarioAutoProcessor\obj\Debug\InventarioAutoProcessor.exe.config
+C:\controlab-ia\InventarioAutoProcessor\obj\Debug\InventarioAutoProcessor.csproj.CoreCompileInputs.cache
+c:\controlab-ia\InventarioAutoProcessor\obj\Debug\InventarioAutoProcessor.csprojResolveAssemblyReference.cache

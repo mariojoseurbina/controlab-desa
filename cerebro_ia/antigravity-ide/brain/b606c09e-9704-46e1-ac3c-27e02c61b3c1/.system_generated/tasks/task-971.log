@@ -1,0 +1,12 @@
+🚀 Servidor Controlab - IA ejecutándose en puerto 5000
+📊 Entorno: development
+🔐 Login intent: admin
+📦 Obteniendo inventario (Screaming Architecture)...
+✅ Inventario obtenido: 109 items
+🔌 Intentando conectar a SQL Server...
+📋 Configuración: {
+  server: 'localhost',
+  database: 'ControlabIA',
+  user: 'controlab_user'
+}
+✅ Conectado exitosamente a SQL Server - Controlab IA

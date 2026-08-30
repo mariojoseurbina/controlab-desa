@@ -1,0 +1,6 @@
+Successfully scheduled one-shot timer.
+Expected to fire at: 2026-07-01T15:01:40-04:00
+Prompt: Verify if React server has started successfully and bound to the port
+
+[2026-07-01T15:01:35-04:00] Still waiting. Remaining time: 5s
+[2026-07-01T15:01:40-04:00] Timer fired.

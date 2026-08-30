@@ -1,0 +1,386 @@
+
+> controlab-ia-backend@1.0.0 dev
+> nodemon server.js
+
+[nodemon] 3.1.10
+[nodemon] to restart at any time, enter `rs`
+[nodemon] watching path(s): *.*
+[nodemon] watching extensions: js,mjs,cjs,json
+[nodemon] starting `node server.js`
+🚀 Servidor Controlab - IA ejecutándose en puerto 5000
+📊 Entorno: development
+👥 Obteniendo pacientes...
+👥 Obteniendo pacientes...
+➕ Creando paciente: JASMIN CHACON
+❌ Error creando paciente: 
+Invalid `prisma.paciente.create()` invocation in
+C:\controlab-ia\backend\src\modules\human\human.service.js:76:32
+
+  73  * Registra un nuevo paciente
+  74  */
+  75 async function createPaciente(data) {
+→ 76   return await prisma.paciente.create(
+Unique constraint failed on the constraint: `dbo.pacientes_h`
+👥 Obteniendo pacientes...
+👥 Obteniendo pacientes...
+➕ Creando paciente: JASMIN CHACON
+❌ Error creando paciente: 
+Invalid `prisma.paciente.create()` invocation in
+C:\controlab-ia\backend\src\modules\human\human.service.js:76:32
+
+  73  * Registra un nuevo paciente
+  74  */
+  75 async function createPaciente(data) {
+→ 76   return await prisma.paciente.create(
+Unique constraint failed on the constraint: `dbo.pacientes_h`
+🔬 Obteniendo exámenes humanos...
+🔬 Obteniendo exámenes humanos...
+👥 Obteniendo pacientes...
+👥 Obteniendo pacientes...
+📋 Obteniendo catálogos humanos...
+📋 Obteniendo catálogos humanos...
+📋 Obteniendo catálogos humanos...
+📋 Obteniendo catálogos humanos...
+👥 Obteniendo pacientes...
+👥 Obteniendo pacientes...
+👥 Obteniendo pacientes...
+➕ Creando orden de examen humano...
+🔬 Obteniendo exámenes humanos...
+🔬 Obteniendo exámenes humanos...
+👥 Obteniendo pacientes...
+📋 Obteniendo catálogos humanos...
+👥 Obteniendo pacientes...
+📋 Obteniendo catálogos humanos...
+🔬 Obteniendo examen ID: 959673
+🔬 Obteniendo examen ID: 959672
+🔬 Obteniendo examen ID: 3
+📋 Obteniendo catálogos humanos...
+📋 Obteniendo catálogos humanos...
+👥 Obteniendo pacientes...
+➕ Creando orden de examen humano...
+🔬 Obteniendo exámenes humanos...
+🔬 Obteniendo exámenes humanos...
+👥 Obteniendo pacientes...
+👥 Obteniendo pacientes...
+📋 Obteniendo catálogos humanos...
+📋 Obteniendo catálogos humanos...
+🔬 Obteniendo examen ID: 959674
+🔬 Obteniendo examen ID: 959674
+🔬 Obteniendo examen ID: 959674
+💾 Guardando resultados para examen ID: 959674
+🔬 Obteniendo exámenes humanos...
+👥 Obteniendo pacientes...
+📋 Obteniendo catálogos humanos...
+📋 Obteniendo catálogos humanos...
+📋 Obteniendo catálogos humanos...
+🔬 Obteniendo exámenes humanos...
+🔬 Obteniendo exámenes humanos...
+👥 Obteniendo pacientes...
+📋 Obteniendo catálogos humanos...
+👥 Obteniendo pacientes...
+📋 Obteniendo catálogos humanos...
+🔬 Obteniendo examen ID: 959673
+🔬 Obteniendo examen ID: 959672
+[nodemon] restarting due to changes...
+[nodemon] restarting due to changes...
+[nodemon] restarting due to changes...
+[nodemon] starting `node server.js`
+node:internal/modules/cjs/loader:1424
+  throw err;
+  ^
+
+Error: Cannot find module './src/modules/human/human.routes'
+Require stack:
+- C:\controlab-ia\backend\server.js
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1421:15)
+    at defaultResolveImpl (node:internal/modules/cjs/loader:1059:19)
+    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1064:22)
+    at Module._load (node:internal/modules/cjs/loader:1227:37)
+    at TracingChannel.traceSync (node:diagnostics_channel:328:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:245:24)
+    at Module.require (node:internal/modules/cjs/loader:1504:12)
+    at require (node:internal/modules/helpers:152:16)
+    at Object.<anonymous> (C:\controlab-ia\backend\server.js:40:21)
+    at Module._compile (node:internal/modules/cjs/loader:1761:14) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [ 'C:\\controlab-ia\\backend\\server.js' ]
+}
+
+Node.js v24.12.0
+[nodemon] app crashed - waiting for file changes before starting...
+[nodemon] restarting due to changes...
+[nodemon] starting `node server.js`
+🚀 Servidor Controlab - IA ejecutándose en puerto 5000
+📊 Entorno: development
+🔐 Login intent: admin
+📊 Obteniendo métricas del dashboard...
+🔄 Inicializando Pool de Base de Datos...
+✅ Pool de base de datos conectado y listo.
+✅ Métricas obtenidas correctamente
+📊 Obteniendo métricas del dashboard...
+✅ Métricas obtenidas correctamente
+📊 GET /api/dashboard/category-distribution - Solicitado
+✅ Distribución por categoría obtenida: 7 filas
+📊 GET /api/dashboard/weekly-movements - Solicitado
+📊 GET /api/dashboard/category-distribution - Solicitado
+✅ Movimientos semanales obtenidos: { entradasTotal: 0, salidasTotal: 0 }
+✅ Distribución por categoría obtenida: 7 filas
+📊 GET /api/dashboard/weekly-movements - Solicitado
+✅ Movimientos semanales obtenidos: { entradasTotal: 0, salidasTotal: 0 }
+📊 Obteniendo métricas del dashboard...
+✅ Métricas obtenidas correctamente
+📊 Obteniendo métricas del dashboard...
+✅ Métricas obtenidas correctamente
+📊 GET /api/dashboard/category-distribution - Solicitado
+📊 GET /api/dashboard/weekly-movements - Solicitado
+✅ Distribución por categoría obtenida: 7 filas
+✅ Movimientos semanales obtenidos: { entradasTotal: 0, salidasTotal: 0 }
+📊 GET /api/dashboard/category-distribution - Solicitado
+📊 GET /api/dashboard/weekly-movements - Solicitado
+✅ Distribución por categoría obtenida: 7 filas
+✅ Movimientos semanales obtenidos: { entradasTotal: 0, salidasTotal: 0 }
+📊 Obteniendo métricas del dashboard...
+✅ Métricas obtenidas correctamente
+📊 Obteniendo métricas del dashboard...
+✅ Métricas obtenidas correctamente
+📊 GET /api/dashboard/category-distribution - Solicitado
+📊 GET /api/dashboard/weekly-movements - Solicitado
+✅ Movimientos semanales obtenidos: { entradasTotal: 0, salidasTotal: 0 }
+✅ Distribución por categoría obtenida: 7 filas
+📊 GET /api/dashboard/weekly-movements - Solicitado
+📊 GET /api/dashboard/category-distribution - Solicitado
+✅ Movimientos semanales obtenidos: { entradasTotal: 0, salidasTotal: 0 }
+✅ Distribución por categoría obtenida: 7 filas
+📊 Obteniendo métricas del dashboard...
+✅ Métricas obtenidas correctamente
+📊 Obteniendo métricas del dashboard...
+✅ Métricas obtenidas correctamente
+📊 GET /api/dashboard/category-distribution - Solicitado
+📊 GET /api/dashboard/weekly-movements - Solicitado
+✅ Distribución por categoría obtenida: 7 filas
+✅ Movimientos semanales obtenidos: { entradasTotal: 0, salidasTotal: 0 }
+📊 GET /api/dashboard/category-distribution - Solicitado
+📊 GET /api/dashboard/weekly-movements - Solicitado
+✅ Movimientos semanales obtenidos: { entradasTotal: 0, salidasTotal: 0 }
+✅ Distribución por categoría obtenida: 7 filas
+📊 Obteniendo métricas del dashboard...
+✅ Métricas obtenidas correctamente
+📊 Obteniendo métricas del dashboard...
+✅ Métricas obtenidas correctamente
+📊 GET /api/dashboard/category-distribution - Solicitado
+✅ Distribución por categoría obtenida: 7 filas
+📊 GET /api/dashboard/category-distribution - Solicitado
+📊 GET /api/dashboard/weekly-movements - Solicitado
+✅ Distribución por categoría obtenida: 7 filas
+✅ Movimientos semanales obtenidos: { entradasTotal: 0, salidasTotal: 0 }
+📊 GET /api/dashboard/weekly-movements - Solicitado
+✅ Movimientos semanales obtenidos: { entradasTotal: 0, salidasTotal: 0 }
+🔐 Login intent: admin
+📊 Obteniendo métricas del dashboard...
+✅ Métricas obtenidas correctamente
+📊 Obteniendo métricas del dashboard...
+✅ Métricas obtenidas correctamente
+📊 GET /api/dashboard/category-distribution - Solicitado
+📊 GET /api/dashboard/weekly-movements - Solicitado
+✅ Movimientos semanales obtenidos: { entradasTotal: 0, salidasTotal: 0 }
+✅ Distribución por categoría obtenida: 7 filas
+📊 GET /api/dashboard/weekly-movements - Solicitado
+✅ Movimientos semanales obtenidos: { entradasTotal: 0, salidasTotal: 0 }
+📊 GET /api/dashboard/category-distribution - Solicitado
+✅ Distribución por categoría obtenida: 7 filas
+📊 Obteniendo métricas del dashboard...
+✅ Métricas obtenidas correctamente
+📊 Obteniendo métricas del dashboard...
+✅ Métricas obtenidas correctamente
+📊 GET /api/dashboard/category-distribution - Solicitado
+✅ Distribución por categoría obtenida: 7 filas
+📊 GET /api/dashboard/weekly-movements - Solicitado
+📊 GET /api/dashboard/category-distribution - Solicitado
+✅ Movimientos semanales obtenidos: { entradasTotal: 0, salidasTotal: 0 }
+✅ Distribución por categoría obtenida: 7 filas
+📊 GET /api/dashboard/weekly-movements - Solicitado
+✅ Movimientos semanales obtenidos: { entradasTotal: 0, salidasTotal: 0 }
+📊 Obteniendo métricas del dashboard...
+✅ Métricas obtenidas correctamente
+📊 Obteniendo métricas del dashboard...
+✅ Métricas obtenidas correctamente
+📊 GET /api/dashboard/category-distribution - Solicitado
+✅ Distribución por categoría obtenida: 7 filas
+📊 GET /api/dashboard/weekly-movements - Solicitado
+📊 GET /api/dashboard/category-distribution - Solicitado
+✅ Movimientos semanales obtenidos: { entradasTotal: 0, salidasTotal: 0 }
+✅ Distribución por categoría obtenida: 7 filas
+📊 GET /api/dashboard/weekly-movements - Solicitado
+✅ Movimientos semanales obtenidos: { entradasTotal: 0, salidasTotal: 0 }
+📊 Obteniendo métricas del dashboard...
+✅ Métricas obtenidas correctamente
+📊 Obteniendo métricas del dashboard...
+✅ Métricas obtenidas correctamente
+📊 GET /api/dashboard/category-distribution - Solicitado
+📊 GET /api/dashboard/weekly-movements - Solicitado
+✅ Distribución por categoría obtenida: 7 filas
+✅ Movimientos semanales obtenidos: { entradasTotal: 0, salidasTotal: 0 }
+📊 GET /api/dashboard/category-distribution - Solicitado
+✅ Distribución por categoría obtenida: 7 filas
+📊 GET /api/dashboard/weekly-movements - Solicitado
+✅ Movimientos semanales obtenidos: { entradasTotal: 0, salidasTotal: 0 }
+📦 Obteniendo inventario (Screaming Architecture)...
+✅ Inventario obtenido: 116 items
+📦 Obteniendo inventario (Screaming Architecture)...
+✅ Inventario obtenido: 116 items
+🚚 Obteniendo lista de pruebas maestras...
+🚚 Obteniendo lista de pruebas maestras...
+📊 Generando análisis consolidado de costos...
+📊 Generando análisis consolidado de costos...
+📊 Generando reporte de impacto fiscal por área operativa...
+📊 Generando reporte de impacto fiscal por área operativa...
+📦 Obteniendo inventario (Screaming Architecture)...
+✅ Inventario obtenido: 116 items
+📦 Obteniendo inventario (Screaming Architecture)...
+✅ Inventario obtenido: 116 items
+📊 Obteniendo gastos globales mensuales...
+📊 Obteniendo gastos globales mensuales...
+🔬 Obteniendo costos por equipo...
+🔬 Obteniendo costos por equipo...
+🔌 Intentando conectar a SQL Server...
+📋 Configuración: {
+  server: 'localhost',
+  database: 'ControlabIA',
+  user: 'controlab_user'
+}
+✅ Conectado exitosamente a SQL Server
+❌ Error en reporte veterinario consolidado: Invalid object name 'especies_vet'.
+❌ Error en reporte veterinario consolidado: Invalid object name 'especies_vet'.
+❌ Error en reporte veterinario consolidado: Invalid object name 'especies_vet'.
+❌ Error en reporte veterinario consolidado: Invalid object name 'especies_vet'.
+[nodemon] restarting due to changes...
+[nodemon] starting `node server.js`
+node:events:486
+      throw er; // Unhandled 'error' event
+      ^
+
+Error: listen EADDRINUSE: address already in use :::5000
+    at Server.setupListenHandle [as _listen2] (node:net:1940:16)
+    at listenInCluster (node:net:1997:12)
+    at Server.listen (node:net:2102:7)
+    at app.listen (C:\controlab-ia\backend\node_modules\express\lib\application.js:635:24)
+    at Object.<anonymous> (C:\controlab-ia\backend\server.js:91:5)
+    at Module._compile (node:internal/modules/cjs/loader:1761:14)
+    at Object..js (node:internal/modules/cjs/loader:1893:10)
+    at Module.load (node:internal/modules/cjs/loader:1481:32)
+    at Module._load (node:internal/modules/cjs/loader:1300:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:328:14)
+Emitted 'error' event on Server instance at:
+    at emitErrorNT (node:net:1976:8)
+    at process.processTicksAndRejections (node:internal/process/task_queues:89:21) {
+  code: 'EADDRINUSE',
+  errno: -4091,
+  syscall: 'listen',
+  address: '::',
+  port: 5000
+}
+
+Node.js v24.12.0
+[nodemon] app crashed - waiting for file changes before starting...
+[nodemon] restarting due to changes...
+[nodemon] starting `node server.js`
+node:events:486
+      throw er; // Unhandled 'error' event
+      ^
+
+Error: listen EADDRINUSE: address already in use :::5000
+    at Server.setupListenHandle [as _listen2] (node:net:1940:16)
+    at listenInCluster (node:net:1997:12)
+    at Server.listen (node:net:2102:7)
+    at app.listen (C:\controlab-ia\backend\node_modules\express\lib\application.js:635:24)
+    at Object.<anonymous> (C:\controlab-ia\backend\server.js:91:5)
+    at Module._compile (node:internal/modules/cjs/loader:1761:14)
+    at Object..js (node:internal/modules/cjs/loader:1893:10)
+    at Module.load (node:internal/modules/cjs/loader:1481:32)
+    at Module._load (node:internal/modules/cjs/loader:1300:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:328:14)
+Emitted 'error' event on Server instance at:
+    at emitErrorNT (node:net:1976:8)
+    at process.processTicksAndRejections (node:internal/process/task_queues:89:21) {
+  code: 'EADDRINUSE',
+  errno: -4091,
+  syscall: 'listen',
+  address: '::',
+  port: 5000
+}
+
+Node.js v24.12.0
+[nodemon] app crashed - waiting for file changes before starting...
+[nodemon] restarting due to changes...
+[nodemon] starting `node server.js`
+🚀 Servidor Controlab - IA ejecutándose en puerto 5000
+📊 Entorno: development
+[nodemon] restarting due to changes...
+[nodemon] starting `node server.js`
+node:events:486
+      throw er; // Unhandled 'error' event
+      ^
+
+Error: listen EADDRINUSE: address already in use :::5000
+    at Server.setupListenHandle [as _listen2] (node:net:1940:16)
+    at listenInCluster (node:net:1997:12)
+    at Server.listen (node:net:2102:7)
+    at app.listen (C:\controlab-ia\backend\node_modules\express\lib\application.js:635:24)
+    at Object.<anonymous> (C:\controlab-ia\backend\server.js:91:5)
+    at Module._compile (node:internal/modules/cjs/loader:1761:14)
+    at Object..js (node:internal/modules/cjs/loader:1893:10)
+    at Module.load (node:internal/modules/cjs/loader:1481:32)
+    at Module._load (node:internal/modules/cjs/loader:1300:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:328:14)
+Emitted 'error' event on Server instance at:
+    at emitErrorNT (node:net:1976:8)
+    at process.processTicksAndRejections (node:internal/process/task_queues:89:21) {
+  code: 'EADDRINUSE',
+  errno: -4091,
+  syscall: 'listen',
+  address: '::',
+  port: 5000
+}
+
+Node.js v24.12.0
+[nodemon] app crashed - waiting for file changes before starting...
+[nodemon] restarting due to changes...
+[nodemon] starting `node server.js`
+node:events:486
+      throw er; // Unhandled 'error' event
+      ^
+
+Error: listen EADDRINUSE: address already in use :::5000
+    at Server.setupListenHandle [as _listen2] (node:net:1940:16)
+    at listenInCluster (node:net:1997:12)
+    at Server.listen (node:net:2102:7)
+    at app.listen (C:\controlab-ia\backend\node_modules\express\lib\application.js:635:24)
+    at Object.<anonymous> (C:\controlab-ia\backend\server.js:91:5)
+    at Module._compile (node:internal/modules/cjs/loader:1761:14)
+    at Object..js (node:internal/modules/cjs/loader:1893:10)
+    at Module.load (node:internal/modules/cjs/loader:1481:32)
+    at Module._load (node:internal/modules/cjs/loader:1300:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:328:14)
+Emitted 'error' event on Server instance at:
+    at emitErrorNT (node:net:1976:8)
+    at process.processTicksAndRejections (node:internal/process/task_queues:89:21) {
+  code: 'EADDRINUSE',
+  errno: -4091,
+  syscall: 'listen',
+  address: '::',
+  port: 5000
+}
+
+Node.js v24.12.0
+[nodemon] app crashed - waiting for file changes before starting...
+[nodemon] restarting due to changes...
+[nodemon] starting `node server.js`
+🚀 Servidor Controlab - IA ejecutándose en puerto 5000
+📊 Entorno: development
+🔌 Intentando conectar a SQL Server...
+📋 Configuración: {
+  server: 'localhost',
+  database: 'ControlabIA',
+  user: 'controlab_user'
+}
+✅ Conectado exitosamente a SQL Server

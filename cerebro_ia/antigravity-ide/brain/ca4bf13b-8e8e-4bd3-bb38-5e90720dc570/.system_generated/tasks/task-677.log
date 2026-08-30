@@ -1,0 +1,7 @@
+Successfully scheduled one-shot timer.
+Expected to fire at: 2026-06-22T19:42:40-04:00
+Prompt: Check if installer compression has finished
+
+[2026-06-22T19:42:20-04:00] Still waiting. Remaining time: 20s
+[2026-06-22T19:42:30-04:00] Still waiting. Remaining time: 10s
+[2026-06-22T19:42:40-04:00] Timer fired.

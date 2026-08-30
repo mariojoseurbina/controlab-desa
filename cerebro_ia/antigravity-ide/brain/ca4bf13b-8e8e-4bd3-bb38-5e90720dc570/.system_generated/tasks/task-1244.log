@@ -1,0 +1,14 @@
+🚀 [LIMS] Servidor TCP de escucha Mindray corriendo en el puerto 6000
+   Esperando tramas HL7 de Química / Hematología...
+🔌 [Mindray] Conexión establecida desde: ::1:65188
+📥 [Mindray] Datos recibidos:
+MSH|^~\&|BC-5000|Mindray|||20260622203000||ORU^R01|1|P|2.3PID|||PAT-001||Toby|||MOBR|1||VET-20260623-012|||20260622203000OBX|1|NM|HCT||36.0|%|37.0-55.0|N|||FOBX|2|NM|HGB||14.0|g/dL|12.0-18.0|N|||FOBX|3|NM|WBC||12.5|x10^3/uL|6.0-17.0|N|||F
+🔎 [HL7] ID de Muestra (Código Orden) detectado: VET-20260623-012
+💾 [HL7] Procesando resultados para la orden: VET-20260623-012
+🎯 [DB] Orden encontrada para el animal ID: TOBY-001
+   - Guardado: HCT = 36 (Fuera Rango: false)
+   - Guardado: HGB = 14 (Fuera Rango: false)
+   - Guardado: WBC = 12.5 (Fuera Rango: false)
+🎉 [DB] Orden VET-20260623-012 guardada exitosamente con estado: PARCIAL.
+✅ [HL7] ACK enviado al analizador.
+🔌 [Mindray] Conexión cerrada.

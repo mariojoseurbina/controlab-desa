@@ -1,0 +1,260 @@
+🚀 Servidor Controlab - IA ejecutándose en puerto 5000
+📊 Entorno: development
+📦 Obteniendo inventario (Screaming Architecture)...
+✅ Inventario obtenido: 109 items
+🤖 Pregunta recibida (Screaming Arch): undefined
+📦 Obteniendo inventario (Screaming Architecture)...
+✅ Inventario obtenido: 109 items
+📦 Obteniendo inventario (Screaming Architecture)...
+✅ Inventario obtenido: 109 items
+Error obteniendo reactivos: ConnectionError: Error de inicio de sesión del usuario 'sa'.
+    at C:\controlab-ia\backend\node_modules\mssql\lib\tedious\connection-pool.js:85:17
+    at Connection.onConnect (C:\controlab-ia\backend\node_modules\tedious\lib\connection.js:1012:9)
+    at Object.onceWrapper (node:events:623:26)
+    at Connection.emit (node:events:508:28)
+    at Connection.emit (C:\controlab-ia\backend\node_modules\tedious\lib\connection.js:1040:18)
+    at C:\controlab-ia\backend\node_modules\tedious\lib\connection.js:2519:18
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  code: 'ELOGIN',
+  originalError: ConnectionError: Error de inicio de sesión del usuario 'sa'.
+      at Login7TokenHandler.onErrorMessage (C:\controlab-ia\backend\node_modules\tedious\lib\token\handler.js:245:19)
+      at Readable.<anonymous> (C:\controlab-ia\backend\node_modules\tedious\lib\token\token-stream-parser.js:26:33)
+      at Readable.emit (node:events:508:28)
+      at addChunk (node:internal/streams/readable:559:12)
+      at readableAddChunkPushObjectMode (node:internal/streams/readable:536:3)
+      at Readable.push (node:internal/streams/readable:391:5)
+      at nextAsync (node:internal/streams/from:194:22)
+      at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+    code: 'ELOGIN',
+    isTransient: undefined
+  }
+}
+Error obteniendo reactivos: ConnectionError: Error de inicio de sesión del usuario 'sa'.
+    at C:\controlab-ia\backend\node_modules\mssql\lib\tedious\connection-pool.js:85:17
+    at Connection.onConnect (C:\controlab-ia\backend\node_modules\tedious\lib\connection.js:1012:9)
+    at Object.onceWrapper (node:events:623:26)
+    at Connection.emit (node:events:508:28)
+    at Connection.emit (C:\controlab-ia\backend\node_modules\tedious\lib\connection.js:1040:18)
+    at C:\controlab-ia\backend\node_modules\tedious\lib\connection.js:2519:18
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  code: 'ELOGIN',
+  originalError: ConnectionError: Error de inicio de sesión del usuario 'sa'.
+      at Login7TokenHandler.onErrorMessage (C:\controlab-ia\backend\node_modules\tedious\lib\token\handler.js:245:19)
+      at Readable.<anonymous> (C:\controlab-ia\backend\node_modules\tedious\lib\token\token-stream-parser.js:26:33)
+      at Readable.emit (node:events:508:28)
+      at addChunk (node:internal/streams/readable:559:12)
+      at readableAddChunkPushObjectMode (node:internal/streams/readable:536:3)
+      at Readable.push (node:internal/streams/readable:391:5)
+      at nextAsync (node:internal/streams/from:194:22)
+      at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+    code: 'ELOGIN',
+    isTransient: undefined
+  }
+}
+🤖 Pregunta recibida (Screaming Arch): Mostrar stock crítico
+📦 Obteniendo inventario (Screaming Architecture)...
+✅ Inventario obtenido: 109 items
+📦 Obteniendo inventario (Screaming Architecture)...
+✅ Inventario obtenido: 109 items
+Error obteniendo reactivos: ConnectionError: Error de inicio de sesión del usuario 'sa'.
+    at C:\controlab-ia\backend\node_modules\mssql\lib\tedious\connection-pool.js:85:17
+    at Connection.onConnect (C:\controlab-ia\backend\node_modules\tedious\lib\connection.js:1012:9)
+    at Object.onceWrapper (node:events:623:26)
+    at Connection.emit (node:events:508:28)
+    at Connection.emit (C:\controlab-ia\backend\node_modules\tedious\lib\connection.js:1040:18)
+    at C:\controlab-ia\backend\node_modules\tedious\lib\connection.js:2519:18
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  code: 'ELOGIN',
+  originalError: ConnectionError: Error de inicio de sesión del usuario 'sa'.
+      at Login7TokenHandler.onErrorMessage (C:\controlab-ia\backend\node_modules\tedious\lib\token\handler.js:245:19)
+      at Readable.<anonymous> (C:\controlab-ia\backend\node_modules\tedious\lib\token\token-stream-parser.js:26:33)
+      at Readable.emit (node:events:508:28)
+      at addChunk (node:internal/streams/readable:559:12)
+      at readableAddChunkPushObjectMode (node:internal/streams/readable:536:3)
+      at Readable.push (node:internal/streams/readable:391:5)
+      at nextAsync (node:internal/streams/from:194:22)
+      at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+    code: 'ELOGIN',
+    isTransient: undefined
+  }
+}
+Error obteniendo reactivos: ConnectionError: Error de inicio de sesión del usuario 'sa'.
+    at C:\controlab-ia\backend\node_modules\mssql\lib\tedious\connection-pool.js:85:17
+    at Connection.onConnect (C:\controlab-ia\backend\node_modules\tedious\lib\connection.js:1012:9)
+    at Object.onceWrapper (node:events:623:26)
+    at Connection.emit (node:events:508:28)
+    at Connection.emit (C:\controlab-ia\backend\node_modules\tedious\lib\connection.js:1040:18)
+    at C:\controlab-ia\backend\node_modules\tedious\lib\connection.js:2519:18
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  code: 'ELOGIN',
+  originalError: ConnectionError: Error de inicio de sesión del usuario 'sa'.
+      at Login7TokenHandler.onErrorMessage (C:\controlab-ia\backend\node_modules\tedious\lib\token\handler.js:245:19)
+      at Readable.<anonymous> (C:\controlab-ia\backend\node_modules\tedious\lib\token\token-stream-parser.js:26:33)
+      at Readable.emit (node:events:508:28)
+      at addChunk (node:internal/streams/readable:559:12)
+      at readableAddChunkPushObjectMode (node:internal/streams/readable:536:3)
+      at Readable.push (node:internal/streams/readable:391:5)
+      at nextAsync (node:internal/streams/from:194:22)
+      at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+    code: 'ELOGIN',
+    isTransient: undefined
+  }
+}
+Error obteniendo reactivos: ConnectionError: Error de inicio de sesión del usuario 'sa'.
+    at C:\controlab-ia\backend\node_modules\mssql\lib\tedious\connection-pool.js:85:17
+    at Connection.onConnect (C:\controlab-ia\backend\node_modules\tedious\lib\connection.js:1012:9)
+    at Object.onceWrapper (node:events:623:26)
+    at Connection.emit (node:events:508:28)
+    at Connection.emit (C:\controlab-ia\backend\node_modules\tedious\lib\connection.js:1040:18)
+    at C:\controlab-ia\backend\node_modules\tedious\lib\connection.js:2519:18
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  code: 'ELOGIN',
+  originalError: ConnectionError: Error de inicio de sesión del usuario 'sa'.
+      at Login7TokenHandler.onErrorMessage (C:\controlab-ia\backend\node_modules\tedious\lib\token\handler.js:245:19)
+      at Readable.<anonymous> (C:\controlab-ia\backend\node_modules\tedious\lib\token\token-stream-parser.js:26:33)
+      at Readable.emit (node:events:508:28)
+      at addChunk (node:internal/streams/readable:559:12)
+      at readableAddChunkPushObjectMode (node:internal/streams/readable:536:3)
+      at Readable.push (node:internal/streams/readable:391:5)
+      at nextAsync (node:internal/streams/from:194:22)
+      at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+    code: 'ELOGIN',
+    isTransient: undefined
+  }
+}
+Error obteniendo reactivos: ConnectionError: Error de inicio de sesión del usuario 'sa'.
+    at C:\controlab-ia\backend\node_modules\mssql\lib\tedious\connection-pool.js:85:17
+    at Connection.onConnect (C:\controlab-ia\backend\node_modules\tedious\lib\connection.js:1012:9)
+    at Object.onceWrapper (node:events:623:26)
+    at Connection.emit (node:events:508:28)
+    at Connection.emit (C:\controlab-ia\backend\node_modules\tedious\lib\connection.js:1040:18)
+    at C:\controlab-ia\backend\node_modules\tedious\lib\connection.js:2519:18
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  code: 'ELOGIN',
+  originalError: ConnectionError: Error de inicio de sesión del usuario 'sa'.
+      at Login7TokenHandler.onErrorMessage (C:\controlab-ia\backend\node_modules\tedious\lib\token\handler.js:245:19)
+      at Readable.<anonymous> (C:\controlab-ia\backend\node_modules\tedious\lib\token\token-stream-parser.js:26:33)
+      at Readable.emit (node:events:508:28)
+      at addChunk (node:internal/streams/readable:559:12)
+      at readableAddChunkPushObjectMode (node:internal/streams/readable:536:3)
+      at Readable.push (node:internal/streams/readable:391:5)
+      at nextAsync (node:internal/streams/from:194:22)
+      at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+    code: 'ELOGIN',
+    isTransient: undefined
+  }
+}
+🔐 Login intent: admin
+📦 Obteniendo inventario (Screaming Architecture)...
+✅ Inventario obtenido: 109 items
+📦 Obteniendo inventario (Screaming Architecture)...
+✅ Inventario obtenido: 109 items
+Error obteniendo reactivos: ConnectionError: Error de inicio de sesión del usuario 'sa'.
+    at C:\controlab-ia\backend\node_modules\mssql\lib\tedious\connection-pool.js:85:17
+    at Connection.onConnect (C:\controlab-ia\backend\node_modules\tedious\lib\connection.js:1012:9)
+    at Object.onceWrapper (node:events:623:26)
+    at Connection.emit (node:events:508:28)
+    at Connection.emit (C:\controlab-ia\backend\node_modules\tedious\lib\connection.js:1040:18)
+    at C:\controlab-ia\backend\node_modules\tedious\lib\connection.js:2519:18
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  code: 'ELOGIN',
+  originalError: ConnectionError: Error de inicio de sesión del usuario 'sa'.
+      at Login7TokenHandler.onErrorMessage (C:\controlab-ia\backend\node_modules\tedious\lib\token\handler.js:245:19)
+      at Readable.<anonymous> (C:\controlab-ia\backend\node_modules\tedious\lib\token\token-stream-parser.js:26:33)
+      at Readable.emit (node:events:508:28)
+      at addChunk (node:internal/streams/readable:559:12)
+      at readableAddChunkPushObjectMode (node:internal/streams/readable:536:3)
+      at Readable.push (node:internal/streams/readable:391:5)
+      at nextAsync (node:internal/streams/from:194:22)
+      at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+    code: 'ELOGIN',
+    isTransient: undefined
+  }
+}
+Error obteniendo reactivos: ConnectionError: Error de inicio de sesión del usuario 'sa'.
+    at C:\controlab-ia\backend\node_modules\mssql\lib\tedious\connection-pool.js:85:17
+    at Connection.onConnect (C:\controlab-ia\backend\node_modules\tedious\lib\connection.js:1012:9)
+    at Object.onceWrapper (node:events:623:26)
+    at Connection.emit (node:events:508:28)
+    at Connection.emit (C:\controlab-ia\backend\node_modules\tedious\lib\connection.js:1040:18)
+    at C:\controlab-ia\backend\node_modules\tedious\lib\connection.js:2519:18
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  code: 'ELOGIN',
+  originalError: ConnectionError: Error de inicio de sesión del usuario 'sa'.
+      at Login7TokenHandler.onErrorMessage (C:\controlab-ia\backend\node_modules\tedious\lib\token\handler.js:245:19)
+      at Readable.<anonymous> (C:\controlab-ia\backend\node_modules\tedious\lib\token\token-stream-parser.js:26:33)
+      at Readable.emit (node:events:508:28)
+      at addChunk (node:internal/streams/readable:559:12)
+      at readableAddChunkPushObjectMode (node:internal/streams/readable:536:3)
+      at Readable.push (node:internal/streams/readable:391:5)
+      at nextAsync (node:internal/streams/from:194:22)
+      at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+    code: 'ELOGIN',
+    isTransient: undefined
+  }
+}
+📦 Obteniendo inventario (Screaming Architecture)...
+✅ Inventario obtenido: 109 items
+📦 Obteniendo inventario (Screaming Architecture)...
+✅ Inventario obtenido: 109 items
+🤖 Pregunta recibida (Screaming Arch): Items por vencer
+🤖 Pregunta recibida (Screaming Arch): Resumen del inventario
+🤖 Pregunta recibida (Screaming Arch): Items más costosos
+🤖 Pregunta recibida (Screaming Arch): Análisis por categorías
+🤖 Pregunta recibida (Screaming Arch): Pronóstico de reposición
+🤖 Pregunta recibida (Screaming Arch): Items agotados
+🤖 Pregunta recibida (Screaming Arch): Reactivos y Lotes Reactivos
+🤖 Pregunta recibida (Screaming Arch): Análisis de proveedores
+🤖 Pregunta recibida (Screaming Arch): Lista de precios de inventario
+📦 Obteniendo inventario (Screaming Architecture)...
+✅ Inventario obtenido: 109 items
+📦 Obteniendo inventario (Screaming Architecture)...
+✅ Inventario obtenido: 109 items
+Error obteniendo reactivos: ConnectionError: Error de inicio de sesión del usuario 'sa'.
+    at C:\controlab-ia\backend\node_modules\mssql\lib\tedious\connection-pool.js:85:17
+    at Connection.onConnect (C:\controlab-ia\backend\node_modules\tedious\lib\connection.js:1012:9)
+    at Object.onceWrapper (node:events:623:26)
+    at Connection.emit (node:events:508:28)
+    at Connection.emit (C:\controlab-ia\backend\node_modules\tedious\lib\connection.js:1040:18)
+    at C:\controlab-ia\backend\node_modules\tedious\lib\connection.js:2519:18
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  code: 'ELOGIN',
+  originalError: ConnectionError: Error de inicio de sesión del usuario 'sa'.
+      at Login7TokenHandler.onErrorMessage (C:\controlab-ia\backend\node_modules\tedious\lib\token\handler.js:245:19)
+      at Readable.<anonymous> (C:\controlab-ia\backend\node_modules\tedious\lib\token\token-stream-parser.js:26:33)
+      at Readable.emit (node:events:508:28)
+      at addChunk (node:internal/streams/readable:559:12)
+      at readableAddChunkPushObjectMode (node:internal/streams/readable:536:3)
+      at Readable.push (node:internal/streams/readable:391:5)
+      at nextAsync (node:internal/streams/from:194:22)
+      at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+    code: 'ELOGIN',
+    isTransient: undefined
+  }
+}
+Error obteniendo reactivos: ConnectionError: Error de inicio de sesión del usuario 'sa'.
+    at C:\controlab-ia\backend\node_modules\mssql\lib\tedious\connection-pool.js:85:17
+    at Connection.onConnect (C:\controlab-ia\backend\node_modules\tedious\lib\connection.js:1012:9)
+    at Object.onceWrapper (node:events:623:26)
+    at Connection.emit (node:events:508:28)
+    at Connection.emit (C:\controlab-ia\backend\node_modules\tedious\lib\connection.js:1040:18)
+    at C:\controlab-ia\backend\node_modules\tedious\lib\connection.js:2519:18
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  code: 'ELOGIN',
+  originalError: ConnectionError: Error de inicio de sesión del usuario 'sa'.
+      at Login7TokenHandler.onErrorMessage (C:\controlab-ia\backend\node_modules\tedious\lib\token\handler.js:245:19)
+      at Readable.<anonymous> (C:\controlab-ia\backend\node_modules\tedious\lib\token\token-stream-parser.js:26:33)
+      at Readable.emit (node:events:508:28)
+      at addChunk (node:internal/streams/readable:559:12)
+      at readableAddChunkPushObjectMode (node:internal/streams/readable:536:3)
+      at Readable.push (node:internal/streams/readable:391:5)
+      at nextAsync (node:internal/streams/from:194:22)
+      at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+    code: 'ELOGIN',
+    isTransient: undefined
+  }
+}
+📦 Obteniendo inventario (Screaming Architecture)...
+✅ Inventario obtenido: 109 items
+📦 Obteniendo inventario (Screaming Architecture)...
+✅ Inventario obtenido: 109 items

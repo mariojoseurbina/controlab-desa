@@ -1,0 +1,19 @@
+Sending prompt: ¿Cuál es la prueba de laboratorio que nos deja el mayor margen de ganancia neta?
+[Agent] Enviando prompt inicial a Gemini...
+[Agent] Gemini solicitó ejecutar la herramienta: calculateTestMargins
+[Agent] Devolviendo 1 resultados de herramientas a Gemini...
+Success: {
+  respuesta: 'La prueba de laboratorio que nos deja el mayor margen de ganancia neta es:\n' +
+    '\n' +
+    '*   **Glicemia (Test)**\n' +
+    '    *   **Precio de Venta:** $5\n' +
+    '    *   **Costo Real por Prueba:** $1.1\n' +
+    '    *   **Ganancia Neta:** $3.9\n' +
+    '    *   **Margen de Rentabilidad:** 77.95%\n' +
+    '    *   **Desglose de Costo:**\n' +
+    '        *   Consumibles: $0.55\n' +
+    '        *   Mantenimiento de Equipo: $0.3\n' +
+    '        *   Reactivo: $0.2\n' +
+    '        *   Desperdicio Estimado: $0.05',
+  fuente: 'Controlab Brain Agent (Google Gemini 1.5 Flash)'
+}

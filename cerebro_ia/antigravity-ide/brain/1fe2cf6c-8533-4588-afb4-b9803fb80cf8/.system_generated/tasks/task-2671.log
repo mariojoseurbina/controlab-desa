@@ -1,0 +1,35 @@
+
+
+    Directorio: C:\controlab-ia
+
+
+Mode                LastWriteTime         Length Name                                                                  
+----                -------------         ------ ----                                                                  
+d-----       06/07/2026     12:14                controlab-sniffer                                                     
+Wrote to C:\controlab-ia\controlab-sniffer\package.json:
+
+{
+  "name": "controlab-sniffer",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs"
+}
+
+
+
+
+added 46 packages, and audited 47 packages in 6s
+
+9 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+
+

@@ -1,0 +1,6 @@
+{
+  "artifactType": "ARTIFACT_TYPE_IMPLEMENTATION_PLAN",
+  "summary": "Plan de implementación para refactorizar Controlab-IA hacia una Arquitectura 'Screaming' (Domain-Driven)",
+  "updatedAt": "2026-05-24T15:13:58.768656Z",
+  "requestFeedback": true
+}

@@ -1,0 +1,12 @@
+Environment variables loaded from .env
+Prisma schema loaded from prisma\schema.prisma
+Datasource "db": SQL Server database
+
+Your database is now in sync with your Prisma schema. Done in 596ms
+
+Running generate... (Use --skip-generate to skip the generators)
+Running generate... - Prisma Client
+EPERM: operation not permitted, rename 'C:\controlab-ia\backend\node_modules\.pr
+isma\client\query_engine-windows.dll.node.tmp18120' -> 'C:\controlab-ia\backend\
+node_modules\.prisma\client\query_engine-windows.dll.node'
+
