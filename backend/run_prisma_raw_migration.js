@@ -21,7 +21,13 @@ async function migrateColumnsWithPrisma() {
     { name: 'equipo_asociado', type: 'NVARCHAR(100) NULL' },
     { name: 'consumo_indicado', type: 'DECIMAL(10, 4) NULL' },
     { name: 'consumo_real', type: 'DECIMAL(10, 4) NULL' },
-    { name: 'desviacion_consumo', type: 'DECIMAL(5, 2) NULL' }
+    { name: 'desviacion_consumo', type: 'DECIMAL(5, 2) NULL' },
+    { name: 'referencia_abreviada', type: 'NVARCHAR(50) NULL' },
+    { name: 'nivel', type: 'NVARCHAR(50) NULL' },
+    { name: 'frascos_por_caja', type: 'DECIMAL(10, 2) NULL' },
+    { name: 'volumen_por_frasco', type: 'DECIMAL(10, 4) NULL' },
+    { name: 'volumen_muerto_residual', type: 'DECIMAL(10, 4) NULL' },
+    { name: 'pruebas_teoricas_frasco', type: 'DECIMAL(10, 2) NULL' }
   ];
 
   for (const col of columnsToAdd) {
@@ -41,8 +47,25 @@ async function migrateColumnsWithPrisma() {
     }
   }
 
-  console.log('🎉 Migración de columnas finalizada.');
+  try {
+    console.log('🧹 Vaciando tablas relacionales de inventario para pruebas limpias...');
+    await prisma.$executeRawUnsafe(`
+      DELETE FROM vinculo_prueba_item;
+      DELETE FROM LotesReactivos;
+      DELETE FROM movimientos_inventario;
+      DELETE FROM stock_por_almacen;
+      DELETE FROM reactivos;
+      DELETE FROM consumible_prueba;
+      DELETE FROM items_inventario;
+    `);
+    console.log('✅ Base de datos vaciada con éxito.');
+  } catch (err) {
+    console.error('⚠️ Error al vaciar inventario:', err.message);
+  }
+
+  console.log('🎉 Migración de columnas e inventario finalizada.');
   process.exit(0);
 }
 
 migrateColumnsWithPrisma();
+

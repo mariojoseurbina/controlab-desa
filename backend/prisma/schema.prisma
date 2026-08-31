@@ -52,6 +52,15 @@ model ItemInventario {
   consumo_indicado    Decimal?         @db.Decimal(10, 4)
   consumo_real        Decimal?         @db.Decimal(10, 4)
   desviacion_consumo  Decimal?         @db.Decimal(5, 2)
+  referencia_abreviada String?         @db.NVarChar(50)
+  presentacion        String?          @db.NVarChar(100)
+  nivel               String?          @db.NVarChar(50)
+  frascos_por_caja    Decimal?         @db.Decimal(10, 2)
+  volumen_por_frasco  Decimal?         @db.Decimal(10, 4)
+  volumen_muerto_residual Decimal?     @db.Decimal(10, 4)
+  pruebas_teoricas_frasco Decimal?     @db.Decimal(10, 2)
+  pruebas_teoricas_caja   Decimal?     @db.Decimal(10, 2)
+  volumen_total_caja      Decimal?     @db.Decimal(10, 2)
   usuarios            usuarios?        @relation(fields: [creado_por], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK__items_inv__cread__1DE57479")
   stock_sucursales    StockPorAlmacen[]
   LotesReactivos      LotesReactivos[]
