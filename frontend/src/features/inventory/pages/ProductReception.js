@@ -13,20 +13,22 @@ import {
   Inventory as InventoryIcon,
   AttachMoney as MoneyIcon,
   Warehouse as WarehouseIcon,
-  Business as SupplierIcon
+  Business as SupplierIcon,
+  QrCode2 as QrCodeIcon,
+  CheckCircle as CheckIcon
 } from '@mui/icons-material';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
-// Configuración de filtro rápido para Autocomplete (Límite 50 para ultra fluidez)
 const customFilterOptions = createFilterOptions({
   limit: 50,
-  stringify: (option) => `${option.codigo} ${option.nombre} ${option.referencia_abreviada || ''} ${option.equipo_asociado || ''}`
+  stringify: (option) => `${option.codigo_barra || ''} ${option.codigo} ${option.nombre} ${option.referencia_abreviada || ''} ${option.equipo_asociado || ''}`
 });
 
-// COMPONENTE MODAL AISLADO (MEMOIZADO): Garantiza tipeo ultra fluido a 60 FPS
+// COMPONENTE MODAL AISLADO (MEMOIZADO): Garantiza tipeo y escaneo ultra fluido a 60 FPS
 const ReceptionModalForm = memo(({ open, onClose, products, suppliers, onAddSupplierClick, onSubmitSuccess, showSnackbar }) => {
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [scannedMessage, setScannedMessage] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     cantidad_cajas: '',
@@ -38,6 +40,7 @@ const ReceptionModalForm = memo(({ open, onClose, products, suppliers, onAddSupp
     proveedor_id: '',
     nro_factura: '',
     nota_entrega: '',
+    codigo_barra: '',
     precio_recepcion_usd: '',
     referencia_documento: ''
   });
@@ -45,6 +48,7 @@ const ReceptionModalForm = memo(({ open, onClose, products, suppliers, onAddSupp
   useEffect(() => {
     if (open) {
       setSelectedProduct(null);
+      setScannedMessage('');
       setFormData({
         cantidad_cajas: '',
         presentacion_empaque: 'Cajas',
@@ -55,6 +59,7 @@ const ReceptionModalForm = memo(({ open, onClose, products, suppliers, onAddSupp
         proveedor_id: '',
         nro_factura: '',
         nota_entrega: '',
+        codigo_barra: '',
         precio_recepcion_usd: '',
         referencia_documento: ''
       });
@@ -63,10 +68,40 @@ const ReceptionModalForm = memo(({ open, onClose, products, suppliers, onAddSupp
 
   const handleProductSelect = (event, newValue) => {
     setSelectedProduct(newValue);
-    if (newValue && newValue.precio_costo) {
+    if (newValue) {
       setFormData(prev => ({
         ...prev,
-        precio_recepcion_usd: newValue.precio_costo
+        codigo_barra: newValue.codigo_barra || prev.codigo_barra,
+        precio_recepcion_usd: newValue.precio_costo || prev.precio_recepcion_usd,
+        presentacion_empaque: newValue.presentacion || prev.presentacion_empaque
+      }));
+    }
+  };
+
+  // Manejador inteligente de Escaneo de Código de Barras
+  const handleBarcodeScanChange = (e) => {
+    const codeVal = e.target.value;
+    setFormData(prev => ({ ...prev, codigo_barra: codeVal }));
+    setScannedMessage('');
+
+    if (!codeVal || codeVal.trim().length < 3) return;
+
+    const cleanCode = codeVal.trim().toLowerCase();
+    const matched = products.find(p => (
+      (p.codigo_barra && p.codigo_barra.toLowerCase() === cleanCode) ||
+      (p.codigo && p.codigo.toLowerCase() === cleanCode) ||
+      (p.referencia && p.referencia.toLowerCase() === cleanCode) ||
+      (p.referencia_abreviada && p.referencia_abreviada.toLowerCase() === cleanCode)
+    ));
+
+    if (matched) {
+      setSelectedProduct(matched);
+      setScannedMessage(`✅ Producto identificado: [${matched.codigo}] ${matched.nombre}`);
+      setFormData(prev => ({
+        ...prev,
+        cantidad_cajas: prev.cantidad_cajas ? String(parseFloat(prev.cantidad_cajas) + 1) : '1',
+        precio_recepcion_usd: matched.precio_costo || prev.precio_recepcion_usd,
+        presentacion_empaque: matched.presentacion || prev.presentacion_empaque
       }));
     }
   };
@@ -74,7 +109,7 @@ const ReceptionModalForm = memo(({ open, onClose, products, suppliers, onAddSupp
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!selectedProduct) {
-      showSnackbar('Por favor selecciona un producto del catálogo', 'error');
+      showSnackbar('Por favor selecciona o escanea un producto del catálogo', 'error');
       return;
     }
     if (!formData.cantidad_cajas || !formData.lote || !formData.almacen_id) {
@@ -96,6 +131,7 @@ const ReceptionModalForm = memo(({ open, onClose, products, suppliers, onAddSupp
         proveedor_id: formData.proveedor_id ? parseInt(formData.proveedor_id, 10) : null,
         nro_factura: formData.nro_factura.trim(),
         nota_entrega: formData.nota_entrega.trim(),
+        codigo_barra: formData.codigo_barra.trim(),
         precio_recepcion_usd: formData.precio_recepcion_usd ? parseFloat(formData.precio_recepcion_usd) : 0,
         referencia_documento: formData.referencia_documento.trim()
       };
@@ -193,7 +229,36 @@ const ReceptionModalForm = memo(({ open, onClose, products, suppliers, onAddSupp
               />
             </Grid>
 
-            {/* 4. CAMPO PRODUCTO A INGRESAR * (BUSCADOR AUTOCOMPLETE) */}
+            {/* 4. CAMPO CÓDIGO DE BARRAS (ESCÁNER INTELIGENTE DE CÓDIGO DE BARRAS) */}
+            <Grid item xs={12} sm={6}>
+              <Typography variant="subtitle2" fontWeight={800} color="#1e293b" mb={1}>
+                CÓDIGO DE BARRAS (ESCÁNER / GTIN / P/N)
+              </Typography>
+              <TextField
+                fullWidth
+                placeholder="Escanea el código de barras aquí..."
+                value={formData.codigo_barra}
+                onChange={handleBarcodeScanChange}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <QrCodeIcon color="primary" />
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            </Grid>
+
+            {/* MENSAJE DE IDENTIFICACIÓN AUTOMÁTICA POR ESCÁNER */}
+            {scannedMessage && (
+              <Grid item xs={12}>
+                <Alert severity="success" icon={<CheckIcon />} sx={{ borderRadius: 2, fontWeight: 800 }}>
+                  {scannedMessage}
+                </Alert>
+              </Grid>
+            )}
+
+            {/* 5. CAMPO PRODUCTO A INGRESAR * (BUSCADOR AUTOCOMPLETE) */}
             <Grid item xs={12}>
               <Typography variant="subtitle2" fontWeight={800} color="#1e293b" mb={1}>
                 PRODUCTO A INGRESAR *
@@ -215,7 +280,7 @@ const ReceptionModalForm = memo(({ open, onClose, products, suppliers, onAddSupp
               />
             </Grid>
 
-            {/* 5. CAMPO PRESENTACIÓN * */}
+            {/* 6. CAMPO PRESENTACIÓN * */}
             <Grid item xs={12} sm={6}>
               <Typography variant="subtitle2" fontWeight={800} color="#1e293b" mb={1}>
                 PRESENTACIÓN *
@@ -234,7 +299,7 @@ const ReceptionModalForm = memo(({ open, onClose, products, suppliers, onAddSupp
               </TextField>
             </Grid>
 
-            {/* 6. CAMPO CANTIDAD * */}
+            {/* 7. CAMPO CANTIDAD * */}
             <Grid item xs={12} sm={6}>
               <Typography variant="subtitle2" fontWeight={800} color="#1e293b" mb={1}>
                 CANTIDAD *
@@ -250,7 +315,7 @@ const ReceptionModalForm = memo(({ open, onClose, products, suppliers, onAddSupp
               />
             </Grid>
 
-            {/* 7. LOTE ASOCIADO AL PRODUCTO * */}
+            {/* 8. LOTE ASOCIADO AL PRODUCTO * */}
             <Grid item xs={12} sm={6}>
               <Typography variant="subtitle2" fontWeight={800} color="#1e293b" mb={1}>
                 LOTE ASOCIADO AL PRODUCTO *
@@ -264,7 +329,7 @@ const ReceptionModalForm = memo(({ open, onClose, products, suppliers, onAddSupp
               />
             </Grid>
 
-            {/* 8. FECHA DE FABRICACIÓN */}
+            {/* 9. FECHA DE FABRICACIÓN */}
             <Grid item xs={12} sm={6}>
               <Typography variant="subtitle2" fontWeight={800} color="#1e293b" mb={1}>
                 FECHA DE FABRICACIÓN
@@ -278,7 +343,7 @@ const ReceptionModalForm = memo(({ open, onClose, products, suppliers, onAddSupp
               />
             </Grid>
 
-            {/* 9. FECHA DE VENCIMIENTO */}
+            {/* 10. FECHA DE VENCIMIENTO */}
             <Grid item xs={12} sm={6}>
               <Typography variant="subtitle2" fontWeight={800} color="#1e293b" mb={1}>
                 FECHA DE VENCIMIENTO
@@ -292,7 +357,7 @@ const ReceptionModalForm = memo(({ open, onClose, products, suppliers, onAddSupp
               />
             </Grid>
 
-            {/* 10. ALMACÉN DE DESTINO * */}
+            {/* 11. ALMACÉN DE DESTINO * */}
             <Grid item xs={12} sm={6}>
               <Typography variant="subtitle2" fontWeight={800} color="#1e293b" mb={1}>
                 ALMACÉN DE DESTINO *
@@ -308,7 +373,7 @@ const ReceptionModalForm = memo(({ open, onClose, products, suppliers, onAddSupp
               </TextField>
             </Grid>
 
-            {/* 11. VALOR EN DÓLARES SEGÚN RECEPCIÓN ($ USD) */}
+            {/* 12. VALOR EN DÓLARES SEGÚN RECEPCIÓN ($ USD) */}
             <Grid item xs={12} sm={6}>
               <Typography variant="subtitle2" fontWeight={800} color="#1e293b" mb={1}>
                 VALOR EN DÓLARES SEGÚN RECEPCIÓN ($ USD)
@@ -326,7 +391,7 @@ const ReceptionModalForm = memo(({ open, onClose, products, suppliers, onAddSupp
               />
             </Grid>
 
-            {/* 12. NRO DE GUÍA DE RECEPCIÓN / ORDEN DE COMPRA */}
+            {/* 13. NRO DE GUÍA DE RECEPCIÓN / ORDEN DE COMPRA */}
             <Grid item xs={12}>
               <Typography variant="subtitle2" fontWeight={800} color="#1e293b" mb={1}>
                 NRO DE GUÍA DE RECEPCIÓN / ORDEN DE COMPRA
@@ -488,6 +553,7 @@ const ProductReception = () => {
         (r.proveedor_nombre && r.proveedor_nombre.toLowerCase().includes(search)) ||
         (r.nro_factura && r.nro_factura.toLowerCase().includes(search)) ||
         (r.nota_entrega && r.nota_entrega.toLowerCase().includes(search)) ||
+        (r.codigo_barra && r.codigo_barra.toLowerCase().includes(search)) ||
         (r.referencia && r.referencia.toLowerCase().includes(search)) ||
         (r.almacen_nombre && r.almacen_nombre.toLowerCase().includes(search));
 
@@ -536,7 +602,7 @@ const ProductReception = () => {
                 Ingreso de Productos - Recepción
               </Typography>
               <Typography variant="body2" sx={{ color: '#cbd5e1', mt: 0.5 }}>
-                Recepción oficial de mercancía enviada por Compras, asignación de lotes, almacén y trazabilidad
+                Recepción oficial de mercancía enviada por Compras, escaneo de código de barras, asignación de lotes y trazabilidad
               </Typography>
             </Box>
           </Box>
@@ -634,7 +700,7 @@ const ProductReception = () => {
             <TextField
               fullWidth
               size="small"
-              placeholder="Búsqueda inteligente por Producto, REF (P/N), Código, Lote, Proveedor, Factura o Almacén..."
+              placeholder="Búsqueda inteligente por Producto, Código de Barras, REF (P/N), Lote, Proveedor o Factura..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               InputProps={{
@@ -676,7 +742,7 @@ const ProductReception = () => {
           <TableHead sx={{ bgcolor: '#0f172a' }}>
             <TableRow>
               <TableCell sx={{ color: 'white', fontWeight: 800 }}>Fecha Ingreso</TableCell>
-              <TableCell sx={{ color: 'white', fontWeight: 800 }}>Código / REF</TableCell>
+              <TableCell sx={{ color: 'white', fontWeight: 800 }}>Código / REF / Barras</TableCell>
               <TableCell sx={{ color: 'white', fontWeight: 800 }}>Producto</TableCell>
               <TableCell sx={{ color: 'white', fontWeight: 800 }}>Lote / Vencimiento</TableCell>
               <TableCell sx={{ color: 'white', fontWeight: 800 }}>Proveedor</TableCell>
@@ -721,9 +787,17 @@ const ProductReception = () => {
                       {row.item_codigo}
                     </Typography>
                     {row.item_referencia && (
-                      <Typography variant="caption" color="textSecondary">
+                      <Typography variant="caption" color="textSecondary" sx={{ display: 'block' }}>
                         REF: {row.item_referencia}
                       </Typography>
+                    )}
+                    {row.codigo_barra && (
+                      <Chip
+                        icon={<QrCodeIcon style={{ fontSize: 12 }} />}
+                        label={row.codigo_barra}
+                        size="small"
+                        sx={{ fontSize: 10, height: 18, bgcolor: '#f1f5f9', fontWeight: 700, mt: 0.5 }}
+                      />
                     )}
                   </TableCell>
 
@@ -794,7 +868,7 @@ const ProductReception = () => {
                 </TableRow>
               ))
             )}
-          </TableBody>
+          TableBody>
         </Table>
       </TableContainer>
 
