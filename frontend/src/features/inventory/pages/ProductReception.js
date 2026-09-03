@@ -753,7 +753,7 @@ const ProductReception = () => {
               <TableCell sx={{ color: 'white', fontWeight: 800, textAlign: 'right' }}>Valor Total ($)</TableCell>
             </TableRow>
           </TableHead>
-          <TableBody>
+          <</TableBody>
             {loading ? (
               <TableRow>
                 <TableCell colSpan={10} align="center" sx={{ py: 6 }}>
