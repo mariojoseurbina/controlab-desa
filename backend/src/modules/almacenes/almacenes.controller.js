@@ -41,6 +41,7 @@ class AlmacenesController {
           i.categoria as item_categoria,
           i.marca as item_marca,
           i.equipo_asociado as item_equipo,
+          ISNULL(i.pruebas_teoricas_caja, ISNULL(i.rendimiento_teorico, 500)) as rendimiento_teorico,
           i.stock_actual as stock_total_global,
           ISNULL(sc.stock_actual, 0) as stock_central,
           ISNULL(sl.stock_actual, 0) as stock_laboratorio
@@ -67,6 +68,7 @@ class AlmacenesController {
 
         return {
           ...r,
+          rendimiento_teorico: Number(r.rendimiento_teorico) || 500,
           stock_central: sc,
           stock_laboratorio: sl,
           stock_total_global: st

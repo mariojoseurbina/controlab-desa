@@ -420,6 +420,23 @@ const TransferModalForm = memo(({ open, onClose, products, onProductSelect, onSu
               />
             </Grid>
 
+            {/* BANNER DE DESGLOSE AUTOMÁTICO SEGÚN FICHA DE PRODUCTO */}
+            {selectedProduct && transferData.cantidad && parseFloat(transferData.cantidad) > 0 && String(transferData.almacen_destino_id) === '2' && (
+              <Grid item xs={12}>
+                <Paper elevation={0} sx={{ p: 2, bgcolor: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 3 }}>
+                  <Typography variant="caption" sx={{ fontWeight: 800, color: '#166534', textTransform: 'uppercase', display: 'block', mb: 0.5 }}>
+                    🔬 Desglose Operativo según Ficha de Producto (ISO 15189):
+                  </Typography>
+                  <Typography variant="body2" sx={{ fontWeight: 900, color: '#0f172a' }}>
+                    {transferData.cantidad} Cajas ➔ { (parseFloat(transferData.cantidad) * (selectedProduct.pruebas_teoricas_caja || selectedProduct.rendimiento_teorico || 500)).toLocaleString() } Determinaciones / Pruebas Operativas disponibles en Almacén Laboratorio
+                  </Typography>
+                  <Typography variant="caption" sx={{ color: '#475569', mt: 0.5, display: 'block' }}>
+                    El Sniffer descontará las pruebas consumidas directamente de estas determinaciones en Almacén Laboratorio.
+                  </Typography>
+                </Paper>
+              </Grid>
+            )}
+
             <Grid item xs={12} sm={6}>
               <Typography variant="subtitle2" fontWeight={800} color="#1e293b" mb={1}>
                 REFERENCIA DE ENVÍO / NRO GUÍA
