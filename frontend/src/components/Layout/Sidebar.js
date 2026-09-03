@@ -14,7 +14,7 @@ import {
   Dashboard as DashboardIcon,
   Inventory as InventoryIcon,
   Science as ScienceIcon,
-  SwapHoriz as MovementIcon,
+  Warehouse as WarehouseIcon,
   Assessment as ReportIcon,
   People as PeopleIcon,
   ShoppingCart as ComprasIcon,
@@ -57,7 +57,7 @@ const Sidebar = ({ open, onClose }) => {
       path: '/dashboard' 
     },
     { 
-      text: 'Inventario General', 
+      text: 'Catálogo Ficha de Producto', 
       icon: <InventoryIcon />, 
       path: '/inventory' 
     },
@@ -67,19 +67,19 @@ const Sidebar = ({ open, onClose }) => {
       path: '/reagents' 
     },
     { 
-      text: '⚡ Monitor Top 20 Reactivos', 
+      text: '🔬 Monitor Top 20 Reactivos', 
       icon: <ScienceIcon style={{ color: '#0284c7' }} />, 
       path: '/live-reagents' 
     },
     { 
-      text: 'Recetas (Kits de Pruebas)', 
-      icon: <KitsPruebaIcon />, 
-      path: '/reagents/test-kits' 
+      text: 'Ingreso de Productos - Recepción', 
+      icon: <InventoryIcon style={{ color: '#10b981' }} />, 
+      path: '/reagents/reception' 
     },
     { 
-      text: 'Movimientos', 
-      icon: <MovementIcon />, 
-      path: '/movements' 
+      text: 'Almacén / Depósito', 
+      icon: <WarehouseIcon style={{ color: '#0284c7' }} />, 
+      path: '/warehouses' 
     },
     { 
       text: 'Compras', 

@@ -8,6 +8,8 @@ import Layout from './components/Layout/Layout';
 import Login from './pages/Auth/Login';
 import Dashboard from './pages/Dashboard/Dashboard';
 import Inventory from './features/inventory/pages/Inventory';
+import ProductReception from './features/inventory/pages/ProductReception';
+import WarehousesHub from './features/inventory/pages/WarehousesHub';
 import Reagents from './pages/Reagents/Reagents';
 import ImportacionMasivaPruebas from './pages/Reagents/ImportacionMasivaPruebas';
 import GestionKitsPrueba from './pages/Reagents/GestionKitsPrueba/GestionKitsPrueba';
@@ -32,19 +34,19 @@ import LiveReagentsMonitor from './pages/LiveReagents/LiveReagentsMonitor';
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#1976D2', // Terracota suave y cálida
+      main: '#1976D2',
       light: '#42A5F5',
       dark: '#1565C0',
     },
     secondary: {
-      main: '#0052CC', // Melocotón cálido
+      main: '#0052CC',
     },
     background: {
-      default: '#FCFAF7', // Crema suave
+      default: '#FCFAF7',
       paper: '#FFFFFF',
     },
     text: {
-      primary: '#3D405B', // Gris cálido oscuro profesional
+      primary: '#3D405B',
       secondary: '#70748E',
     }
   },
@@ -102,14 +104,19 @@ function App() {
                       {/* Agente IA */}
                       <Route path="/brain-agent" element={<AgentChat />} />
 
-                      {/* Rutas de Inventario e IA (originales) */}
+                      {/* Rutas de Inventario e IA */}
                       <Route path="/inventory" element={<Inventory />} />
                       <Route path="/reagents" element={<Reagents />} />
                       <Route path="/reagents/massive-import" element={<ImportacionMasivaPruebas />} />
-                      <Route path="/reagents/test-kits" element={<GestionKitsPrueba />} />
+                      <Route path="/reagents/reception" element={<ProductReception />} />
+                      <Route path="/reagents/test-kits" element={<ProductReception />} />
                       <Route path="/reagents/transform-daily" element={<TransformarReporteDiario />} />
                       <Route path="/reagents/auto-discount" element={<DescuentoAutomatico />} />
-                      <Route path="/movements" element={<Movements />} />
+                      
+                      {/* Nuevo Módulo Almacén / Depósito */}
+                      <Route path="/warehouses" element={<WarehousesHub />} />
+                      <Route path="/movements" element={<WarehousesHub />} />
+                      
                       <Route path="/compras" element={<ListaCompras />} />
                       <Route path="/compras/nueva" element={<FormularioCompra />} />
                       <Route path="/compras/editar/:id" element={<FormularioCompra />} />

@@ -67,30 +67,23 @@ async function ensureColumnsExist() {
 
 class InventoryRepository {
   async findAllActive(almacenId) {
+    await ensureColumnsExist();
     if (almacenId && almacenId !== 'all') {
-      const items = await prisma.itemInventario.findMany({
-        where: { activo: true },
-        include: {
-          stock_sucursales: {
-            where: { almacen_id: parseInt(almacenId) }
-          }
-        },
-        orderBy: { fecha_creacion: 'desc' }
-      });
+      const items = await executeQuery(`
+        SELECT i.*, s.stock_actual as stock_sucursal
+        FROM items_inventario i
+        LEFT JOIN stock_por_almacen s ON i.id = s.item_id AND s.almacen_id = @almacenId
+        WHERE i.activo = 1
+        ORDER BY i.fecha_creacion DESC
+      `, { almacenId: parseInt(almacenId) });
 
-      return items.map(item => {
-        const localStock = item.stock_sucursales[0]?.stock_actual;
-        return {
-          ...item,
-          stock_actual: localStock !== undefined ? Number(localStock) : 0
-        };
-      });
+      return items.map(item => ({
+        ...item,
+        stock_actual: item.stock_sucursal !== undefined && item.stock_sucursal !== null ? Number(item.stock_sucursal) : Number(item.stock_actual || 0)
+      }));
     }
 
-    return prisma.itemInventario.findMany({
-      where: { activo: true },
-      orderBy: { fecha_creacion: 'desc' }
-    });
+    return executeQuery("SELECT * FROM items_inventario WHERE activo = 1 ORDER BY fecha_creacion DESC");
   }
 
   async findByCodigo(codigo) {
@@ -282,7 +275,9 @@ class InventoryRepository {
         desviacion_consumo = @desviacion_consumo,
         frascos_por_caja = @valFrascosCaja,
         volumen_por_frasco = @valVolFrasco,
+        volumen_por_frasco_ml = @valVolFrasco,
         volumen_muerto_residual = @valVolMuerto,
+        volumen_muerto_frasco_ml = @valVolMuerto,
         pruebas_teoricas_frasco = @valPruebasFrasco,
         pruebas_teoricas_caja = @valPruebasCaja,
         volumen_total_caja = @valVolTotalCaja
@@ -333,8 +328,9 @@ class InventoryRepository {
       valVolTotalCaja: valVolTotalCaja
     };
 
-    const result = await executeQuery(query, params);
-    return result;
+        await executeQuery(query, params);
+    const updated = await executeQuery("SELECT * FROM items_inventario WHERE id = @itemId AND activo = 1", { itemId: itemId });
+    return updated && updated.length > 0 ? updated[0] : { id: itemId, ...data };
   }
 
   async delete(id) {

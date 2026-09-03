@@ -533,12 +533,65 @@ const costTools = require('../src/modules/agent/tools/costTools');
 
 router.get('/quick/valor-financiero', async (req, res) => {
   try {
-    const data = await inventoryTools.checkInventoryValue();
-    const arr = Object.entries(data.desglosePorCategoria || {}).map(([categoria, valor], id) => ({ id, categoria, valor_inmovilizado_usd: valor }));
-    // Añadir el total global como una fila extra
-    arr.push({ id: 999, categoria: 'TOTAL GLOBAL', valor_inmovilizado_usd: data.valorTotalInmovilizado });
-    res.json({ success: true, data: arr });
-  } catch (error) { res.status(500).json({ success: false, error: error.message }); }
+    const { executeQuery } = require('../config/database');
+    const items = await executeQuery(`
+      SELECT 
+        id,
+        codigo,
+        nombre,
+        categoria,
+        ISNULL(equipo_asociado, 'General') as equipo_asociado,
+        ISNULL(marca, 'N/A') as marca,
+        ISNULL(precio_costo, 0) as precio_unitario_base_usd,
+        ISNULL(stock_actual, 0) as stock_actual,
+        ROUND(ISNULL(stock_actual, 0) * ISNULL(precio_costo, 0), 2) as valor_inmovilizado_stock_usd
+      FROM items_inventario
+      WHERE activo = 1
+      ORDER BY nombre ASC
+    `);
+
+    let totalPrecioBase = 0;
+    let totalStock = 0;
+    let totalValorInmovilizado = 0;
+
+    const formattedData = items.map((item, idx) => {
+      const precioBase = Number(item.precio_unitario_base_usd) || 0;
+      const stock = Number(item.stock_actual) || 0;
+      const valorInmovilizado = Number(item.valor_inmovilizado_stock_usd) || (stock * precioBase);
+
+      totalPrecioBase += precioBase;
+      totalStock += stock;
+      totalValorInmovilizado += valorInmovilizado;
+
+      return {
+        id: item.id || idx + 1,
+        Codigo_Interno: item.codigo,
+        Nombre_Producto: item.nombre,
+        Categoria: item.categoria,
+        Equipo_Asociado: item.equipo_asociado,
+        Marca: item.marca,
+        Precio_Unitario_Base_USD: parseFloat(precioBase.toFixed(2)),
+        Stock_Actual: stock,
+        Valor_Inmovilizado_USD: parseFloat(valorInmovilizado.toFixed(2))
+      };
+    });
+
+    formattedData.push({
+      id: 99999,
+      Codigo_Interno: '--- TOTALES ---',
+      Nombre_Producto: 'RESUMEN GLOBAL VALORIZADO',
+      Categoria: 'TODAS',
+      Equipo_Asociado: 'TODOS',
+      Marca: 'TODAS',
+      Precio_Unitario_Base_USD: parseFloat(totalPrecioBase.toFixed(2)),
+      Stock_Actual: totalStock,
+      Valor_Inmovilizado_USD: parseFloat(totalValorInmovilizado.toFixed(2))
+    });
+
+    res.json({ success: true, data: formattedData });
+  } catch (error) { 
+    res.status(500).json({ success: false, error: error.message }); 
+  }
 });
 
 router.get('/quick/top-consumos', async (req, res) => {

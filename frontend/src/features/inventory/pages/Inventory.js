@@ -22,6 +22,28 @@ import ProductMasterSheet from '../components/ProductMasterSheet';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
+const getItemCategory = (item) => {
+  if (!item) return 'Reactivo';
+  const name = (item.nombre || '').toLowerCase();
+  const cat = (item.categoria || '').toLowerCase();
+  const grp = (item.grupo || '').toLowerCase();
+  const desc = (item.descripcion || '').toLowerCase();
+
+  if (cat.includes('calib') || grp.includes('calib') || desc.includes('calib') || name.includes('calibrator') || name.includes('calibrador')) {
+    return 'Calibrador';
+  }
+  if (cat.includes('control') || grp.includes('control') || desc.includes('control') || name.includes('control')) {
+    return 'Control';
+  }
+  if (cat.includes('soluc') || cat.includes('solut') || name.includes('solution') || name.includes('solucion') || name.includes('wash') || name.includes('cleaner') || name.includes('detergent')) {
+    return 'Solucion';
+  }
+  if (cat.includes('consum') || grp.includes('consum') || name.includes('consumable') || name.includes('consumible')) {
+    return 'Consumible';
+  }
+  return 'Reactivo';
+};
+
 const Inventory = () => {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -118,7 +140,7 @@ const Inventory = () => {
         await loadItems();
 
         // Pasar inmediatamente a mostrar la Ficha Técnica Certificada (Datasheet PDF)
-        const savedProduct = { ...formData, id: result.id || selectedProduct?.id };
+        const savedProduct = result.item || { ...formData, id: result.id || selectedProduct?.id };
         setSelectedProduct(savedProduct);
         setViewMode('view');
       } else {
@@ -133,7 +155,7 @@ const Inventory = () => {
     }
   };
 
-  // Filtrado de productos
+  // Filtrado de productos con clasificación inteligente multilingüe
   const filteredItems = items.filter(item => {
     const matchesSearch =
       (item.nombre && item.nombre.toLowerCase().includes(searchTerm.toLowerCase())) ||
@@ -141,7 +163,8 @@ const Inventory = () => {
       (item.marca && item.marca.toLowerCase().includes(searchTerm.toLowerCase())) ||
       (item.equipo_asociado && item.equipo_asociado.toLowerCase().includes(searchTerm.toLowerCase()));
 
-    const matchesCategory = categoryFilter === 'all' || item.categoria === categoryFilter;
+    const detectedCat = getItemCategory(item);
+    const matchesCategory = categoryFilter === 'all' || detectedCat === categoryFilter;
 
     return matchesSearch && matchesCategory;
   });
@@ -334,11 +357,30 @@ const Inventory = () => {
                           size="small"
                           sx={{ fontFamily: 'monospace', fontWeight: 800, bgcolor: '#eff6ff', color: '#1e40af', border: '1px solid #bfdbfe' }}
                         />
-                        <Chip
-                          label={product.categoria || 'Reactivo'}
-                          size="small"
-                          sx={{ fontWeight: 700, fontSize: 10 }}
-                        />
+                        {(() => {
+                          const itemCat = getItemCategory(product);
+                          const chipConfig = {
+                            'Calibrador': { label: 'Calibrador', color: '#1d4ed8', bg: '#eff6ff', border: '#bfdbfe' },
+                            'Control': { label: 'Control de Calidad', color: '#7e22ce', bg: '#faf5ff', border: '#e9d5ff' },
+                            'Solucion': { label: 'Solución', color: '#0284c7', bg: '#f0f9ff', border: '#bae6fd' },
+                            'Consumible': { label: 'Consumible', color: '#d97706', bg: '#fffbeb', border: '#fef3c7' },
+                            'Reactivo': { label: 'Reactivo', color: '#15803d', bg: '#f0fdf4', border: '#bbf7d0' }
+                          };
+                          const chipProps = chipConfig[itemCat] || chipConfig['Reactivo'];
+                          return (
+                            <Chip
+                              label={chipProps.label}
+                              size="small"
+                              sx={{
+                                fontWeight: 800,
+                                fontSize: 10,
+                                color: chipProps.color,
+                                bgcolor: chipProps.bg,
+                                border: `1px solid ${chipProps.border}`
+                              }}
+                            />
+                          );
+                        })()}
                       </Box>
 
                       <Typography variant="h6" sx={{ fontWeight: 800, color: '#0f172a', mb: 0.5, fontSize: 16 }}>

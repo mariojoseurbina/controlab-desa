@@ -17,72 +17,109 @@ import {
   Assignment as DocumentIcon
 } from '@mui/icons-material';
 
+const getInitialFormData = (data) => {
+  const gv = (primary, fallback = '') => {
+    if (primary !== undefined && primary !== null && String(primary).trim() !== '') return String(primary);
+    if (fallback !== undefined && fallback !== null && String(fallback).trim() !== '') return String(fallback);
+    return '';
+  };
+
+  if (!data) {
+    return {
+      codigo: '',
+      codigo_barra: '',
+      referencia: '',
+      referencia_abreviada: '',
+      presentacion: '',
+      nombre: '',
+      descripcion: '',
+      marca: '',
+      categoria: 'Reactivo',
+      unidad_negocio: '',
+      equipo_asociado: '',
+      grupo: '',
+      calibradores_asociados: '',
+      control_asociado: '',
+      ubicacion: '',
+      nivel: '',
+      unidad: 'Frasco',
+      frascos_por_caja: '1',
+      volumen_por_frasco: '',
+      volumen_muerto_residual: '',
+      pruebas_teoricas_frasco: '',
+      pruebas_teoricas_caja: '',
+      volumen_total_caja: '',
+      consumo_indicado: '',
+      fecha_vencimiento: '',
+      stock_minimo: '0',
+      stock_critico: '0',
+      precio_costo: '0'
+    };
+  }
+
+  const volFrasco = gv(data.volumen_por_frasco, data.volumen_por_frasco_ml);
+  const volMuerto = gv(data.volumen_muerto_residual, data.volumen_muerto_frasco_ml);
+  const consumoInd = gv(data.consumo_indicado);
+  const frascosCaja = gv(data.frascos_por_caja, '1');
+
+  const numVol = parseFloat(volFrasco.replace(',', '.'));
+  const numConsumo = parseFloat(consumoInd.replace(',', '.'));
+  const numFrascos = parseFloat(frascosCaja.replace(',', '.')) || 1;
+
+  let pruebasFrasco = gv(data.pruebas_teoricas_frasco);
+  let pruebasCaja = gv(data.pruebas_teoricas_caja);
+  let volCaja = gv(data.volumen_total_caja);
+
+  if ((!pruebasFrasco || pruebasFrasco === '0') && numVol > 0 && numConsumo > 0) {
+    pruebasFrasco = String(Math.floor(numVol / numConsumo));
+  }
+  if ((!pruebasCaja || pruebasCaja === '0') && numVol > 0 && numConsumo > 0) {
+    pruebasCaja = String(Math.floor((numVol / numConsumo) * numFrascos));
+  }
+  if ((!volCaja || volCaja === '0') && numVol > 0) {
+    volCaja = String((numVol * numFrascos).toFixed(2));
+  }
+
+  return {
+    codigo: gv(data.codigo),
+    codigo_barra: gv(data.codigo_barra),
+    referencia: gv(data.referencia),
+    referencia_abreviada: gv(data.referencia_abreviada),
+    presentacion: gv(data.presentacion, data.descripcion),
+    nombre: gv(data.nombre),
+    descripcion: gv(data.descripcion),
+    marca: gv(data.marca),
+    categoria: gv(data.categoria, 'Reactivo'),
+    unidad_negocio: gv(data.unidad_negocio),
+    equipo_asociado: gv(data.equipo_asociado),
+    grupo: gv(data.grupo),
+    calibradores_asociados: gv(data.calibradores_asociados),
+    control_asociado: gv(data.control_asociado),
+    ubicacion: gv(data.ubicacion),
+    nivel: gv(data.nivel),
+    unidad: gv(data.unidad, 'Frasco'),
+    frascos_por_caja: frascosCaja,
+    volumen_por_frasco: volFrasco,
+    volumen_muerto_residual: volMuerto,
+    pruebas_teoricas_frasco: pruebasFrasco,
+    pruebas_teoricas_caja: pruebasCaja,
+    volumen_total_caja: volCaja,
+    consumo_indicado: consumoInd,
+    fecha_vencimiento: data.fecha_vencimiento ? String(data.fecha_vencimiento).split('T')[0] : '',
+    stock_minimo: gv(data.stock_minimo, '0'),
+    stock_critico: gv(data.stock_critico, '0'),
+    precio_costo: gv(data.precio_costo, '0')
+  };
+};
+
 const ProductMasterForm = ({ initialData, onSubmit, onCancel, isSubmitting }) => {
   const [activeStep, setActiveStep] = useState(0);
 
-  const [formData, setFormData] = useState({
-    codigo: '',
-    codigo_barra: '',
-    referencia: '',
-    referencia_abreviada: '',
-    presentacion: '',
-    nombre: '',
-    descripcion: '',
-    marca: '',
-    categoria: 'Reactivo',
-    unidad_negocio: '',
-    equipo_asociado: '',
-    grupo: '',
-    calibradores_asociados: '',
-    control_asociado: '',
-    ubicacion: '',
-    nivel: '',
-    unidad: 'Frasco',
-    frascos_por_caja: '1',
-    volumen_por_frasco: '',
-    volumen_muerto_residual: '',
-    pruebas_teoricas_frasco: '',
-    pruebas_teoricas_caja: '',
-    volumen_total_caja: '',
-    consumo_indicado: '',
-    fecha_vencimiento: '',
-    stock_minimo: '0',
-    stock_critico: '0',
-    precio_costo: '0'
-  });
+  const [formData, setFormData] = useState(() => getInitialFormData(initialData));
 
   useEffect(() => {
     if (initialData) {
-      setFormData({
-        codigo: initialData.codigo || '',
-        codigo_barra: initialData.codigo_barra || '',
-        referencia: initialData.referencia || '',
-        referencia_abreviada: initialData.referencia_abreviada || '',
-        presentacion: initialData.presentacion || '',
-        nombre: initialData.nombre || '',
-        descripcion: initialData.descripcion || '',
-        marca: initialData.marca || '',
-        categoria: initialData.categoria || 'Reactivo',
-        unidad_negocio: initialData.unidad_negocio || '',
-        equipo_asociado: initialData.equipo_asociado || '',
-        grupo: initialData.grupo || '',
-        calibradores_asociados: initialData.calibradores_asociados || '',
-        control_asociado: initialData.control_asociado || '',
-        ubicacion: initialData.ubicacion || '',
-        nivel: initialData.nivel || '',
-        unidad: initialData.unidad || 'Frasco',
-        frascos_por_caja: initialData.frascos_por_caja || '1',
-        volumen_por_frasco: initialData.volumen_por_frasco || '',
-        volumen_muerto_residual: initialData.volumen_muerto_residual || '',
-        pruebas_teoricas_frasco: initialData.pruebas_teoricas_frasco || '',
-        pruebas_teoricas_caja: initialData.pruebas_teoricas_caja || '',
-        volumen_total_caja: initialData.volumen_total_caja || '',
-        consumo_indicado: initialData.consumo_indicado || '',
-        fecha_vencimiento: initialData.fecha_vencimiento ? String(initialData.fecha_vencimiento).split('T')[0] : '',
-        stock_minimo: initialData.stock_minimo || '0',
-        stock_critico: initialData.stock_critico || '0',
-        precio_costo: initialData.precio_costo || '0'
-      });
+      setFormData(getInitialFormData(initialData));
     }
   }, [initialData]);
 
@@ -111,12 +148,23 @@ const ProductMasterForm = ({ initialData, onSubmit, onCancel, isSubmitting }) =>
       calcVolCaja = String((volFrasco * frascosCaja).toFixed(2));
     }
 
-    setFormData(prev => ({
-      ...prev,
-      pruebas_teoricas_frasco: calcPruebasFrasco,
-      pruebas_teoricas_caja: calcPruebasCaja,
-      volumen_total_caja: calcVolCaja
-    }));
+    if (volFrasco > 0 && consumoPrueba > 0) {
+      setFormData(prev => {
+        if (
+          prev.pruebas_teoricas_frasco === calcPruebasFrasco &&
+          prev.pruebas_teoricas_caja === calcPruebasCaja &&
+          prev.volumen_total_caja === calcVolCaja
+        ) {
+          return prev;
+        }
+        return {
+          ...prev,
+          pruebas_teoricas_frasco: calcPruebasFrasco,
+          pruebas_teoricas_caja: calcPruebasCaja,
+          volumen_total_caja: calcVolCaja
+        };
+      });
+    }
   }, [formData.volumen_por_frasco, formData.consumo_indicado, formData.frascos_por_caja]);
 
   const handleChange = (e) => {

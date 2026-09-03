@@ -17,7 +17,43 @@ import {
 } from '@mui/icons-material';
 
 const ProductMasterSheet = ({ product, onEdit, onClose }) => {
+  const getVal = (...vals) => {
+    for (const v of vals) {
+      if (v !== undefined && v !== null && String(v).trim() !== '') {
+        return String(v);
+      }
+    }
+    return null;
+  };
+
+  const formatDateSafe = (dateStr) => {
+    if (!dateStr) return 'No registrada';
+    const str = String(dateStr).split('T')[0];
+    const parts = str.split('-');
+    if (parts.length === 3) {
+      const year = parseInt(parts[0], 10);
+      const month = parseInt(parts[1], 10) - 1;
+      const day = parseInt(parts[2], 10);
+      const dateObj = new Date(year, month, day);
+      return dateObj.toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' });
+    }
+    return String(dateStr);
+  };
+
   if (!product) return null;
+
+  const valVolFrasco = getVal(product.volumen_por_frasco, product.volumen_por_frasco_ml);
+  const valVolMuerto = getVal(product.volumen_muerto_residual, product.volumen_muerto_frasco_ml);
+  const valConsumo = getVal(product.consumo_indicado);
+  const valFrascosCaja = getVal(product.frascos_por_caja, '1');
+
+  const numVol = valVolFrasco ? parseFloat(valVolFrasco) : 0;
+  const numConsumo = valConsumo ? parseFloat(valConsumo) : 0;
+  const numFrascos = valFrascosCaja ? parseFloat(valFrascosCaja) : 1;
+
+  const valPruebasFrasco = getVal(product.pruebas_teoricas_frasco) || (numVol > 0 && numConsumo > 0 ? String(Math.floor(numVol / numConsumo)) : null);
+  const valPruebasCaja = getVal(product.pruebas_teoricas_caja) || (valPruebasFrasco ? String(Math.floor(parseFloat(valPruebasFrasco) * numFrascos)) : null);
+  const valVolTotalCaja = getVal(product.volumen_total_caja) || (numVol > 0 ? String((numVol * numFrascos).toFixed(2)) : null);
 
   const handlePrint = () => {
     window.print();
@@ -237,7 +273,7 @@ const ProductMasterSheet = ({ product, onEdit, onClose }) => {
                   <Paper variant="outlined" sx={{ p: 1.5, bgcolor: '#ecfdf5', borderColor: '#a7f3d0', borderRadius: 2 }}>
                     <Typography variant="caption" color="success" sx={{ fontWeight: 800 }}>Presentación Comercial (Desglose)</Typography>
                     <Typography variant="subtitle1" sx={{ fontWeight: 900, color: '#064e3b' }}>
-                      {product.presentacion || 'No especificada'}
+                      {product.presentacion || product.descripcion || 'No especificada'}
                     </Typography>
                   </Paper>
                 </Grid>
@@ -252,7 +288,7 @@ const ProductMasterSheet = ({ product, onEdit, onClose }) => {
                 <Grid item xs={6} sm={3}>
                   <Paper variant="outlined" sx={{ p: 1.5, bgcolor: '#ecfdf5', borderColor: '#a7f3d0', borderRadius: 2 }}>
                     <Typography variant="caption" color="success" sx={{ fontWeight: 800 }}>Frascos x Caja/Kit</Typography>
-                    <Typography variant="h6" sx={{ fontWeight: 900, color: '#064e3b' }}>{product.frascos_por_caja || '1'} Unid.</Typography>
+                    <Typography variant="h6" sx={{ fontWeight: 900, color: '#064e3b' }}>{valFrascosCaja || '1'} Unid.</Typography>
                   </Paper>
                 </Grid>
 
@@ -261,7 +297,7 @@ const ProductMasterSheet = ({ product, onEdit, onClose }) => {
                   <Paper variant="outlined" sx={{ p: 1.5, bgcolor: '#eef2ff', borderColor: '#c7d2fe', borderRadius: 2 }}>
                     <Typography variant="caption" color="indigo" sx={{ fontWeight: 800 }}>Consumo Inserto (mL/Test)</Typography>
                     <Typography variant="h6" sx={{ fontWeight: 900, color: '#1e1b4b' }}>
-                      {product.consumo_indicado ? `${product.consumo_indicado} mL` : 'N/A'}
+                      {valConsumo ? `${valConsumo} mL` : 'N/A'}
                     </Typography>
                   </Paper>
                 </Grid>
@@ -270,7 +306,7 @@ const ProductMasterSheet = ({ product, onEdit, onClose }) => {
                   <Paper variant="outlined" sx={{ p: 1.5, bgcolor: '#eef2ff', borderColor: '#c7d2fe', borderRadius: 2 }}>
                     <Typography variant="caption" color="indigo" sx={{ fontWeight: 800 }}>Volumen x Frasco</Typography>
                     <Typography variant="h6" sx={{ fontWeight: 900, color: '#1e1b4b' }}>
-                      {product.volumen_por_frasco ? `${product.volumen_por_frasco} mL` : 'N/A'}
+                      {valVolFrasco ? `${valVolFrasco} mL` : 'N/A'}
                     </Typography>
                   </Paper>
                 </Grid>
@@ -279,7 +315,7 @@ const ProductMasterSheet = ({ product, onEdit, onClose }) => {
                   <Paper variant="outlined" sx={{ p: 1.5, bgcolor: '#f0fdf4', borderColor: '#86efac', borderRadius: 2 }}>
                     <Typography variant="caption" color="success" sx={{ fontWeight: 800 }}>Pruebas / Frasco (Auto)</Typography>
                     <Typography variant="h6" sx={{ fontWeight: 900, color: '#15803d' }}>
-                      {product.pruebas_teoricas_frasco ? `${product.pruebas_teoricas_frasco} Test` : 'N/A'}
+                      {valPruebasFrasco ? `${valPruebasFrasco} Test` : 'N/A'}
                     </Typography>
                   </Paper>
                 </Grid>
@@ -288,27 +324,27 @@ const ProductMasterSheet = ({ product, onEdit, onClose }) => {
                   <Paper variant="outlined" sx={{ p: 1.5, bgcolor: '#eff6ff', borderColor: '#93c5fd', borderRadius: 2 }}>
                     <Typography variant="caption" sx={{ fontWeight: 800, color: '#1e40af' }}>Pruebas Totales / Caja (Auto)</Typography>
                     <Typography variant="h6" sx={{ fontWeight: 900, color: '#1e3a8a' }}>
-                      {product.pruebas_teoricas_caja ? `${product.pruebas_teoricas_caja} Test` : (product.pruebas_teoricas_frasco ? `${product.pruebas_teoricas_frasco * (product.frascos_por_caja || 1)} Test` : 'N/A')}
+                      {valPruebasCaja ? `${valPruebasCaja} Test` : 'N/A'}
                     </Typography>
                   </Paper>
                 </Grid>
 
                 <Grid item xs={6} sm={4}>
                   <Typography variant="caption" color="textSecondary" sx={{ fontWeight: 700 }}>Volumen Muerto Residual</Typography>
-                  <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>{product.volumen_muerto_residual ? `${product.volumen_muerto_residual} mL` : 'N/A'}</Typography>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>{valVolMuerto ? `${valVolMuerto} mL` : 'N/A'}</Typography>
                 </Grid>
 
                 <Grid item xs={6} sm={4}>
                   <Typography variant="caption" color="textSecondary" sx={{ fontWeight: 700 }}>Volumen Total Contenido por Caja</Typography>
                   <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#1e3a8a' }}>
-                    {product.volumen_total_caja ? `${product.volumen_total_caja} mL` : (product.volumen_por_frasco ? `${product.volumen_por_frasco * (product.frascos_por_caja || 1)} mL` : 'N/A')}
+                    {valVolTotalCaja ? `${valVolTotalCaja} mL` : 'N/A'}
                   </Typography>
                 </Grid>
 
                 <Grid item xs={6} sm={4}>
                   <Typography variant="caption" color="error" sx={{ fontWeight: 800 }}>Fecha de Vencimiento / Caducidad</Typography>
                   <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#b91c1c' }}>
-                    {product.fecha_vencimiento ? new Date(product.fecha_vencimiento).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' }) : 'No registrada'}
+                    {formatDateSafe(product.fecha_vencimiento)}
                   </Typography>
                 </Grid>
               </Grid>
