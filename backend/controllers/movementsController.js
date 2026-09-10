@@ -146,9 +146,20 @@ const downloadTransferPdf = async (req, res) => {
   }
 };
 
+const cargaMasivaInicial = async (req, res) => {
+  try {
+    const result = await movementsService.cargaMasivaInicial(req.body, req.user?.id || 1);
+    res.status(201).json(result);
+  } catch (error) {
+    console.error('Error en carga masiva inicial:', error);
+    res.status(400).json({ success: false, error: error.message });
+  }
+};
+
 module.exports = {
   getAllMovements,
   createMovement,
   transferStock,
-  downloadTransferPdf
+  downloadTransferPdf,
+  cargaMasivaInicial
 };

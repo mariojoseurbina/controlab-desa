@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import api from '../../services/api';
 import {
   Box,
   Paper,
@@ -6,462 +7,736 @@ import {
   Grid,
   Card,
   CardContent,
-  CardActions,
-  Button,
   Chip,
   LinearProgress,
-  Badge,
-  Tabs,
-  Tab,
-  Alert,
   Divider,
   IconButton,
   Tooltip,
-  Switch,
-  FormControlLabel
+  CircularProgress,
+  Button,
+  Snackbar,
+  Alert,
+  Tabs,
+  Tab
 } from '@mui/material';
 import {
   Science as ScienceIcon,
-  LocalShipping as BoxIcon,
-  PlayArrow as PlayIcon,
   Refresh as RefreshIcon,
-  SmartToy as SmartToyIcon,
-  Warning as WarningIcon,
-  CheckCircle as CheckIcon,
-  Assessment as AssessmentIcon,
   NotificationsActive as PulseIcon,
-  PictureAsPdf as PdfIcon,
-  Storage as StorageIcon
+  Biotech as AnalyzerIcon,
+  Lock as LockIcon,
+  HourglassEmpty as WaitingIcon,
+  CheckCircleOutline as SuccessIcon,
+  FastForward as FastForwardIcon,
+  PlayArrow as PlayArrowIcon,
+  History as HistoryIcon,
+  Inventory2 as BoxIcon,
+  FlashOn as FlashIcon,
+  CheckCircle as CheckIcon,
+  Cancel as CancelIcon
 } from '@mui/icons-material';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
-
-const TOP_20_REACTIVOS_INITIAL = [
-  { id: 1, nombre: 'GLUCOSA GOD-PAP', equipo: 'Mindray BS-200', frascos_caja: 6, vol_frasco: 100, consumo: 0.36, cajas: 5, frasco_activo_ml: 82.4, qc_hoy: 4, pac_hoy: 124 },
-  { id: 2, nombre: 'ALT / GPT (TRANSAMINASA)', equipo: 'Mindray BS-200', frascos_caja: 6, vol_frasco: 100, consumo: 0.42, cajas: 3, frasco_activo_ml: 45.0, qc_hoy: 6, pac_hoy: 88 },
-  { id: 3, nombre: 'AST / GOT (TRANSAMINASA)', equipo: 'Mindray BS-200', frascos_caja: 6, vol_frasco: 100, consumo: 0.42, cajas: 4, frasco_activo_ml: 60.2, qc_hoy: 6, pac_hoy: 85 },
-  { id: 4, nombre: 'COLESTEROL TOTAL', equipo: 'Mindray BS-200', frascos_caja: 4, vol_frasco: 100, consumo: 0.35, cajas: 1, frasco_activo_ml: 18.5, qc_hoy: 2, pac_hoy: 94 },
-  { id: 5, nombre: 'TRIGLICÉRIDOS GPO-PAP', equipo: 'Mindray BS-200', frascos_caja: 4, vol_frasco: 100, consumo: 0.35, cajas: 4, frasco_activo_ml: 91.0, qc_hoy: 2, pac_hoy: 90 },
-  { id: 6, nombre: 'CREATININA CINÉTICA', equipo: 'Architect C4000', frascos_caja: 6, vol_frasco: 120, consumo: 0.50, cajas: 2, frasco_activo_ml: 32.0, qc_hoy: 4, pac_hoy: 110 },
-  { id: 7, nombre: 'UREA UREASA-GLDH', equipo: 'Architect C4000', frascos_caja: 6, vol_frasco: 120, consumo: 0.48, cajas: 3, frasco_activo_ml: 77.5, qc_hoy: 4, pac_hoy: 105 },
-  { id: 8, nombre: 'ÁCIDO ÚRICO', equipo: 'Mindray BS-200', frascos_caja: 4, vol_frasco: 100, consumo: 0.38, cajas: 5, frasco_activo_ml: 88.0, qc_hoy: 2, pac_hoy: 62 },
-  { id: 9, nombre: 'BILIRRUBINA TOTAL', equipo: 'Architect C4000', frascos_caja: 4, vol_frasco: 80, consumo: 0.40, cajas: 2, frasco_activo_ml: 54.0, qc_hoy: 3, pac_hoy: 45 },
-  { id: 10, nombre: 'BILIRRUBINA DIRECTA', equipo: 'Architect C4000', frascos_caja: 4, vol_frasco: 80, consumo: 0.40, cajas: 2, frasco_activo_ml: 41.2, qc_hoy: 3, pac_hoy: 45 },
-  { id: 11, nombre: 'PROTEÍNA C REACTIVA (PCR)', equipo: 'Maglumi CL900i', frascos_caja: 2, vol_frasco: 50, consumo: 0.20, cajas: 6, frasco_activo_ml: 38.0, qc_hoy: 2, pac_hoy: 30 },
-  { id: 12, nombre: 'HEMOGLOBINA GLICADA (HbA1c)', equipo: 'Mindray BC-5380', frascos_caja: 2, vol_frasco: 100, consumo: 0.30, cajas: 3, frasco_activo_ml: 65.0, qc_hoy: 2, pac_hoy: 52 },
-  { id: 13, nombre: 'TSH ULTRASENSIBLE', equipo: 'Maglumi CL900i', frascos_caja: 2, vol_frasco: 50, consumo: 0.15, cajas: 4, frasco_activo_ml: 22.4, qc_hoy: 2, pac_hoy: 41 },
-  { id: 14, nombre: 'T4 LIBRE (FT4)', equipo: 'Maglumi CL900i', frascos_caja: 2, vol_frasco: 50, consumo: 0.15, cajas: 3, frasco_activo_ml: 31.0, qc_hoy: 2, pac_hoy: 38 },
-  { id: 15, nombre: 'PSA TOTAL (ANTÍGENO PROSTÁTICO)', equipo: 'Maglumi CL900i', frascos_caja: 2, vol_frasco: 50, consumo: 0.15, cajas: 5, frasco_activo_ml: 44.5, qc_hoy: 2, pac_hoy: 24 },
-  { id: 16, nombre: 'FAL (FOSFATASA ALCALINA)', equipo: 'Mindray BS-200', frascos_caja: 4, vol_frasco: 100, consumo: 0.40, cajas: 2, frasco_activo_ml: 12.0, qc_hoy: 2, pac_hoy: 35 },
-  { id: 17, nombre: 'CALCIO ARSENAZO III', equipo: 'Architect C4000', frascos_caja: 4, vol_frasco: 100, consumo: 0.35, cajas: 3, frasco_activo_ml: 70.0, qc_hoy: 2, pac_hoy: 40 },
-  { id: 18, nombre: 'MAGNESIO XYLIDYL BLUE', equipo: 'Architect C4000', frascos_caja: 4, vol_frasco: 100, consumo: 0.35, cajas: 4, frasco_activo_ml: 84.0, qc_hoy: 2, pac_hoy: 28 },
-  { id: 19, nombre: 'ELECTROLITOS SODIO (Na+)', equipo: 'ISE Analyser 9000', frascos_caja: 2, vol_frasco: 250, consumo: 0.60, cajas: 2, frasco_activo_ml: 140.0, qc_hoy: 4, pac_hoy: 70 },
-  { id: 20, nombre: 'ELECTROLITOS POTASIO (K+)', equipo: 'ISE Analyser 9000', frascos_caja: 2, vol_frasco: 250, consumo: 0.60, cajas: 2, frasco_activo_ml: 135.0, qc_hoy: 4, pac_hoy: 70 }
-];
-
 const LiveReagentsMonitor = () => {
-  const [reactivos, setReactivos] = useState(TOP_20_REACTIVOS_INITIAL);
-  const [useRealDbData, setUseRealDbData] = useState(false);
-  const [loadingDb, setLoadingDb] = useState(false);
-  const [tabIndex, setTabIndex] = useState(0);
-  const [lastEvent, setLastEvent] = useState(null);
-  const [pulseId, setPulseId] = useState(null);
-  const [autoSimulate, setAutoSimulate] = useState(false);
+  const [cajasData, setCajasData] = useState({
+    cajasCerradas: [],
+    cajasEnUso: [],
+    cajasAgotadas: [],
+    resumen: { totalCerradas: 0, totalEnUso: 0, totalAgotadas: 0 }
+  });
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [activeTab, setActiveTab] = useState(0); // 0: Activas en Analizador, 1: Historial de Agotadas, 2: Nevera / Reserva
+  const [actionLoading, setActionLoading] = useState(false);
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
 
-  // Cargar datos reales desde la BD cuando se activa el Switch de Producción
-  useEffect(() => {
-    if (useRealDbData) {
-      loadRealDbReactivos();
-    } else {
-      setReactivos(TOP_20_REACTIVOS_INITIAL);
-    }
-  }, [useRealDbData]);
-
-  const loadRealDbReactivos = async () => {
+  const fetchMonitorData = async (silent = false) => {
     try {
-      setLoadingDb(true);
-      const res = await fetch(`${API_BASE_URL}/inventory`);
-      if (res.ok) {
-        const data = await res.json();
-        const items = data.items || [];
-        // Filtrar reactivos cargados desde la Ficha de Ingreso
-        const dbReactivos = items
-          .filter(i => i.categoria === 'Reactivo' || i.grupo === 'REACTIVO' || i.consumo_indicado > 0)
-          .map((item, idx) => ({
-            id: item.id || idx + 100,
-            nombre: item.nombre,
-            equipo: item.equipo_asociado || 'Autoanalizador LIS',
-            frascos_caja: parseFloat(item.frascos_por_caja) || 1,
-            vol_frasco: parseFloat(item.volumen_por_frasco_ml) || 100,
-            consumo: parseFloat(item.consumo_indicado) || 0.36,
-            cajas: parseFloat(item.stock_actual) || 0,
-            frasco_activo_ml: parseFloat(item.volumen_por_frasco_ml) || 100,
-            qc_hoy: 0,
-            pac_hoy: 0
-          }));
+      if (!silent) setLoading(true);
+      else setRefreshing(true);
 
-        if (dbReactivos.length > 0) {
-          setReactivos(dbReactivos);
-        } else {
-          alert("ℹ️ No hay reactivos cargados aún en la Base de Datos con Ficha de Ingreso. Mostrando plantilla demo.");
-          setReactivos(TOP_20_REACTIVOS_INITIAL);
-          setUseRealDbData(false);
-        }
+      const response = await api.get('/cajas/laboratorio');
+      if (response.data && response.data.success) {
+        setCajasData(response.data.data);
       }
-    } catch (e) {
-      console.error("Error cargando BD real:", e);
+    } catch (err) {
+      console.error("Error al cargar datos reales del centro de comando:", err);
     } finally {
-      setLoadingDb(false);
+      setLoading(false);
+      setRefreshing(false);
     }
   };
 
-  // Simulación del Webhook Sniffer en vivo si está activado
   useEffect(() => {
-    let interval = null;
-    if (autoSimulate && reactivos.length > 0) {
-      interval = setInterval(() => {
-        simularPruebaSnifferAleatoria();
-      }, 5000);
-    }
+    fetchMonitorData();
+    const interval = setInterval(() => {
+      fetchMonitorData(true);
+    }, 3500);
     return () => clearInterval(interval);
-  }, [autoSimulate, reactivos]);
+  }, []);
 
-  const simularPruebaSnifferAleatoria = () => {
-    if (reactivos.length === 0) return;
-    const randomIndex = Math.floor(Math.random() * reactivos.length);
-    const target = reactivos[randomIndex];
-    ejecutarDescuentoPrueba(target.id, target.nombre, target.consumo);
-  };
-
-  const ejecutarDescuentoPrueba = (id, nombre, consumo) => {
-    setReactivos(prev => prev.map(item => {
-      if (item.id === id) {
-        let nuevoFrascoMl = item.frasco_activo_ml - consumo;
-        let nuevasCajas = item.cajas;
-
-        // Si el frasco se agota, activa automáticamente el siguiente frasco de la caja
-        if (nuevoFrascoMl <= 0) {
-          if (nuevasCajas > 0) {
-            nuevasCajas -= (1 / (item.frascos_caja || 1));
-            nuevoFrascoMl = item.vol_frasco - consumo;
-          } else {
-            nuevoFrascoMl = 0;
-          }
-        }
-
-        return {
-          ...item,
-          frasco_activo_ml: Math.max(0, parseFloat(nuevoFrascoMl.toFixed(2))),
-          cajas: Math.max(0, parseFloat(nuevasCajas.toFixed(2))),
-          pac_hoy: item.pac_hoy + 1
-        };
+  // Acción: Pasar al siguiente frasco de la caja
+  const handleSiguienteFrasco = async (loteId) => {
+    try {
+      setActionLoading(true);
+      const res = await api.post('/cajas/siguiente-frasco', { loteId });
+      if (res.data && res.data.success) {
+        setSnackbar({
+          open: true,
+          message: res.data.message || 'Siguiente frasco activado.',
+          severity: 'info'
+        });
+        await fetchMonitorData(true);
       }
-      return item;
-    }));
-
-    setPulseId(id);
-    setLastEvent({
-      time: new Date().toLocaleTimeString(),
-      reactivo: nombre,
-      descuento: consumo,
-      pacienteId: `PAC-${Math.floor(1000 + Math.random() * 9000)}`
-    });
-
-    setTimeout(() => setPulseId(null), 1500);
+    } catch (err) {
+      setSnackbar({
+        open: true,
+        message: err.response?.data?.message || 'Error al cambiar frasco.',
+        severity: 'error'
+      });
+    } finally {
+      setActionLoading(false);
+    }
   };
 
-  const handlePonerFrascoEnMarcha = (id) => {
-    setReactivos(prev => prev.map(item => {
-      if (item.id === id) {
-        const cajasRestantes = Math.max(0, item.cajas - (1 / (item.frascos_caja || 1)));
-        return {
-          ...item,
-          cajas: parseFloat(cajasRestantes.toFixed(2)),
-          frasco_activo_ml: item.vol_frasco
-        };
+  // Acción: Validación Ágil de 3 Pruebas (Agotar caja y activar automáticamente la siguiente de la nevera)
+  const handleValidarTransicion3Pruebas = async (loteId) => {
+    try {
+      setActionLoading(true);
+      const res = await api.post('/cajas/validar-transicion', { loteId });
+      if (res.data && res.data.success) {
+        setSnackbar({
+          open: true,
+          message: res.data.message || 'Validación de 3 pruebas ejecutada: Caja agotada y nueva caja activada desde nevera.',
+          severity: 'success'
+        });
+        await fetchMonitorData(false);
       }
-      return item;
-    }));
-    alert("✅ Frasco nuevo puesto en marcha en el autoanalizador.");
+    } catch (err) {
+      setSnackbar({
+        open: true,
+        message: err.response?.data?.message || 'Error en validación de transición.',
+        severity: 'error'
+      });
+    } finally {
+      setActionLoading(false);
+    }
   };
+
+  const cajasEnUso = cajasData.cajasEnUso || [];
+  const cajasCerradas = cajasData.cajasCerradas || [];
+  const cajasAgotadas = cajasData.cajasAgotadas || [];
 
   return (
-    <Box sx={{ p: 3, backgroundColor: '#0f172a', minHeight: '100vh', color: '#f8fafc' }}>
-      
-      {/* HEADER DE IMPACTO */}
-      <Paper sx={{ p: 2.5, mb: 3, backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: 3 }}>
-        <Grid container alignItems="center" spacing={2}>
-          <Grid item xs={12} md={6}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-              <ScienceIcon sx={{ fontSize: 36, color: '#38bdf8' }} />
+    <Box sx={{ p: 3, backgroundColor: '#0b1120', minHeight: '100vh', color: '#f8fafc' }}>
+      {/* HEADER PRINCIPAL TIPO CENTRO DE COMANDO */}
+      <Paper 
+        elevation={0}
+        sx={{ 
+          p: 3, 
+          mb: 3, 
+          background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)', 
+          borderRadius: 3,
+          border: '1px solid #334155'
+        }}
+      >
+        <Grid container alignItems="center" justifyContent="space-between" spacing={2}>
+          <Grid item xs={12} md={7}>
+            <Box display="flex" alignItems="center" gap={2}>
+              <Box 
+                sx={{ 
+                  backgroundColor: 'rgba(56, 189, 248, 0.15)', 
+                  p: 1.5, 
+                  borderRadius: 2.5,
+                  display: 'flex',
+                  alignItems: 'center',
+                  color: '#38bdf8'
+                }}
+              >
+                <ScienceIcon sx={{ fontSize: 36 }} />
+              </Box>
               <Box>
-                <Typography variant="h5" fontWeight="900" sx={{ color: '#f8fafc', letterSpacing: 0.5 }}>
-                  CONTROL-AB IA — REAGENT COMMAND CENTER
+                <Typography variant="h5" fontWeight="900" sx={{ letterSpacing: '-0.5px', color: '#f8fafc' }}>
+                  CONTROLAB IA — CENTRO DE CONTROL DE REACTIVOS
                 </Typography>
-                <Typography variant="body2" sx={{ color: '#94a3b8' }}>
-                  Monitor de Consumo de Reactivos en Tiempo Real (Sniffer LIS Webhook & Cerebro IA)
+                <Typography variant="body2" sx={{ color: '#94a3b8', mt: 0.3 }}>
+                  Monitor de Frascos y Cajas en Tiempo Real (Sniffer LIS Webhook & Cerebro IA)
                 </Typography>
               </Box>
             </Box>
           </Grid>
 
-          <Grid item xs={12} md={6} sx={{ display: 'flex', justifyContent: { xs: 'flex-start', md: 'flex-end' }, alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
-            {/* SWITCH MODO PRESENTACIÓN DEMO VS MODO PRODUCCIÓN REAL */}
-            <Paper sx={{ px: 1.5, py: 0.5, backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: 2 }}>
-              <FormControlLabel
-                control={
-                  <Switch 
-                    checked={useRealDbData} 
-                    onChange={(e) => setUseRealDbData(e.target.checked)} 
-                    color="secondary"
-                  />
-                }
-                label={
-                  <Typography variant="caption" fontWeight="800" sx={{ color: useRealDbData ? '#a855f7' : '#38bdf8' }}>
-                    {useRealDbData ? "💾 DATOS REALES (BD / FICHA INGRESO)" : "📱 MODO DEMO PRESENTACIÓN"}
-                  </Typography>
-                }
+          <Grid item xs={12} md={5}>
+            <Box display="flex" justifyContent={{ xs: 'flex-start', md: 'flex-end' }} alignItems="center" gap={1.5} flexWrap="wrap">
+              <Chip 
+                icon={<AnalyzerIcon sx={{ color: '#10b981 !important' }} />}
+                label="CM 260i (.10.188)" 
+                size="small"
+                sx={{ 
+                  backgroundColor: 'rgba(16, 185, 129, 0.15)', 
+                  color: '#10b981',
+                  fontWeight: 700,
+                  border: '1px solid rgba(16, 185, 129, 0.3)'
+                }} 
               />
-            </Paper>
-
-            <Chip 
-              icon={<PulseIcon sx={{ color: autoSimulate ? '#4ade80 !important' : '#cbd5e1 !important' }} />}
-              label={autoSimulate ? "🟢 STREAM SNIFFER CONECTADO" : "⚪ ESPERA RED"} 
-              sx={{ 
-                backgroundColor: autoSimulate ? 'rgba(74, 222, 128, 0.15)' : 'rgba(148, 163, 184, 0.1)', 
-                color: autoSimulate ? '#4ade80' : '#94a3b8',
-                fontWeight: '700',
-                border: autoSimulate ? '1px solid #22c55e' : '1px solid #475569'
-              }} 
-            />
-            <Button
-              variant="contained"
-              size="small"
-              onClick={() => setAutoSimulate(!autoSimulate)}
-              sx={{
-                backgroundColor: autoSimulate ? '#ef4444' : '#0284c7',
-                '&:hover': { backgroundColor: autoSimulate ? '#dc2626' : '#0369a1' },
-                fontWeight: '700'
-              }}
-            >
-              {autoSimulate ? "Pausar Sniffer" : "Simular Sniffer en Vivo"}
-            </Button>
+              <Chip 
+                icon={<AnalyzerIcon sx={{ color: '#06b6d4 !important' }} />}
+                label="Mindray BS-230 (.30.148)" 
+                size="small"
+                sx={{ 
+                  backgroundColor: 'rgba(6, 182, 212, 0.15)', 
+                  color: '#06b6d4',
+                  fontWeight: 700,
+                  border: '1px solid rgba(6, 182, 212, 0.3)'
+                }} 
+              />
+              <Chip 
+                icon={<PulseIcon sx={{ color: '#38bdf8 !important' }} />}
+                label={refreshing ? "SINCRONIZANDO..." : "STREAM SNIFFER CONECTADO"} 
+                size="small"
+                sx={{ 
+                  backgroundColor: 'rgba(56, 189, 248, 0.15)', 
+                  color: '#38bdf8',
+                  fontWeight: 700,
+                  border: '1px solid rgba(56, 189, 248, 0.3)'
+                }} 
+              />
+              <Tooltip title="Actualizar ahora">
+                <IconButton 
+                  onClick={() => fetchMonitorData(false)}
+                  sx={{ color: '#cbd5e1', '&:hover': { color: '#ffffff', backgroundColor: 'rgba(255,255,255,0.1)' } }}
+                >
+                  <RefreshIcon />
+                </IconButton>
+              </Tooltip>
+            </Box>
           </Grid>
         </Grid>
 
-        {/* FEED DE ÚLTIMO EVENTO SNIFFER */}
-        {lastEvent && (
-          <Alert 
-            icon={<PulseIcon />} 
-            severity="success" 
-            sx={{ mt: 2, backgroundColor: '#022c22', border: '1px solid #059669', color: '#6ee7b7' }}
+        {/* PESTAÑAS DE VISTA */}
+        <Box sx={{ borderBottom: 1, borderColor: '#334155', mt: 3 }}>
+          <Tabs 
+            value={activeTab} 
+            onChange={(e, val) => setActiveTab(val)}
+            textColor="inherit"
+            sx={{
+              '& .MuiTabs-indicator': { backgroundColor: '#38bdf8', height: 3 },
+              '& .MuiTab-root': { color: '#94a3b8', fontWeight: 700, textTransform: 'none', fontSize: '0.95rem' },
+              '& .Mui-selected': { color: '#38bdf8' }
+            }}
           >
-            <b>[SNIFFER EVENT {lastEvent.time}]</b> {lastEvent.pacienteId} corrió <b>{lastEvent.reactivo}</b>. Se descontaron <b>-{lastEvent.descuento} mL</b> del frasco activo en el analizador.
-          </Alert>
-        )}
+            <Tab 
+              icon={<ScienceIcon sx={{ fontSize: 18 }} />} 
+              iconPosition="start" 
+              label={`Reactivos en Analizador (${cajasEnUso.length})`} 
+            />
+            <Tab 
+              icon={<HistoryIcon sx={{ fontSize: 18 }} />} 
+              iconPosition="start" 
+              label={`Cajas Agotadas / Historial (${cajasAgotadas.length})`} 
+            />
+            <Tab 
+              icon={<BoxIcon sx={{ fontSize: 18 }} />} 
+              iconPosition="start" 
+              label={`Nevera / Reserva (${cajasCerradas.length} Cajas)`} 
+            />
+          </Tabs>
+        </Box>
       </Paper>
 
-      {/* NAVEGACIÓN ENTRE TABS */}
-      <Box sx={{ borderBottom: 1, borderColor: '#334155', mb: 3 }}>
-        <Tabs 
-          value={tabIndex} 
-          onChange={(e, v) => setTabIndex(v)} 
-          textColor="inherit"
-          IndicatorColor="primary"
-          sx={{
-            '& .MuiTab-root': { color: '#94a3b8', fontWeight: '700', textTransform: 'none', fontSize: '1rem' },
-            '& .Mui-selected': { color: '#38bdf8' }
-          }}
-        >
-          <Tab label={`🎛️ Monitor ${useRealDbData ? 'Producción (Fichas Reales)' : 'Top 20 Demo'} en Vivo`} />
-          <Tab label="🧠 Reporte Diario del Cerebro IA" />
-        </Tabs>
-      </Box>
+      {/* CONTENIDO SEGÚN PESTAÑA */}
+      {loading ? (
+        <Box display="flex" justifyContent="center" alignItems="center" py={12}>
+          <CircularProgress size={45} sx={{ color: '#38bdf8' }} />
+        </Box>
+      ) : activeTab === 0 ? (
+        /* PESTAÑA 0: REACTIVOS ACTIVOS EN ANALIZADORES */
+        cajasEnUso.length === 0 ? (
+          <Paper
+            elevation={0}
+            sx={{
+              p: 6,
+              textAlign: 'center',
+              backgroundColor: '#0f172a',
+              borderRadius: 3,
+              border: '1px dashed #334155'
+            }}
+          >
+            <WaitingIcon sx={{ fontSize: 64, color: '#64748b', mb: 2 }} />
+            <Typography variant="h6" fontWeight={700} color="#f8fafc" gutterBottom>
+              Centro de Control en Espera: Sin Reactivos Activos en Analizadores
+            </Typography>
+            <Typography variant="body2" sx={{ color: '#94a3b8', maxWidth: 650, mx: 'auto', mb: 3 }}>
+              Actualmente todas las cajas transferidas al laboratorio se encuentran en estado <strong>CERRADA / SELLADA</strong> en la nevera.
+              En cuanto el bioanalista monte un frasco y active la caja, aparecerá aquí con su monitor visual de 4 frascos en tiempo real.
+            </Typography>
+            <Box display="flex" justifyContent="center" gap={2}>
+              <Chip 
+                icon={<LockIcon sx={{ color: '#f59e0b !important' }} />}
+                label={cajasCerradas.length + " Cajas Cerradas en Nevera del Laboratorio"}
+                sx={{ backgroundColor: '#1e293b', color: '#f59e0b', fontWeight: 600, border: '1px solid #475569' }}
+              />
+            </Box>
+          </Paper>
+        ) : (
+          <Grid container spacing={3}>
+            {cajasEnUso.map((caja) => {
+            const totalFrascos = caja.totalFrascos || 4;
+            const volFrasco = caja.volPorFrasco || 45;
+            const totalVolCaja = caja.totalVolCaja || (totalFrascos * volFrasco);
+            const pctFrasco = caja.porcentajeRestante !== undefined ? caja.porcentajeRestante : Math.round((caja.mlRestantesFrasco / volFrasco) * 100);
+            
+            // Contar cuántas cajas cerradas en reserva existen de este mismo reactivo
+            const cajasEnNevera = cajasCerradas.filter(c => c.inventarioId === caja.inventarioId).length;
 
-      {/* TAB 0: MONITOR REACTIVOS EN VIVO */}
-      {tabIndex === 0 && (
-        <Grid container spacing={2.5}>
-          {reactivos.map((r) => {
-            const volFrasco = r.vol_frasco || 100;
-            const pctFrasco = Math.round((r.frasco_activo_ml / volFrasco) * 100);
-            const pruebasEnFrasco = r.consumo > 0 ? Math.floor(r.frasco_activo_ml / r.consumo) : 0;
-            const pruebasEnCajas = r.consumo > 0 ? Math.floor((r.cajas * (r.frascos_caja || 1) * volFrasco) / r.consumo) : 0;
-            const pruebasTotales = pruebasEnFrasco + pruebasEnCajas;
-            const isPulsing = pulseId === r.id;
+            // Pruebas totales de la caja completa (sumatoria de todos los frascos) y pruebas restantes
+            const pruebasPorCajaTotal = caja.pruebasPorCaja || (totalFrascos * (caja.pruebasPorFrasco || 180));
+            const pruebasRestantesCajaTotal = caja.pruebasRestantesCaja !== undefined 
+              ? caja.pruebasRestantesCaja 
+              : Math.max(0, Math.floor((caja.mlRestantesCaja !== undefined ? caja.mlRestantesCaja : totalVolCaja) / 0.25));
+
+            // Generar los frascos dinámicamente si no vienen precargados
+            const frascos = caja.frascos || Array.from({ length: totalFrascos }, (_, i) => {
+              const num = i + 1;
+              if (num < caja.frascoActual) {
+                return { numero: num, estado: 'AGOTADO', mlRestantes: 0, volumenTotal: volFrasco, porcentaje: 0, esActual: false, color: '#ef4444' };
+              } else if (num === caja.frascoActual) {
+                const ag = caja.mlRestantesFrasco <= 0;
+                return { numero: num, estado: ag ? 'AGOTADO' : 'EN USO', mlRestantes: caja.mlRestantesFrasco, volumenTotal: volFrasco, porcentaje: pctFrasco, esActual: true, color: ag ? '#ef4444' : '#10b981' };
+              } else {
+                return { numero: num, estado: 'SELLADO', mlRestantes: volFrasco, volumenTotal: volFrasco, porcentaje: 100, esActual: false, color: '#64748b' };
+              }
+            });
 
             return (
-              <Grid item xs={12} sm={6} md={4} lg={3} key={r.id}>
+              <Grid item xs={12} md={6} lg={6} xl={4} key={caja.id}>
                 <Card 
                   sx={{ 
-                    backgroundColor: isPulsing ? '#1e3a8a' : '#1e293b', 
-                    border: isPulsing ? '2px solid #38bdf8' : (pctFrasco < 20 ? '1px solid #ef4444' : '1px solid #334155'), 
+                    backgroundColor: '#1e293b', 
+                    border: pctFrasco < 20 ? '2px solid #ef4444' : '1px solid #334155', 
                     color: '#f8fafc',
-                    borderRadius: 3,
+                    borderRadius: 3.5,
+                    boxShadow: '0 10px 30px rgba(0,0,0,0.3)',
                     transition: 'all 0.3s ease',
-                    boxShadow: isPulsing ? '0 0 15px rgba(56, 189, 248, 0.5)' : 'none'
+                    position: 'relative',
+                    overflow: 'visible',
+                    '&:hover': {
+                      transform: 'translateY(-3px)',
+                      boxShadow: '0 12px 36px rgba(0, 0, 0, 0.45)',
+                      borderColor: '#38bdf8'
+                    }
                   }}
                 >
-                  <CardContent sx={{ pb: 1 }}>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
-                      <Typography variant="subtitle2" fontWeight="800" sx={{ color: '#f8fafc', lineHeight: 1.2 }}>
-                        {r.nombre}
-                      </Typography>
-                      {pctFrasco < 20 ? (
-                        <Chip label="Stock Bajo" size="small" color="error" />
-                      ) : (
-                        <Chip label={`${(r.equipo || 'Equipo').split(' ')[0]}`} size="small" sx={{ backgroundColor: '#0f172a', color: '#94a3b8' }} />
-                      )}
-                    </Box>
-
-                    <Typography variant="caption" sx={{ color: '#94a3b8', display: 'block', mb: 1.5 }}>
-                      Dosis: {r.consumo} mL/test | {r.frascos_caja} frascos x {r.vol_frasco} mL
-                    </Typography>
-
-                    {/* INDICADOR DE LÍQUIDO EN FRASCO EN USO */}
-                    <Box sx={{ mb: 2 }}>
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                        <Typography variant="caption" fontWeight="700" sx={{ color: '#cbd5e1' }}>
-                          🧪 Frasco en Uso: {r.frasco_activo_ml} / {r.vol_frasco} mL
+                  <CardContent sx={{ p: 3 }}>
+                    {/* ENCABEZADO DE TARJETA: REACTIVO + ANALIZADOR */}
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
+                      <Box>
+                        <Typography variant="h6" fontWeight="900" sx={{ color: '#f8fafc', letterSpacing: '-0.3px', lineHeight: 1.2 }}>
+                          {caja.productoNombre}
                         </Typography>
-                        <Typography variant="caption" fontWeight="800" sx={{ color: pctFrasco < 20 ? '#f87171' : '#38bdf8' }}>
-                          {pctFrasco}%
+                        <Typography variant="caption" sx={{ color: '#94a3b8', mt: 0.3, display: 'block' }}>
+                          Marca: <strong style={{ color: '#cbd5e1' }}>{caja.marca || 'Wiener Lab'}</strong> | Lote: <strong style={{ color: '#38bdf8' }}>{caja.numeroLote}</strong>
                         </Typography>
                       </Box>
-                      <LinearProgress 
-                        variant="determinate" 
-                        value={pctFrasco} 
+                      <Chip 
+                        size="small"
+                        icon={<AnalyzerIcon sx={{ fontSize: 15 }} />}
+                        label={caja.equipoAsociado || 'CM 260i'} 
                         sx={{ 
-                          height: 10, 
-                          borderRadius: 5,
-                          backgroundColor: '#0f172a',
-                          '& .MuiLinearProgress-bar': {
-                            backgroundColor: pctFrasco < 20 ? '#ef4444' : (pctFrasco < 50 ? '#f59e0b' : '#10b981')
-                          }
-                        }}
+                          backgroundColor: '#0f172a', 
+                          color: '#38bdf8', 
+                          fontWeight: 800, 
+                          border: '1px solid #334155',
+                          px: 0.5
+                        }} 
                       />
                     </Box>
 
-                    <Divider sx={{ borderColor: '#334155', my: 1.5 }} />
+                    {/* TÍTULO DEL RACK DE FRASCOS */}
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
+                      <Typography variant="caption" sx={{ color: '#94a3b8', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.6px' }}>
+                        🧪 Ficha: {totalFrascos} frascos x {volFrasco} mL ({pruebasPorCajaTotal} Test Totales)
+                      </Typography>
+                      <Chip 
+                        size="small"
+                        label={`Frasco ${caja.frascoActual} de ${totalFrascos} Activo`}
+                        sx={{ 
+                          height: 20, 
+                          fontSize: '0.65rem', 
+                          fontWeight: 800, 
+                          backgroundColor: 'rgba(16, 185, 129, 0.15)', 
+                          color: '#10b981', 
+                          border: '1px solid rgba(16, 185, 129, 0.4)' 
+                        }} 
+                      />
+                    </Box>
 
-                    {/* JERARQUÍA DE STOCK */}
-                    <Grid container spacing={1}>
-                      <Grid item xs={6}>
-                        <Box sx={{ backgroundColor: '#0f172a', p: 1, borderRadius: 2, textAlign: 'center' }}>
-                          <Typography variant="caption" sx={{ color: '#94a3b8', display: 'block' }}>📦 Cajas en Nevera</Typography>
-                          <Typography variant="body1" fontWeight="900" sx={{ color: '#f8fafc' }}>
-                            {r.cajas} Cajas
+                      {/* RACK VISUAL DE LOS 4 FRASCOS */}
+                      <Grid container spacing={1.5} sx={{ mb: 2.5 }}>
+                        {frascos.map((frasco) => {
+                          const esAgotado = frasco.estado === 'AGOTADO';
+                          const esEnUso = frasco.estado === 'EN USO';
+                          const esSellado = frasco.estado === 'SELLADO';
+
+                          return (
+                            <Grid item xs={3} key={frasco.numero}>
+                              <Box
+                                sx={{
+                                  backgroundColor: esAgotado 
+                                    ? 'rgba(239, 68, 68, 0.12)' 
+                                    : esEnUso 
+                                      ? 'rgba(16, 185, 129, 0.1)' 
+                                      : 'rgba(15, 23, 42, 0.6)',
+                                  border: esAgotado 
+                                    ? '2px solid #ef4444' 
+                                    : esEnUso 
+                                      ? '2px solid #10b981' 
+                                      : '1px solid #334155',
+                                  borderRadius: 2.5,
+                                  p: 1,
+                                  textAlign: 'center',
+                                  transition: 'all 0.3s ease',
+                                  boxShadow: esEnUso ? '0 0 14px rgba(16, 185, 129, 0.25)' : 'none',
+                                  position: 'relative'
+                                }}
+                              >
+                                {/* NÚMERO Y ESTADO DEL FRASCO */}
+                                <Typography 
+                                  variant="caption" 
+                                  fontWeight="900" 
+                                  sx={{ 
+                                    display: 'block', 
+                                    color: esAgotado ? '#f87171' : esEnUso ? '#10b981' : '#94a3b8',
+                                    fontSize: '0.75rem'
+                                  }}
+                                >
+                                  F{frasco.numero}
+                                </Typography>
+
+                                {/* BADGE DE ESTADO */}
+                                <Box sx={{ my: 0.5 }}>
+                                  {esAgotado && (
+                                    <Chip 
+                                      label="AGOTADO" 
+                                      size="small" 
+                                      sx={{ 
+                                        height: 18, 
+                                        fontSize: '0.6rem', 
+                                        fontWeight: 900, 
+                                        backgroundColor: '#ef4444', 
+                                        color: '#ffffff' 
+                                      }} 
+                                    />
+                                  )}
+                                  {esEnUso && (
+                                    <Chip 
+                                      label="EN USO" 
+                                      size="small" 
+                                      sx={{ 
+                                        height: 18, 
+                                        fontSize: '0.6rem', 
+                                        fontWeight: 900, 
+                                        backgroundColor: '#10b981', 
+                                        color: '#ffffff' 
+                                      }} 
+                                    />
+                                  )}
+                                  {esSellado && (
+                                    <Chip 
+                                      label="SELLADO" 
+                                      size="small" 
+                                      sx={{ 
+                                        height: 18, 
+                                        fontSize: '0.6rem', 
+                                        fontWeight: 800, 
+                                        backgroundColor: '#334155', 
+                                        color: '#94a3b8' 
+                                      }} 
+                                    />
+                                  )}
+                                </Box>
+
+                                {/* CILINDRO / TUBO VISUAL DE REACTIVO */}
+                                <Box 
+                                  sx={{ 
+                                    width: '100%', 
+                                    height: 48, 
+                                    backgroundColor: '#0f172a', 
+                                    borderRadius: 2, 
+                                    my: 0.8, 
+                                    position: 'relative', 
+                                    overflow: 'hidden',
+                                    border: '1px solid rgba(255,255,255,0.06)'
+                                  }}
+                                >
+                                  {/* Columna de Líquido */}
+                                  <Box 
+                                    sx={{ 
+                                      position: 'absolute',
+                                      bottom: 0,
+                                      left: 0,
+                                      right: 0,
+                                      height: `${frasco.porcentaje}%`,
+                                      background: esAgotado 
+                                        ? '#ef4444' 
+                                        : esEnUso 
+                                          ? 'linear-gradient(180deg, #38bdf8 0%, #10b981 100%)' 
+                                          : 'linear-gradient(180deg, #64748b 0%, #475569 100%)',
+                                      transition: 'height 0.6s ease',
+                                      borderRadius: '0 0 7px 7px'
+                                    }} 
+                                  />
+                                  {/* Menisco / Indicador de porcentaje flotante */}
+                                  <Typography 
+                                    variant="caption" 
+                                    sx={{ 
+                                      position: 'absolute', 
+                                      top: '50%', 
+                                      left: '50%', 
+                                      transform: 'translate(-50%, -50%)', 
+                                      fontWeight: 900, 
+                                      fontSize: '0.65rem',
+                                      color: '#ffffff',
+                                      textShadow: '0 1px 3px rgba(0,0,0,0.8)'
+                                    }}
+                                  >
+                                    {frasco.porcentaje}%
+                                  </Typography>
+                                </Box>
+
+                                {/* VOLUMEN NUMÉRICO */}
+                                <Typography 
+                                  variant="caption" 
+                                  sx={{ 
+                                    display: 'block', 
+                                    fontWeight: 800, 
+                                    fontSize: '0.68rem',
+                                    color: esAgotado ? '#ef4444' : esEnUso ? '#38bdf8' : '#cbd5e1'
+                                  }}
+                                >
+                                  {frasco.mlRestantes} mL
+                                </Typography>
+                              </Box>
+                            </Grid>
+                          );
+                        })}
+                      </Grid>
+
+                      <Divider sx={{ borderColor: '#334155', mb: 2 }} />
+
+                      {/* STOCK EN NEVERA, PRUEBAS FRASCO ACTIVO Y PRUEBAS CAJA COMPLETA */}
+                      <Grid container spacing={1.2}>
+                        <Grid item xs={4}>
+                          <Box sx={{ backgroundColor: '#0f172a', p: 1.2, borderRadius: 2, textAlign: 'center', border: '1px solid #1e293b' }}>
+                            <Typography variant="caption" sx={{ color: '#94a3b8', display: 'block', fontWeight: 700, fontSize: '0.72rem' }}>
+                              📦 En Nevera
+                            </Typography>
+                            <Typography variant="body1" fontWeight="900" sx={{ color: cajasEnNevera > 0 ? '#38bdf8' : '#ef4444', my: 0.2 }}>
+                              {cajasEnNevera} Cajas
+                            </Typography>
+                            <Typography variant="caption" sx={{ color: '#64748b', fontSize: '0.62rem', display: 'block' }}>
+                              Stock Reserva
+                            </Typography>
+                          </Box>
+                        </Grid>
+                        <Grid item xs={4}>
+                          <Box sx={{ backgroundColor: '#0f172a', p: 1.2, borderRadius: 2, textAlign: 'center', border: '1px solid #1e293b' }}>
+                            <Typography variant="caption" sx={{ color: '#94a3b8', display: 'block', fontWeight: 700, fontSize: '0.72rem' }}>
+                              ⚡ Frasco Activo
+                            </Typography>
+                            <Typography variant="body1" fontWeight="900" sx={{ color: '#10b981', my: 0.2 }}>
+                              ~{caja.pruebasRestantesFrasco}
+                            </Typography>
+                            <Typography variant="caption" sx={{ color: '#64748b', fontSize: '0.62rem', display: 'block' }}>
+                              de {caja.pruebasPorFrasco || 180} test
+                            </Typography>
+                          </Box>
+                        </Grid>
+                        <Grid item xs={4}>
+                          <Box sx={{ 
+                            backgroundColor: 'rgba(56, 189, 248, 0.08)', 
+                            p: 1.2, 
+                            borderRadius: 2, 
+                            textAlign: 'center', 
+                            border: '1px solid rgba(56, 189, 248, 0.25)'
+                          }}>
+                            <Typography variant="caption" sx={{ color: '#38bdf8', display: 'block', fontWeight: 800, fontSize: '0.72rem' }}>
+                              🧪 Caja Completa
+                            </Typography>
+                            <Typography variant="body1" fontWeight="900" sx={{ color: '#f8fafc', my: 0.2 }}>
+                              ~{pruebasRestantesCajaTotal}
+                            </Typography>
+                            <Typography variant="caption" sx={{ color: '#38bdf8', fontSize: '0.62rem', display: 'block', fontWeight: 700 }}>
+                              Total: {pruebasPorCajaTotal} test
+                            </Typography>
+                          </Box>
+                        </Grid>
+                      </Grid>
+
+                      {/* CONTEO EN VIVO DESDE SNIFFER */}
+                      <Box 
+                        sx={{ 
+                          mt: 1.5, 
+                          p: 1.5, 
+                          borderRadius: 2, 
+                          backgroundColor: 'rgba(56, 189, 248, 0.08)', 
+                          border: '1px solid rgba(56, 189, 248, 0.2)',
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center'
+                        }}
+                      >
+                        <Box>
+                          <Typography variant="caption" sx={{ color: '#94a3b8', display: 'block', fontWeight: 600 }}>
+                            Pruebas Hoy (Sniffer LIS)
+                          </Typography>
+                          <Typography variant="subtitle1" fontWeight="900" sx={{ color: '#38bdf8' }}>
+                            {caja.pruebasConsumidasHoy} pruebas
                           </Typography>
                         </Box>
-                      </Grid>
-                      <Grid item xs={6}>
-                        <Box sx={{ backgroundColor: '#0f172a', p: 1, borderRadius: 2, textAlign: 'center' }}>
-                          <Typography variant="caption" sx={{ color: '#94a3b8', display: 'block' }}>⚡ Pruebas Restantes</Typography>
-                          <Typography variant="body1" fontWeight="900" sx={{ color: '#38bdf8' }}>
-                            ~{pruebasTotales.toLocaleString()}
+                        <Box textAlign="right">
+                          <Typography variant="caption" sx={{ color: '#94a3b8', display: 'block', fontWeight: 600 }}>
+                            Volumen Descontado
+                          </Typography>
+                          <Typography variant="subtitle1" fontWeight="900" sx={{ color: '#a855f7' }}>
+                            {caja.mlConsumidosHoy.toFixed(2)} mL
                           </Typography>
                         </Box>
-                      </Grid>
-                    </Grid>
+                      </Box>
+
+                      {/* BARRA DE ACCIONES DE VALIDACIÓN Y CONTROL */}
+                      <Box sx={{ mt: 2, display: 'flex', gap: 1, flexDirection: { xs: 'column', sm: 'row' } }}>
+                        {caja.frascoActual < totalFrascos && (
+                          <Button
+                            fullWidth
+                            variant="outlined"
+                            size="small"
+                            disabled={actionLoading}
+                            startIcon={<FastForwardIcon />}
+                            onClick={() => handleSiguienteFrasco(caja.id)}
+                            sx={{
+                              borderColor: '#334155',
+                              color: '#cbd5e1',
+                              fontWeight: 700,
+                              fontSize: '0.75rem',
+                              textTransform: 'none',
+                              '&:hover': { borderColor: '#38bdf8', color: '#38bdf8', backgroundColor: 'rgba(56, 189, 248, 0.08)' }
+                            }}
+                          >
+                            ⏩ Montar Frasco {caja.frascoActual + 1}
+                          </Button>
+                        )}
+                        <Button
+                          fullWidth
+                          variant="contained"
+                          size="small"
+                          disabled={actionLoading}
+                          startIcon={<FlashIcon />}
+                          onClick={() => handleValidarTransicion3Pruebas(caja.id)}
+                          sx={{
+                            background: 'linear-gradient(135deg, #0284c7 0%, #0d9488 100%)',
+                            color: '#ffffff',
+                            fontWeight: 800,
+                            fontSize: '0.75rem',
+                            textTransform: 'none',
+                            boxShadow: '0 4px 12px rgba(2, 132, 199, 0.3)',
+                            '&:hover': {
+                              background: 'linear-gradient(135deg, #0369a1 0%, #0f766e 100%)'
+                            }
+                          }}
+                        >
+                          ⚡ Validar Transición (3 Pruebas)
+                        </Button>
+                      </Box>
+
+                      {/* FOOTER */}
+                      <Typography variant="caption" sx={{ color: '#64748b', display: 'block', mt: 1.5, textAlign: 'center' }}>
+                        Abierto por: {caja.usuarioApertura || 'Bioanalista'} | Caja Total: {caja.mlRestantesCaja} / {totalVolCaja} mL (~{pruebasRestantesCajaTotal} de {pruebasPorCajaTotal} test restantes)
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              );
+            })}
+          </Grid>
+        )
+      ) : activeTab === 1 ? (
+        /* PESTAÑA 1: HISTORIAL DE CAJAS AGOTADAS */
+        cajasAgotadas.length === 0 ? (
+          <Paper elevation={0} sx={{ p: 5, textAlign: 'center', backgroundColor: '#0f172a', borderRadius: 3, border: '1px dashed #334155' }}>
+            <SuccessIcon sx={{ fontSize: 50, color: '#10b981', mb: 1 }} />
+            <Typography variant="h6" fontWeight={700} color="#f8fafc">
+              No hay Cajas Agotadas
+            </Typography>
+            <Typography variant="body2" sx={{ color: '#94a3b8' }}>
+              Cuando una caja termine sus 4 frascos en el analizador o se valide su transición, aparecerá archivada aquí con su trazabilidad.
+            </Typography>
+          </Paper>
+        ) : (
+          <Grid container spacing={3}>
+            {cajasAgotadas.map((caja) => (
+              <Grid item xs={12} sm={6} md={4} key={caja.id}>
+                <Card sx={{ backgroundColor: '#1e293b', border: '1px solid #ef4444', borderRadius: 3, color: '#f8fafc' }}>
+                  <CardContent>
+                    <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
+                      <Typography variant="subtitle1" fontWeight="900" color="#f87171">
+                        {caja.productoNombre}
+                      </Typography>
+                      <Chip label="AGOTADA" size="small" sx={{ backgroundColor: '#ef4444', color: '#fff', fontWeight: 900 }} />
+                    </Box>
+                    <Typography variant="body2" color="#94a3b8">
+                      Lote: <strong>{caja.numeroLote}</strong> | {caja.marca}
+                    </Typography>
+                    <Typography variant="caption" color="#64748b" display="block" mt={1}>
+                      Consumo final: {caja.pruebasConsumidasTotal || 0} pruebas ({caja.mlConsumidosTotal || 0} mL)
+                    </Typography>
                   </CardContent>
-
-                  <CardActions sx={{ px: 2, pb: 2, pt: 0, justifyContent: 'space-between' }}>
-                    <Button 
-                      size="small" 
-                      variant="outlined"
-                      onClick={() => handlePonerFrascoEnMarcha(r.id)}
-                      sx={{ color: '#38bdf8', borderColor: '#0284c7', fontSize: '0.7rem' }}
-                    >
-                      Poner Frasco Nuevo
-                    </Button>
-                    <Button 
-                      size="small" 
-                      variant="contained"
-                      onClick={() => ejecutarDescuentoPrueba(r.id, r.nombre, r.consumo)}
-                      sx={{ backgroundColor: '#059669', fontSize: '0.7rem', '&:hover': { backgroundColor: '#047857' } }}
-                    >
-                      +1 Test (-{r.consumo}mL)
-                    </Button>
-                  </CardActions>
                 </Card>
               </Grid>
-            );
-          })}
+            ))}
+          </Grid>
+        )
+      ) : (
+        /* PESTAÑA 2: CAJAS EN NEVERA / RESERVA */
+        <Grid container spacing={3}>
+          {cajasCerradas.map((caja) => (
+            <Grid item xs={12} sm={6} md={4} key={caja.id}>
+              <Card sx={{ backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: 3, color: '#f8fafc' }}>
+                <CardContent>
+                  <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
+                    <Typography variant="subtitle1" fontWeight="900" color="#38bdf8">
+                      {caja.productoNombre}
+                    </Typography>
+                    <Chip icon={<LockIcon sx={{ fontSize: 13, color: '#f59e0b !important' }} />} label="EN NEVERA" size="small" sx={{ backgroundColor: '#1e293b', color: '#f59e0b', fontWeight: 800 }} />
+                  </Box>
+                  <Typography variant="body2" color="#94a3b8">
+                    Lote: <strong>{caja.numeroLote}</strong> | {caja.presentacion}
+                  </Typography>
+                  <Typography variant="caption" color="#64748b" display="block" mt={1}>
+                    Capacidad: {caja.totalFrascos} frascos de {caja.volPorFrasco} mL ({caja.totalVolCaja || (caja.totalFrascos * caja.volPorFrasco)} mL = {caja.pruebasPorCaja || (caja.totalFrascos * (caja.pruebasPorFrasco || 180))} Test) | Listo para activación automática
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+          ))}
         </Grid>
       )}
 
-      {/* TAB 1: REPORTE DIARIO CEREBRO IA */}
-      {tabIndex === 1 && (
-        <Paper sx={{ p: 3, backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: 3 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-              <SmartToyIcon sx={{ fontSize: 36, color: '#a855f7' }} />
-              <Box>
-                <Typography variant="h6" fontWeight="800" sx={{ color: '#f8fafc' }}>
-                  REPORTE DIARIO DE GESTIÓN Y EFICIENCIA DE REACTIVOS (CEREBRO IA)
-                </Typography>
-                <Typography variant="caption" sx={{ color: '#94a3b8' }}>
-                  Informe Consolidado Inteligente — Cierre de Jornada Operativa
-                </Typography>
-              </Box>
-            </Box>
-            <Button variant="contained" startIcon={<PdfIcon />} sx={{ backgroundColor: '#7c3aed' }}>
-              Exportar Reporte PDF
-            </Button>
-          </Box>
-
-          <Grid container spacing={3} sx={{ mb: 4 }}>
-            <Grid item xs={12} sm={3}>
-              <Paper sx={{ p: 2, backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: 2 }}>
-                <Typography variant="caption" sx={{ color: '#94a3b8' }}>Pruebas Totales Procesadas Hoy</Typography>
-                <Typography variant="h4" fontWeight="900" sx={{ color: '#38bdf8', mt: 0.5 }}>1,274</Typography>
-                <Typography variant="caption" sx={{ color: '#4ade80' }}>1,216 Pacientes | 58 Controles/QC</Typography>
-              </Paper>
-            </Grid>
-
-            <Grid item xs={12} sm={3}>
-              <Paper sx={{ p: 2, backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: 2 }}>
-                <Typography variant="caption" sx={{ color: '#94a3b8' }}>Gasto de Reactivo ($ USD)</Typography>
-                <Typography variant="h4" fontWeight="900" sx={{ color: '#facc15', mt: 0.5 }}>$ 314.50 USD</Typography>
-                <Typography variant="caption" sx={{ color: '#94a3b8' }}>Valor en Kárdex Diario</Typography>
-              </Paper>
-            </Grid>
-
-            <Grid item xs={12} sm={3}>
-              <Paper sx={{ p: 2, backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: 2 }}>
-                <Typography variant="caption" sx={{ color: '#94a3b8' }}>Eficiencia Promedio Inserto</Typography>
-                <Typography variant="h4" fontWeight="900" sx={{ color: '#4ade80', mt: 0.5 }}>98.4 %</Typography>
-                <Typography variant="caption" sx={{ color: '#4ade80' }}>Baja tasa de desperdicio</Typography>
-              </Paper>
-            </Grid>
-
-            <Grid item xs={12} sm={3}>
-              <Paper sx={{ p: 2, backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: 2 }}>
-                <Typography variant="caption" sx={{ color: '#94a3b8' }}>Alertas Predictivas de Recompra</Typography>
-                <Typography variant="h4" fontWeight="900" sx={{ color: '#f87171', mt: 0.5 }}>2 Items</Typography>
-                <Typography variant="caption" sx={{ color: '#f87171' }}>Colesterol y FAL en nivel crítico</Typography>
-              </Paper>
-            </Grid>
-          </Grid>
-
-          {/* CEREBRO IA INSIGHTS */}
-          <Typography variant="subtitle1" fontWeight="800" sx={{ color: '#c084fc', mb: 2 }}>
-            🧠 CONCLUSIONES E INSIGHTS EMITIDOS POR EL CEREBRO CONTROL-AB IA:
-          </Typography>
-
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-            <Alert severity="info" sx={{ backgroundColor: '#1e1b4b', border: '1px solid #4338ca', color: '#e0e7ff' }}>
-              <b>1. Rendimiento Óptimo:</b> El reactivo <b>GLUCOSA GOD-PAP</b> presentó un rendimiento perfecto con un ahorro del +1.8% sobre la especificación del inserto comercial.
-            </Alert>
-            <Alert severity="warning" sx={{ backgroundColor: '#451a03', border: '1px solid #b45309', color: '#fef3c7' }}>
-              <b>2. Desviación de Consumo:</b> Las <b>Transaminasas ALT/AST</b> presentaron un sobreconsumo del +8.5% debido a 6 corridas de Calibraciones repetidas por la mañana en el equipo Mindray.
-            </Alert>
-            <Alert severity="error" sx={{ backgroundColor: '#450a0a', border: '1px solid #b91c1c', color: '#fee2e2' }}>
-              <b>3. Sugerencia de Orden de Compra Predictiva:</b> Al ritmo de consumo actual, la disponibilidad de <b>COLESTEROL TOTAL</b> se agotará en <b>1.8 días</b> (queda 1 Caja). Se recomienda generar una Orden de Compra por 2 Cajas de inmediato.
-            </Alert>
-          </Box>
-        </Paper>
-      )}
-
+      {/* SNACKBAR DE FEEDBACK */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={5000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert 
+          onClose={() => setSnackbar({ ...snackbar, open: false })} 
+          severity={snackbar.severity} 
+          variant="filled"
+          sx={{ width: '100%', fontWeight: 700 }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

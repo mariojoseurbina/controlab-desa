@@ -39,6 +39,7 @@ const costosRoutes = require('./src/modules/costos/costos.routes');
 const agentRoutes = require('./src/modules/agent/agent.routes');
 const snifferRoutes = require('./src/modules/sniffer/sniffer.routes');
 const almacenesRoutes = require('./src/modules/almacenes/almacenes.routes');
+const cajasRoutes = require('./src/modules/cajas/cajas.routes');
 const auditRoutes = require('./routes/auditRoutes');
 const receptionRoutes = require('./routes/receptionRoutes');
 
@@ -64,6 +65,7 @@ app.use('/api/agent', agentRoutes);
 app.use('/api/audit', auditRoutes);
 app.use('/api/sniffer', snifferRoutes);
 app.use('/api/almacenes', almacenesRoutes);
+app.use('/api/cajas', cajasRoutes);
 
 app.use('/api', legacyRoutes);
 

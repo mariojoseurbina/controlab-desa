@@ -1,11 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const snifferController = require('./sniffer.controller');
+const { authenticateToken } = require('../../../middleware/authMiddleware');
 
-// Ruta para recibir los datos del Sniffer .exe (Webhook)
+// Webhook para recibir datos del Sniffer .exe (red local)
 router.post('/webhook', snifferController.webhookSniffer);
 
-// Ruta para que el Frontend consuma los logs y los muestre
-router.get('/logs', snifferController.getSnifferLogs);
+// Ruta protegida con JWT para que solo usuarios autorizados vean pacientes y pruebas
+router.get('/logs', authenticateToken, snifferController.getSnifferLogs);
 
 module.exports = router;

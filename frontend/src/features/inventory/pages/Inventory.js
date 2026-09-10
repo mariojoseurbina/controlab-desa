@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   Box, Paper, Typography, Button, TextField, Grid, MenuItem, Card, CardContent,
-  IconButton, Chip, Alert, Snackbar, CircularProgress, InputAdornment, Divider
+  IconButton, Chip, Alert, Snackbar, CircularProgress, InputAdornment, Divider,
+  TablePagination
 } from '@mui/material';
 import {
   Add as PlusIcon,
@@ -49,6 +50,9 @@ const Inventory = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
+  const [equipmentFilter, setEquipmentFilter] = useState('all');
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(20);
   
   // Modos de vista: 'list' | 'create' | 'edit' | 'view'
   const [viewMode, setViewMode] = useState('list');
@@ -68,7 +72,10 @@ const Inventory = () => {
   const loadItems = async () => {
     try {
       setLoading(true);
-      const res = await fetch(`${API_BASE_URL}/inventory`);
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${API_BASE_URL}/inventory`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
       if (res.ok) {
         const data = await res.json();
         setItems(data.items || []);
@@ -101,8 +108,10 @@ const Inventory = () => {
   const handleDelete = async (id, nombre) => {
     if (!window.confirm(`¿Está seguro de eliminar la ficha del producto "${nombre}"?`)) return;
     try {
+      const token = localStorage.getItem('token');
       const res = await fetch(`${API_BASE_URL}/inventory/${id}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
       });
       if (res.ok) {
         showSnackbar('Ficha de producto eliminada exitosamente');
@@ -120,16 +129,20 @@ const Inventory = () => {
   const handleSubmitForm = async (formData) => {
     try {
       setIsSubmitting(true);
-      const isEdit = viewMode === 'edit' && selectedProduct?.id;
-      const url = isEdit
-        ? `${API_BASE_URL}/inventory/${selectedProduct.id}`
+      const targetId = formData.id || selectedProduct?.id;
+      const isEdit = Boolean(targetId) || viewMode === 'edit';
+      const url = isEdit && targetId
+        ? `${API_BASE_URL}/inventory/${targetId}`
         : `${API_BASE_URL}/inventory`;
       
-      const method = isEdit ? 'PUT' : 'POST';
+      const method = isEdit && targetId ? 'PUT' : 'POST';
 
       const res = await fetch(url, {
         method,
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
         body: JSON.stringify(formData)
       });
 
@@ -155,19 +168,55 @@ const Inventory = () => {
     }
   };
 
-  // Filtrado de productos con clasificación inteligente multilingüe
-  const filteredItems = items.filter(item => {
-    const matchesSearch =
-      (item.nombre && item.nombre.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (item.codigo && item.codigo.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (item.marca && item.marca.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (item.equipo_asociado && item.equipo_asociado.toLowerCase().includes(searchTerm.toLowerCase()));
+  // Filtrado de productos con clasificación inteligente multilingüe y por analizador
+  const filteredItems = useMemo(() => {
+    return items.filter(item => {
+      const term = searchTerm.toLowerCase().trim();
+      const matchesSearch = !term ||
+        (item.nombre && item.nombre.toLowerCase().includes(term)) ||
+        (item.codigo && item.codigo.toLowerCase().includes(term)) ||
+        (item.marca && item.marca.toLowerCase().includes(term)) ||
+        (item.referencia_abreviada && item.referencia_abreviada.toLowerCase().includes(term)) ||
+        (item.equipo_asociado && item.equipo_asociado.toLowerCase().includes(term));
 
-    const detectedCat = getItemCategory(item);
-    const matchesCategory = categoryFilter === 'all' || detectedCat === categoryFilter;
+      const detectedCat = getItemCategory(item);
+      const matchesCategory = categoryFilter === 'all' || detectedCat === categoryFilter;
 
-    return matchesSearch && matchesCategory;
-  });
+      const eq = (item.equipo_asociado || '').toLowerCase();
+      let matchesEquipment = true;
+      if (equipmentFilter === 'Mindray BS-230') {
+        matchesEquipment = eq.includes('bs-230') || eq.includes('bs 230') || eq.includes('mindray');
+      } else if (equipmentFilter === 'CM 260i') {
+        matchesEquipment = eq.includes('cm 260') || eq.includes('cm260') || eq.includes('wiener');
+      }
+
+      return matchesSearch && matchesCategory && matchesEquipment;
+    });
+  }, [items, searchTerm, categoryFilter, equipmentFilter]);
+
+  // Paginación: 10, 20, 50, 100 o Todos (-1)
+  const paginatedItems = useMemo(() => {
+    if (rowsPerPage === -1) return filteredItems;
+    const startIndex = page * rowsPerPage;
+    return filteredItems.slice(startIndex, startIndex + rowsPerPage);
+  }, [filteredItems, page, rowsPerPage]);
+
+  // Contadores analíticos para filtros rápidos
+  const counts = useMemo(() => {
+    const total = items.length;
+    const bs = items.filter(i => {
+      const eq = (i.equipo_asociado || '').toLowerCase();
+      return eq.includes('bs-230') || eq.includes('bs 230') || eq.includes('mindray');
+    }).length;
+    const cm = items.filter(i => {
+      const eq = (i.equipo_asociado || '').toLowerCase();
+      return eq.includes('cm 260') || eq.includes('cm260') || eq.includes('wiener');
+    }).length;
+    const reactivos = items.filter(i => getItemCategory(i) === 'Reactivo').length;
+    const calibradores = items.filter(i => getItemCategory(i) === 'Calibrador').length;
+    const controles = items.filter(i => getItemCategory(i) === 'Control').length;
+    return { total, bs, cm, reactivos, calibradores, controles };
+  }, [items]);
 
   return (
     <Box sx={{ p: 4, maxWidth: 1200, mx: 'auto', minHeight: '100vh', bgcolor: '#f8fafc' }}>
@@ -260,16 +309,20 @@ const Inventory = () => {
             </Box>
           </Paper>
 
-          {/* Filtros y Búsqueda */}
-          <Paper elevation={2} sx={{ p: 2, mb: 4, borderRadius: 3, bgcolor: 'white' }}>
-            <Grid container spacing={2} alignItems="center" justifyContent="space-between">
-              <Grid item xs={12} md={6}>
+          {/* Filtros, Búsqueda y Selector de Paginación */}
+          <Paper elevation={2} sx={{ p: 2.5, mb: 3, borderRadius: 3, bgcolor: 'white' }}>
+            <Grid container spacing={2} alignItems="center">
+              {/* Barra de Búsqueda */}
+              <Grid item xs={12} md={3.5}>
                 <TextField
                   fullWidth
                   size="small"
-                  placeholder="Buscar ficha por código, nombre, marca o autoanalizador..."
+                  placeholder="Buscar código, reactivo, marca..."
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={(e) => {
+                    setSearchTerm(e.target.value);
+                    setPage(0);
+                  }}
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
@@ -280,13 +333,37 @@ const Inventory = () => {
                 />
               </Grid>
 
-              <Grid item xs={12} md={4} display="flex" justifyContent="flex-end">
+              {/* Filtro por Equipo / Analizador */}
+              <Grid item xs={12} sm={4} md={2.5}>
                 <TextField
                   select
+                  fullWidth
                   size="small"
+                  label="Analizador / Equipo"
+                  value={equipmentFilter}
+                  onChange={(e) => {
+                    setEquipmentFilter(e.target.value);
+                    setPage(0);
+                  }}
+                >
+                  <MenuItem value="all">Todos los Equipos ({counts.total})</MenuItem>
+                  <MenuItem value="Mindray BS-230">Mindray BS-230 ({counts.bs})</MenuItem>
+                  <MenuItem value="CM 260i">Wiener Lab CM 260i ({counts.cm})</MenuItem>
+                </TextField>
+              </Grid>
+
+              {/* Filtro por Categoría */}
+              <Grid item xs={12} sm={4} md={3}>
+                <TextField
+                  select
+                  fullWidth
+                  size="small"
+                  label="Categoría de Producto"
                   value={categoryFilter}
-                  onChange={(e) => setCategoryFilter(e.target.value)}
-                  sx={{ minWidth: 220 }}
+                  onChange={(e) => {
+                    setCategoryFilter(e.target.value);
+                    setPage(0);
+                  }}
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
@@ -296,15 +373,195 @@ const Inventory = () => {
                   }}
                 >
                   <MenuItem value="all">Todas las Categorías</MenuItem>
-                  <MenuItem value="Reactivo">Reactivos</MenuItem>
-                  <MenuItem value="Consumible">Consumibles</MenuItem>
-                  <MenuItem value="Calibrador">Calibradores</MenuItem>
-                  <MenuItem value="Control">Controles de Calidad</MenuItem>
+                  <MenuItem value="Reactivo">Reactivos ({counts.reactivos})</MenuItem>
+                  <MenuItem value="Calibrador">Calibradores ({counts.calibradores})</MenuItem>
+                  <MenuItem value="Control">Controles de Calidad ({counts.controles})</MenuItem>
                   <MenuItem value="Solucion">Soluciones</MenuItem>
+                  <MenuItem value="Consumible">Consumibles</MenuItem>
+                </TextField>
+              </Grid>
+
+              {/* Selector de Cantidad en Pantalla (10 - 20 - 50 - 100 - Todos) */}
+              <Grid item xs={12} sm={4} md={3}>
+                <TextField
+                  select
+                  fullWidth
+                  size="small"
+                  label="Mostrar en Pantalla"
+                  value={rowsPerPage}
+                  onChange={(e) => {
+                    setRowsPerPage(Number(e.target.value));
+                    setPage(0);
+                  }}
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      fontWeight: 700,
+                      bgcolor: '#f8fafc'
+                    }
+                  }}
+                >
+                  <MenuItem value={10} sx={{ fontWeight: 600 }}>10 fichas por página</MenuItem>
+                  <MenuItem value={20} sx={{ fontWeight: 600 }}>20 fichas por página</MenuItem>
+                  <MenuItem value={50} sx={{ fontWeight: 600 }}>50 fichas por página</MenuItem>
+                  <MenuItem value={100} sx={{ fontWeight: 600 }}>100 fichas por página</MenuItem>
+                  <MenuItem value={-1} sx={{ fontWeight: 800, color: '#1e40af' }}>
+                    Ver Todos ({filteredItems.length} fichas)
+                  </MenuItem>
                 </TextField>
               </Grid>
             </Grid>
+
+            {/* Chips de Acceso Rápido por Analizador y Categoría */}
+            <Box display="flex" flexWrap="wrap" gap={1} mt={2} pt={1.5} borderTop="1px solid #f1f5f9">
+              <Chip
+                label={`Todos (${counts.total})`}
+                size="small"
+                onClick={() => {
+                  setEquipmentFilter('all');
+                  setCategoryFilter('all');
+                  setPage(0);
+                }}
+                color={equipmentFilter === 'all' && categoryFilter === 'all' ? 'primary' : 'default'}
+                variant={equipmentFilter === 'all' && categoryFilter === 'all' ? 'filled' : 'outlined'}
+                sx={{ fontWeight: 700, cursor: 'pointer' }}
+              />
+              <Chip
+                label={`Mindray BS-230 (${counts.bs})`}
+                size="small"
+                onClick={() => {
+                  setEquipmentFilter(equipmentFilter === 'Mindray BS-230' ? 'all' : 'Mindray BS-230');
+                  setPage(0);
+                }}
+                color={equipmentFilter === 'Mindray BS-230' ? 'primary' : 'default'}
+                variant={equipmentFilter === 'Mindray BS-230' ? 'filled' : 'outlined'}
+                sx={{ fontWeight: 700, cursor: 'pointer' }}
+              />
+              <Chip
+                label={`Wiener CM 260i (${counts.cm})`}
+                size="small"
+                onClick={() => {
+                  setEquipmentFilter(equipmentFilter === 'CM 260i' ? 'all' : 'CM 260i');
+                  setPage(0);
+                }}
+                color={equipmentFilter === 'CM 260i' ? 'primary' : 'default'}
+                variant={equipmentFilter === 'CM 260i' ? 'filled' : 'outlined'}
+                sx={{ fontWeight: 700, cursor: 'pointer' }}
+              />
+              <Divider orientation="vertical" flexItem sx={{ mx: 0.5 }} />
+              <Chip
+                label={`Reactivos (${counts.reactivos})`}
+                size="small"
+                onClick={() => {
+                  setCategoryFilter(categoryFilter === 'Reactivo' ? 'all' : 'Reactivo');
+                  setPage(0);
+                }}
+                color={categoryFilter === 'Reactivo' ? 'success' : 'default'}
+                variant={categoryFilter === 'Reactivo' ? 'filled' : 'outlined'}
+                sx={{ fontWeight: 700, cursor: 'pointer' }}
+              />
+              <Chip
+                label={`Calibradores (${counts.calibradores})`}
+                size="small"
+                onClick={() => {
+                  setCategoryFilter(categoryFilter === 'Calibrador' ? 'all' : 'Calibrador');
+                  setPage(0);
+                }}
+                color={categoryFilter === 'Calibrador' ? 'secondary' : 'default'}
+                variant={categoryFilter === 'Calibrador' ? 'filled' : 'outlined'}
+                sx={{ fontWeight: 700, cursor: 'pointer' }}
+              />
+              <Chip
+                label={`Controles (${counts.controles})`}
+                size="small"
+                onClick={() => {
+                  setCategoryFilter(categoryFilter === 'Control' ? 'all' : 'Control');
+                  setPage(0);
+                }}
+                color={categoryFilter === 'Control' ? 'info' : 'default'}
+                variant={categoryFilter === 'Control' ? 'filled' : 'outlined'}
+                sx={{ fontWeight: 700, cursor: 'pointer' }}
+              />
+            </Box>
           </Paper>
+
+          {/* BARRA SUPERIOR DE PAGINACIÓN */}
+          {!loading && filteredItems.length > 0 && (
+            <Paper
+              elevation={1}
+              sx={{
+                p: 1,
+                px: 2.5,
+                mb: 3,
+                borderRadius: 3,
+                bgcolor: 'white',
+                border: '1px solid #e2e8f0',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                flexWrap: 'wrap',
+                gap: 2
+              }}
+            >
+              <Box display="flex" alignItems="center" gap={1.5}>
+                <Typography variant="body2" sx={{ fontWeight: 700, color: '#334155' }}>
+                  Mostrando fichas:
+                </Typography>
+                <Chip
+                  label={`${page * (rowsPerPage > 0 ? rowsPerPage : filteredItems.length) + 1} – ${rowsPerPage > 0 ? Math.min((page + 1) * rowsPerPage, filteredItems.length) : filteredItems.length} de ${filteredItems.length}`}
+                  size="small"
+                  sx={{
+                    fontWeight: 800,
+                    fontFamily: 'monospace',
+                    bgcolor: '#eff6ff',
+                    color: '#1d4ed8',
+                    border: '1px solid #bfdbfe'
+                  }}
+                />
+                {(searchTerm || categoryFilter !== 'all' || equipmentFilter !== 'all') && (
+                  <Button
+                    size="small"
+                    onClick={() => {
+                      setSearchTerm('');
+                      setCategoryFilter('all');
+                      setEquipmentFilter('all');
+                      setPage(0);
+                    }}
+                    sx={{ textTransform: 'none', fontSize: 12, fontWeight: 700, color: '#dc2626' }}
+                  >
+                    Limpiar filtros
+                  </Button>
+                )}
+              </Box>
+
+              <TablePagination
+                rowsPerPageOptions={[10, 20, 50, 100, { label: 'Todos', value: -1 }]}
+                component="div"
+                count={filteredItems.length}
+                rowsPerPage={rowsPerPage}
+                page={page}
+                onPageChange={(e, newPage) => setPage(newPage)}
+                onRowsPerPageChange={(e) => {
+                  setRowsPerPage(parseInt(e.target.value, 10));
+                  setPage(0);
+                }}
+                labelRowsPerPage="Mostrar por página:"
+                labelDisplayedRows={({ from, to, count }) => `${from}–${to} de ${count !== -1 ? count : `más de ${to}`}`}
+                sx={{
+                  border: 'none',
+                  '.MuiTablePagination-toolbar': { minHeight: 40, p: 0 },
+                  '.MuiTablePagination-selectLabel, .MuiTablePagination-displayedRows': {
+                    fontWeight: 700,
+                    color: '#475569',
+                    fontSize: 13
+                  },
+                  '.MuiTablePagination-select': {
+                    fontWeight: 800,
+                    color: '#1e40af'
+                  }
+                }}
+              />
+            </Paper>
+          )}
 
           {/* GALERÍA / GRID EJECUTIVA DE FICHAS DE PRODUCTOS */}
           {loading ? (
@@ -332,8 +589,9 @@ const Inventory = () => {
               </Button>
             </Paper>
           ) : (
-            <Grid container spacing={3}>
-              {filteredItems.map((product) => (
+            <>
+              <Grid container spacing={3}>
+              {paginatedItems.map((product) => (
                 <Grid item xs={12} sm={6} md={4} key={product.id}>
                   <Card
                     elevation={3}
@@ -440,6 +698,62 @@ const Inventory = () => {
                 </Grid>
               ))}
             </Grid>
+
+            {/* BARRA INFERIOR DE PAGINACIÓN */}
+            {!loading && filteredItems.length > 0 && (
+              <Paper
+                elevation={1}
+                sx={{
+                  p: 1,
+                  px: 2.5,
+                  mt: 4,
+                  borderRadius: 3,
+                  bgcolor: 'white',
+                  border: '1px solid #e2e8f0',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  flexWrap: 'wrap',
+                  gap: 2
+                }}
+              >
+                <Typography variant="body2" sx={{ fontWeight: 600, color: '#64748b' }}>
+                  Total <b>{filteredItems.length}</b> fichas de producto encontradas
+                </Typography>
+
+                <TablePagination
+                  rowsPerPageOptions={[10, 20, 50, 100, { label: 'Todos', value: -1 }]}
+                  component="div"
+                  count={filteredItems.length}
+                  rowsPerPage={rowsPerPage}
+                  page={page}
+                  onPageChange={(e, newPage) => {
+                    setPage(newPage);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  onRowsPerPageChange={(e) => {
+                    setRowsPerPage(parseInt(e.target.value, 10));
+                    setPage(0);
+                  }}
+                  labelRowsPerPage="Mostrar por página:"
+                  labelDisplayedRows={({ from, to, count }) => `${from}–${to} de ${count !== -1 ? count : `más de ${to}`}`}
+                  sx={{
+                    border: 'none',
+                    '.MuiTablePagination-toolbar': { minHeight: 40, p: 0 },
+                    '.MuiTablePagination-selectLabel, .MuiTablePagination-displayedRows': {
+                      fontWeight: 700,
+                      color: '#475569',
+                      fontSize: 13
+                    },
+                    '.MuiTablePagination-select': {
+                      fontWeight: 800,
+                      color: '#1e40af'
+                    }
+                  }}
+                />
+              </Paper>
+            )}
+            </>
           )}
 
         </Box>

@@ -120,6 +120,21 @@ async function processASTMFrame(frame, ingressPort) {
                 patientId = parts[2].trim();
             }
         }
+        if (cleanRecord.startsWith('OBX|')) {
+            const parts = cleanRecord.split('|');
+            if (parts.length > 4 && parts[4].trim()) {
+                testName = parts[4].trim();
+            } else if (parts.length > 3) {
+                const testParts = parts[3].split('^');
+                testName = testParts[0].trim();
+            }
+        }
+        if (cleanRecord.startsWith('OBR|')) {
+            const parts = cleanRecord.split('|');
+            if (parts.length > 2 && parts[2].trim()) {
+                patientId = parts[2].trim();
+            }
+        }
         if (cleanRecord.startsWith('R|')) {
             const parts = cleanRecord.split('|');
             if (parts.length > 2) {
@@ -132,6 +147,7 @@ async function processASTMFrame(frame, ingressPort) {
     // Mapeo rápido fallback si no viene estructurado en registros R| y P|
     if (!testName) {
         if (frame.includes('GLU')) testName = 'GLU';
+        else if (frame.includes('UREL')) testName = 'UREL';
         else if (frame.includes('UREA')) testName = 'UREA';
         else if (frame.includes('CREA')) testName = 'CREA';
         else if (frame.includes('COL')) testName = 'COL';

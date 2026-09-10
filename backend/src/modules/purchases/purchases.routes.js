@@ -1,6 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const purchasesController = require('./purchases.controller');
+const { authenticateToken } = require('../../../middleware/authMiddleware');
+
+router.use(authenticateToken);
 
 router.get('/', purchasesController.getAll);
 router.get('/proveedores', purchasesController.getProveedores);

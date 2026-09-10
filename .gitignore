@@ -19,6 +19,6 @@ yarn-error.log*
 *.rar
 *.exe
 scratch/
-
+~$*
 
 git/

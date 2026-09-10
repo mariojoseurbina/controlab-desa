@@ -443,6 +443,9 @@ model LogSniffer {
   lote_afectado_id Int?
   ml_descontados  Decimal?  @db.Decimal(10, 4)
   
+  @@index([fecha_registro(sort: Desc)], map: "IX_log_sniffer_fecha")
+  @@index([patient_id, test_name, fecha_registro], map: "IX_log_sniffer_repeticion")
+  @@index([equipo_origen], map: "IX_log_sniffer_equipo")
   @@map("log_sniffer")
 }
 

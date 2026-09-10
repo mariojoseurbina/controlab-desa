@@ -1,3 +1,21 @@
+
+const parseDateRobust = (val) => {
+  if (!val) return null;
+  if (val instanceof Date) return isNaN(val.getTime()) ? null : val;
+  const s = String(val).trim();
+  if (s.includes('/')) {
+    const parts = s.split('/');
+    if (parts.length === 3) {
+      const day = parseInt(parts[0], 10);
+      const month = parseInt(parts[1], 10) - 1;
+      const year = parseInt(parts[2], 10);
+      const d = new Date(Date.UTC(year, month, day, 12, 0, 0));
+      return isNaN(d.getTime()) ? null : d;
+    }
+  }
+  const d = new Date(s);
+  return isNaN(d.getTime()) ? null : d;
+};
 const { executeQuery } = require('../config/database');
 
 async function getSuppliers(req, res) {
@@ -233,8 +251,8 @@ async function createReception(req, res) {
       { itemId: itemIdNum, loteClean }
     );
 
-    let fabDateParsed = fecha_fabricacion ? new Date(fecha_fabricacion) : null;
-    let vencDateParsed = fecha_vencimiento ? new Date(fecha_vencimiento) : null;
+    let fabDateParsed = parseDateRobust(fecha_fabricacion) || new Date();
+    let vencDateParsed = parseDateRobust(fecha_vencimiento);
 
     if (existingLot && existingLot.length > 0) {
       const lotId = existingLot[0].Id;

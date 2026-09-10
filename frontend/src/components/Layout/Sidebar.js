@@ -67,7 +67,7 @@ const Sidebar = ({ open, onClose }) => {
       path: '/reagents' 
     },
     { 
-      text: '🔬 Monitor Top 20 Reactivos', 
+      text: '🔬 Centro de Control de Reactivos', 
       icon: <ScienceIcon style={{ color: '#0284c7' }} />, 
       path: '/live-reagents' 
     },
@@ -80,6 +80,11 @@ const Sidebar = ({ open, onClose }) => {
       text: 'Almacén / Depósito', 
       icon: <WarehouseIcon style={{ color: '#0284c7' }} />, 
       path: '/warehouses' 
+    },
+    { 
+      text: '📦 Gestión Cajas y Frascos', 
+      icon: <InventoryIcon style={{ color: '#f59e0b' }} />, 
+      path: '/cajas-frascos' 
     },
     { 
       text: 'Compras', 

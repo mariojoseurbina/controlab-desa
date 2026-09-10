@@ -263,6 +263,139 @@ class MovementsService {
       return { success: true, message: 'Transferencia registrada exitosamente', data: movimiento };
     });
   }
+  async cargaMasivaInicial(data, userId) {
+    const { lotes, almacen_id, motivo } = data;
+
+    if (!Array.isArray(lotes) || lotes.length === 0) {
+      throw new Error('Debe proporcionar al menos un lote para la carga masiva.');
+    }
+
+    if (!almacen_id) {
+      throw new Error('Debe especificar el almacén para la carga masiva.');
+    }
+
+    return await prisma.$transaction(async (tx) => {
+      let totalCajas = 0;
+      
+      for (const loteData of lotes) {
+        const { item_id, numero_lote, fecha_vencimiento, cantidad } = loteData;
+        const qty = parseInt(cantidad, 10);
+
+        if (!item_id || !numero_lote || !cantidad || qty <= 0) {
+          throw new Error('Todos los lotes deben tener item_id, numero_lote y una cantidad válida mayor a cero.');
+        }
+
+        const item = await tx.itemInventario.findUnique({ where: { id: parseInt(item_id) } });
+        if (!item) {
+          throw new Error(`Item con ID ${item_id} no encontrado.`);
+        }
+
+        // Obtener meta data de la caja según el maestro de artículos
+        const totalFrascos = Number(item.frascos_por_caja) || 1;
+        const volPorFrasco = Number(item.volumen_por_frasco) || (Number(item.volumen_total_caja) / totalFrascos) || 50;
+        const volTotalCaja = totalFrascos * volPorFrasco;
+        const consumoPorPrueba = Number(item.consumo_indicado) || 0.25;
+        const pruebasPorFrasco = Number(item.pruebas_teoricas_frasco) || Math.floor(volPorFrasco / consumoPorPrueba);
+        const pruebasPorCaja = Number(item.pruebas_teoricas_caja) || (pruebasPorFrasco * totalFrascos);
+
+        const metadata = {
+          frasco_actual: 0,
+          total_frascos: totalFrascos,
+          vol_por_frasco: volPorFrasco,
+          volumen_total_caja: volTotalCaja,
+          consumo_indicado: consumoPorPrueba,
+          pruebas_por_frasco: pruebasPorFrasco,
+          pruebas_por_caja: pruebasPorCaja,
+          equipo_asociado: (item.marca || '').toLowerCase().includes('mindray') ? 'Mindray BS-230' : 'CM 260i',
+          frasco_2_disponible: totalFrascos > 1,
+          frasco_2_abierto: false
+        };
+
+        // Crear una entrada en LotesReactivos por CADA caja para que se pueda gestionar individualmente (Cajas Cerradas)
+        for (let i = 0; i < qty; i++) {
+          await tx.lotesReactivos.create({
+            data: {
+              InventarioId: parseInt(item_id),
+              NumeroLote: numero_lote,
+              FechaVencimiento: new Date(fecha_vencimiento),
+              FechaFabricacion: new Date(),
+              CantidadInicial: volTotalCaja,
+              CantidadActual: volTotalCaja,
+              ConsumoPorPrueba: consumoPorPrueba,
+              ReactivoPorPrueba: consumoPorPrueba,
+              PruebasTeoricas: pruebasPorCaja,
+              PruebasRestantes: pruebasPorCaja,
+              Estado: 'Activo', // Activo pero sin FechaApertura = Cerrada en Nevera
+              FechaApertura: null,
+              UsuarioApertura: null,
+              CondicionesEspeciales: JSON.stringify(metadata)
+            }
+          });
+        }
+
+        // Actualizar Stock del Almacén
+        let stockRecord = await tx.stockPorAlmacen.findUnique({
+          where: {
+            item_id_almacen_id: {
+              item_id: parseInt(item_id),
+              almacen_id: parseInt(almacen_id)
+            }
+          }
+        });
+
+        const stock_anterior = stockRecord ? Number(stockRecord.stock_actual) : 0;
+        const stock_nuevo = stock_anterior + qty;
+
+        await tx.stockPorAlmacen.upsert({
+          where: {
+            item_id_almacen_id: {
+              item_id: parseInt(item_id),
+              almacen_id: parseInt(almacen_id)
+            }
+          },
+          update: { stock_actual: stock_nuevo },
+          create: {
+            item_id: parseInt(item_id),
+            almacen_id: parseInt(almacen_id),
+            stock_actual: stock_nuevo
+          }
+        });
+
+        // Registrar el Movimiento (Kárdex) agrupado por lote
+        const movimiento = await tx.movimientoInventario.create({
+          data: {
+            item_id: parseInt(item_id),
+            tipo_movimiento: 'ENTRADA',
+            cantidad: qty,
+            stock_anterior,
+            stock_nuevo,
+            motivo: motivo || 'Conteo Inicial de Inventario',
+            referencia: `INI-${numero_lote}-${Date.now().toString().slice(-4)}`,
+            almacen_id: parseInt(almacen_id),
+            creado_por: userId || 1
+          }
+        });
+
+        // Recalcular stock global acumulado en itemInventario
+        const allStocks = await tx.stockPorAlmacen.findMany({
+          where: { item_id: parseInt(item_id) }
+        });
+        const totalGlobalStock = allStocks.reduce((sum, s) => sum + Number(s.stock_actual), 0);
+
+        await tx.itemInventario.update({
+          where: { id: parseInt(item_id) },
+          data: { stock_actual: totalGlobalStock }
+        });
+
+        totalCajas += qty;
+      }
+
+      return { 
+        success: true, 
+        message: `Inventario inicial registrado con éxito. Se agregaron ${totalCajas} cajas en total.` 
+      };
+    });
+  }
 }
 
 module.exports = new MovementsService();

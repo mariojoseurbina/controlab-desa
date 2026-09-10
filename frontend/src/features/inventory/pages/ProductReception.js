@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, memo } from 'react';
+import React, { useState, useEffect, useMemo, useRef, memo } from 'react';
 import {
   Box, Paper, Typography, Button, TextField, Grid, MenuItem, Table, TableBody,
   TableCell, TableContainer, TableHead, TableRow, Chip, IconButton, Alert, Snackbar,
@@ -6,6 +6,7 @@ import {
   Autocomplete, Tooltip, createFilterOptions
 } from '@mui/material';
 import {
+  CalendarToday as CalendarIcon,
   Add as PlusIcon,
   Search as SearchIcon,
   Refresh as RefreshIcon,
@@ -24,6 +25,125 @@ const customFilterOptions = createFilterOptions({
   limit: 50,
   stringify: (option) => `${option.codigo_barra || ''} ${option.codigo} ${option.nombre} ${option.referencia_abreviada || ''} ${option.equipo_asociado || ''}`
 });
+
+
+// Formateadores estrictos DD/MM/AAAA para la tabla y vistas
+const formatDDMMYYYY = (dateVal) => {
+  if (!dateVal) return 'Indefinido';
+  const d = new Date(dateVal);
+  if (isNaN(d.getTime())) return 'Indefinido';
+  const day = String(d.getUTCDate()).padStart(2, '0');
+  const month = String(d.getUTCMonth() + 1).padStart(2, '0');
+  const year = d.getUTCFullYear();
+  return `${day}/${month}/${year}`;
+};
+
+const formatDateTimeDDMMYYYY = (dateVal) => {
+  if (!dateVal) return '-';
+  const d = new Date(dateVal);
+  if (isNaN(d.getTime())) return '-';
+  const day = String(d.getDate()).padStart(2, '0');
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const year = d.getFullYear();
+  let hours = d.getHours();
+  const minutes = String(d.getMinutes()).padStart(2, '0');
+  const seconds = String(d.getSeconds()).padStart(2, '0');
+  const ampm = hours >= 12 ? 'p. m.' : 'a. m.';
+  hours = hours % 12 || 12;
+  return `${day}/${month}/${year}, ${hours}:${minutes}:${seconds} ${ampm}`;
+};
+
+// Componente de entrada estricta DD/MM/AAAA con auto-formato y selector de calendario
+const DateInputDDMMYYYY = ({ label, value, onChange, placeholder = "dd/mm/aaaa" }) => {
+  const hiddenPickerRef = useRef(null);
+
+  const handleTextChange = (e) => {
+    let input = e.target.value;
+    if (input.length < (value || '').length) {
+      onChange(input);
+      return;
+    }
+    const digits = input.replace(/\D/g, '').slice(0, 8);
+    let formatted = digits;
+    if (digits.length > 4) {
+      formatted = `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4, 8)}`;
+    } else if (digits.length > 2) {
+      formatted = `${digits.slice(0, 2)}/${digits.slice(2)}`;
+    }
+    onChange(formatted);
+  };
+
+  const handleNativePicker = (e) => {
+    const isoVal = e.target.value; // YYYY-MM-DD
+    if (!isoVal) return;
+    const parts = isoVal.split('-');
+    if (parts.length === 3) {
+      onChange(`${parts[2]}/${parts[1]}/${parts[0]}`);
+    }
+  };
+
+  const getIsoForPicker = (val) => {
+    if (!val || typeof val !== 'string') return '';
+    const parts = val.split('/');
+    if (parts.length === 3 && parts[2].length === 4) {
+      return `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+    }
+    return '';
+  };
+
+  return (
+    <Box>
+      <Typography variant="subtitle2" fontWeight={800} color="#1e293b" mb={1}>
+        {label}
+      </Typography>
+      <TextField
+        fullWidth
+        placeholder={placeholder}
+        value={value || ''}
+        onChange={handleTextChange}
+        helperText="Formato: dd/mm/aaaa (Día / Mes / Año)"
+        InputProps={{
+          endAdornment: (
+            <InputAdornment position="end">
+              <IconButton
+                size="small"
+                onClick={() => {
+                  if (hiddenPickerRef.current?.showPicker) {
+                    hiddenPickerRef.current.showPicker();
+                  } else if (hiddenPickerRef.current) {
+                    hiddenPickerRef.current.focus();
+                  }
+                }}
+                sx={{ color: '#0284c7' }}
+                title="Seleccionar fecha en calendario"
+              >
+                <CalendarIcon fontSize="small" />
+              </IconButton>
+              <input
+                ref={hiddenPickerRef}
+                type="date"
+                value={getIsoForPicker(value)}
+                onChange={handleNativePicker}
+                style={{
+                  position: 'absolute',
+                  opacity: 0,
+                  width: 0,
+                  height: 0,
+                  pointerEvents: 'none'
+                }}
+                tabIndex={-1}
+              />
+            </InputAdornment>
+          ),
+          sx: {
+            borderRadius: 2,
+            backgroundColor: '#ffffff'
+          }
+        }}
+      />
+    </Box>
+  );
+};
 
 // COMPONENTE MODAL AISLADO (MEMOIZADO): Garantiza tipeo y escaneo ultra fluido a 60 FPS
 const ReceptionModalForm = memo(({ open, onClose, products, suppliers, onAddSupplierClick, onSubmitSuccess, showSnackbar }) => {
@@ -73,7 +193,9 @@ const ReceptionModalForm = memo(({ open, onClose, products, suppliers, onAddSupp
         ...prev,
         codigo_barra: newValue.codigo_barra || prev.codigo_barra,
         precio_recepcion_usd: newValue.precio_costo || prev.precio_recepcion_usd,
-        presentacion_empaque: newValue.presentacion || prev.presentacion_empaque
+        presentacion_empaque: newValue.presentacion || prev.presentacion_empaque,
+        fecha_fabricacion: '',
+        fecha_vencimiento: '' // La fecha de vencimiento debe permanecer LIMPIA para ser ingresada al momento de la recepción
       }));
     }
   };
@@ -101,7 +223,9 @@ const ReceptionModalForm = memo(({ open, onClose, products, suppliers, onAddSupp
         ...prev,
         cantidad_cajas: prev.cantidad_cajas ? String(parseFloat(prev.cantidad_cajas) + 1) : '1',
         precio_recepcion_usd: matched.precio_costo || prev.precio_recepcion_usd,
-        presentacion_empaque: matched.presentacion || prev.presentacion_empaque
+        presentacion_empaque: matched.presentacion || prev.presentacion_empaque,
+        fecha_fabricacion: '',
+        fecha_vencimiento: '' // Fecha de vencimiento siempre limpia para registro manual/escaneo
       }));
     }
   };
@@ -331,29 +455,19 @@ const ReceptionModalForm = memo(({ open, onClose, products, suppliers, onAddSupp
 
             {/* 9. FECHA DE FABRICACIÓN */}
             <Grid item xs={12} sm={6}>
-              <Typography variant="subtitle2" fontWeight={800} color="#1e293b" mb={1}>
-                FECHA DE FABRICACIÓN
-              </Typography>
-              <TextField
-                fullWidth
-                type="date"
-                InputLabelProps={{ shrink: true }}
+              <DateInputDDMMYYYY
+                label="FECHA DE FABRICACIÓN"
                 value={formData.fecha_fabricacion}
-                onChange={(e) => setFormData({ ...formData, fecha_fabricacion: e.target.value })}
+                onChange={(val) => setFormData({ ...formData, fecha_fabricacion: val })}
               />
             </Grid>
 
             {/* 10. FECHA DE VENCIMIENTO */}
             <Grid item xs={12} sm={6}>
-              <Typography variant="subtitle2" fontWeight={800} color="#1e293b" mb={1}>
-                FECHA DE VENCIMIENTO
-              </Typography>
-              <TextField
-                fullWidth
-                type="date"
-                InputLabelProps={{ shrink: true }}
+              <DateInputDDMMYYYY
+                label="FECHA DE VENCIMIENTO"
                 value={formData.fecha_vencimiento}
-                onChange={(e) => setFormData({ ...formData, fecha_vencimiento: e.target.value })}
+                onChange={(val) => setFormData({ ...formData, fecha_vencimiento: val })}
               />
             </Grid>
 
@@ -779,7 +893,7 @@ const ProductReception = () => {
               filteredReceptions.map((row) => (
                 <TableRow key={row.id} hover sx={{ '&:hover': { bgcolor: '#f8fafc' } }}>
                   <TableCell sx={{ fontSize: 13, fontWeight: 600, color: '#475569' }}>
-                    {row.fecha_ingreso ? new Date(row.fecha_ingreso).toLocaleString('es-VE') : '-'}
+                    {formatDateTimeDDMMYYYY(row.fecha_ingreso)}
                   </TableCell>
 
                   <TableCell>
@@ -812,7 +926,7 @@ const ProductReception = () => {
                       sx={{ fontWeight: 800, bgcolor: '#fef3c7', color: '#92400e', border: '1px solid #fde68a', mb: 0.5 }}
                     />
                     <Typography variant="caption" sx={{ display: 'block', fontWeight: 700, color: '#991b1b' }}>
-                      Venc: {row.fecha_vencimiento ? new Date(row.fecha_vencimiento).toLocaleDateString('es-VE') : 'Indefinido'}
+                      Venc: {formatDDMMYYYY(row.fecha_vencimiento)}
                     </Typography>
                   </TableCell>
 
@@ -868,7 +982,7 @@ const ProductReception = () => {
                 </TableRow>
               ))
             )}
-          TableBody>
+          </TableBody>
         </Table>
       </TableContainer>
 

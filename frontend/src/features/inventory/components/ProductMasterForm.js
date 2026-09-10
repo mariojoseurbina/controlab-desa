@@ -26,6 +26,7 @@ const getInitialFormData = (data) => {
 
   if (!data) {
     return {
+      id: null,
       codigo: '',
       codigo_barra: '',
       referencia: '',
@@ -53,6 +54,7 @@ const getInitialFormData = (data) => {
       fecha_vencimiento: '',
       stock_minimo: '0',
       stock_critico: '0',
+      stock_maximo: '0',
       precio_costo: '0'
     };
   }
@@ -81,6 +83,7 @@ const getInitialFormData = (data) => {
   }
 
   return {
+    id: data?.id || data?.item_id,
     codigo: gv(data.codigo),
     codigo_barra: gv(data.codigo_barra),
     referencia: gv(data.referencia),
@@ -108,6 +111,7 @@ const getInitialFormData = (data) => {
     fecha_vencimiento: data.fecha_vencimiento ? String(data.fecha_vencimiento).split('T')[0] : '',
     stock_minimo: gv(data.stock_minimo, '0'),
     stock_critico: gv(data.stock_critico, '0'),
+    stock_maximo: gv(data.stock_maximo, '0'),
     precio_costo: gv(data.precio_costo, '0')
   };
 };
@@ -626,43 +630,60 @@ const ProductMasterForm = ({ initialData, onSubmit, onCancel, isSubmitting }) =>
                 </Box>
 
                 <Grid container spacing={2}>
-                  <Grid item xs={12} sm={4}>
-                    <TextField
-                      type="number"
-                      label="Stock Mínimo (Alerta Reorden)"
-                      name="stock_minimo"
-                      value={formData.stock_minimo}
-                      onChange={handleChange}
-                      fullWidth
-                      size="small"
-                      placeholder="Ej: 5"
-                    />
-                  </Grid>
+                  <Grid item xs={12} sm={12}>
+                    <Grid container spacing={2}>
+                      <Grid item xs={12} sm={3}>
+                        <TextField
+                          type="number"
+                          label="Stock Crítico (Urgencia)"
+                          name="stock_critico"
+                          value={formData.stock_critico}
+                          onChange={handleChange}
+                          fullWidth
+                          size="small"
+                          placeholder="Ej: 2"
+                        />
+                      </Grid>
 
-                  <Grid item xs={12} sm={4}>
-                    <TextField
-                      type="number"
-                      label="Stock Crítico (Urgencia)"
-                      name="stock_critico"
-                      value={formData.stock_critico}
-                      onChange={handleChange}
-                      fullWidth
-                      size="small"
-                      placeholder="Ej: 2"
-                    />
-                  </Grid>
+                      <Grid item xs={12} sm={3}>
+                        <TextField
+                          type="number"
+                          label="Stock Mínimo (Alerta Reorden)"
+                          name="stock_minimo"
+                          value={formData.stock_minimo}
+                          onChange={handleChange}
+                          fullWidth
+                          size="small"
+                          placeholder="Ej: 4"
+                        />
+                      </Grid>
 
-                  <Grid item xs={12} sm={4}>
-                    <TextField
-                      type="number"
-                      label="Precio Unitario Base (USD)"
-                      name="precio_costo"
-                      value={formData.precio_costo}
-                      onChange={handleChange}
-                      fullWidth
-                      size="small"
-                      placeholder="Ej: 120.00"
-                    />
+                      <Grid item xs={12} sm={3}>
+                        <TextField
+                          type="number"
+                          label="Stock Máximo (Capacidad)"
+                          name="stock_maximo"
+                          value={formData.stock_maximo}
+                          onChange={handleChange}
+                          fullWidth
+                          size="small"
+                          placeholder="Ej: 6"
+                        />
+                      </Grid>
+
+                      <Grid item xs={12} sm={3}>
+                        <TextField
+                          type="number"
+                          label="Precio Unitario Base (USD)"
+                          name="precio_costo"
+                          value={formData.precio_costo}
+                          onChange={handleChange}
+                          fullWidth
+                          size="small"
+                          placeholder="Ej: 120.00"
+                        />
+                      </Grid>
+                    </Grid>
                   </Grid>
                 </Grid>
               </CardContent>

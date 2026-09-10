@@ -10,6 +10,7 @@ import Dashboard from './pages/Dashboard/Dashboard';
 import Inventory from './features/inventory/pages/Inventory';
 import ProductReception from './features/inventory/pages/ProductReception';
 import WarehousesHub from './features/inventory/pages/WarehousesHub';
+import InitialCount from './features/inventory/pages/InitialCount';
 import Reagents from './pages/Reagents/Reagents';
 import ImportacionMasivaPruebas from './pages/Reagents/ImportacionMasivaPruebas';
 import GestionKitsPrueba from './pages/Reagents/GestionKitsPrueba/GestionKitsPrueba';
@@ -30,6 +31,7 @@ import AgentChat from './pages/AgentChat/AgentChat';
 import SnifferDashboard from './pages/Sniffer/SnifferDashboard';
 import TraceabilityView from './pages/Traceability/TraceabilityView';
 import LiveReagentsMonitor from './pages/LiveReagents/LiveReagentsMonitor';
+import GestionCajasFrascos from './pages/CajasFrascos/GestionCajasFrascos';
 
 const theme = createTheme({
   palette: {
@@ -115,6 +117,8 @@ function App() {
                       
                       {/* Nuevo Módulo Almacén / Depósito */}
                       <Route path="/warehouses" element={<WarehousesHub />} />
+                      <Route path="/warehouses/conteo-inicial" element={<InitialCount />} />
+                      <Route path="/cajas-frascos" element={<GestionCajasFrascos />} />
                       <Route path="/movements" element={<WarehousesHub />} />
                       
                       <Route path="/compras" element={<ListaCompras />} />

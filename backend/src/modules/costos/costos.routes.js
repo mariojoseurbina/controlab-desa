@@ -1,6 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const costosController = require('./costos.controller');
+const { authenticateToken } = require('../../../middleware/authMiddleware');
+
+router.use(authenticateToken);
 
 router.get('/pruebas', costosController.getPruebas);
 router.post('/pruebas', costosController.createPrueba);

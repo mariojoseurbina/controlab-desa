@@ -353,23 +353,30 @@ const ProductMasterSheet = ({ product, onEdit, onClose }) => {
 
           {/* 4. Seguridad de Stock y Financiero */}
           <Grid container spacing={2}>
-            <Grid item xs={12} sm={4}>
-              <Paper variant="outlined" sx={{ p: 2, bgcolor: '#fffbeb', borderColor: '#fde68a', borderRadius: 3 }}>
-                <Typography variant="caption" sx={{ fontWeight: 800, color: '#b45309', uppercase: true }}>Stock Mínimo (Alerta)</Typography>
-                <Typography variant="h4" sx={{ fontWeight: 900, color: '#78350f', mt: 0.5 }}>{product.stock_minimo || 0} <Typography component="span" variant="body2">Unid.</Typography></Typography>
-              </Paper>
-            </Grid>
-
-            <Grid item xs={12} sm={4}>
+            <Grid item xs={6} sm={3}>
               <Paper variant="outlined" sx={{ p: 2, bgcolor: '#fef2f2', borderColor: '#fecaca', borderRadius: 3 }}>
-                <Typography variant="caption" sx={{ fontWeight: 800, color: '#b91c1c', uppercase: true }}>Stock Crítico (Urgencia)</Typography>
+                <Typography variant="caption" sx={{ fontWeight: 800, color: '#b91c1c', textTransform: 'uppercase' }}>Stock Crítico</Typography>
                 <Typography variant="h4" sx={{ fontWeight: 900, color: '#7f1d1d', mt: 0.5 }}>{product.stock_critico || 0} <Typography component="span" variant="body2">Unid.</Typography></Typography>
               </Paper>
             </Grid>
 
-            <Grid item xs={12} sm={4}>
+            <Grid item xs={6} sm={3}>
+              <Paper variant="outlined" sx={{ p: 2, bgcolor: '#fffbeb', borderColor: '#fde68a', borderRadius: 3 }}>
+                <Typography variant="caption" sx={{ fontWeight: 800, color: '#b45309', textTransform: 'uppercase' }}>Stock Mínimo</Typography>
+                <Typography variant="h4" sx={{ fontWeight: 900, color: '#78350f', mt: 0.5 }}>{product.stock_minimo || 0} <Typography component="span" variant="body2">Unid.</Typography></Typography>
+              </Paper>
+            </Grid>
+
+            <Grid item xs={6} sm={3}>
+              <Paper variant="outlined" sx={{ p: 2, bgcolor: '#f0f9ff', borderColor: '#bae6fd', borderRadius: 3 }}>
+                <Typography variant="caption" sx={{ fontWeight: 800, color: '#0369a1', textTransform: 'uppercase' }}>Stock Máximo</Typography>
+                <Typography variant="h4" sx={{ fontWeight: 900, color: '#0c4a6e', mt: 0.5 }}>{product.stock_maximo || 0} <Typography component="span" variant="body2">Unid.</Typography></Typography>
+              </Paper>
+            </Grid>
+
+            <Grid item xs={6} sm={3}>
               <Paper variant="outlined" sx={{ p: 2, bgcolor: '#0f172a', color: 'white', borderRadius: 3 }}>
-                <Typography variant="caption" sx={{ fontWeight: 800, color: '#94a3b8', uppercase: true }}>Precio Unitario Base</Typography>
+                <Typography variant="caption" sx={{ fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase' }}>Precio Base</Typography>
                 <Typography variant="h4" sx={{ fontWeight: 900, color: '#4ade80', mt: 0.5 }}>${parseFloat(product.precio_costo || 0).toFixed(2)} <Typography component="span" variant="body2" sx={{ color: '#cbd5e1' }}>USD</Typography></Typography>
               </Paper>
             </Grid>

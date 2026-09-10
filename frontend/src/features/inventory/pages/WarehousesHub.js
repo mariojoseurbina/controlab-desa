@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useMemo, memo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Box, Paper, Typography, Button, TextField, Grid, MenuItem, Table, TableBody,
-  TableCell, TableContainer, TableHead, TableRow, Chip, IconButton, Alert, Snackbar,
+  TableCell, TableContainer, TableHead, TableRow, TablePagination, Chip, IconButton, Alert, Snackbar,
   CircularProgress, InputAdornment, Dialog, DialogTitle, DialogContent, DialogActions,
   Autocomplete, Tabs, Tab, Tooltip, createFilterOptions
 } from '@mui/material';
@@ -18,7 +19,8 @@ import {
   Biotech as BiotechIcon,
   SwapVert as SwapVertIcon,
   TrendingUp as EntryIcon,
-  TrendingDown as ExitIcon
+  TrendingDown as ExitIcon,
+  ListAlt as ListAltIcon
 } from '@mui/icons-material';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
@@ -484,6 +486,7 @@ const TransferModalForm = memo(({ open, onClose, products, onProductSelect, onSu
 
 // COMPONENTE PRINCIPAL HUB ALMACÉN / DEPÓSITO
 const WarehousesHub = () => {
+  const navigate = useNavigate();
   const [tabValue, setTabValue] = useState(0);
 
   // States
@@ -497,6 +500,21 @@ const WarehousesHub = () => {
   const [stockSearch, setStockSearch] = useState('');
   const [movementSearch, setMovementSearch] = useState('');
   const [warehouseFilter, setWarehouseFilter] = useState('all');
+
+  // Pagination States (Stock & Movements)
+  const [stockPage, setStockPage] = useState(0);
+  const [stockRowsPerPage, setStockRowsPerPage] = useState(50);
+  const [movementPage, setMovementPage] = useState(0);
+  const [movementRowsPerPage, setMovementRowsPerPage] = useState(25);
+
+  // Reset pagination when search queries or filters change
+  useEffect(() => {
+    setStockPage(0);
+  }, [stockSearch]);
+
+  useEffect(() => {
+    setMovementPage(0);
+  }, [movementSearch, warehouseFilter]);
 
   // KPI Metrics
   const [kpis, setKpis] = useState({ totalCentral: 0, totalLaboratorio: 0, totalGlobal: 0, totalMovimientos: 0 });
@@ -619,6 +637,12 @@ const WarehousesHub = () => {
     ));
   }, [stockSummary, stockSearch]);
 
+  // Paginated Stock (50 items per view by default)
+  const paginatedStock = useMemo(() => {
+    const from = stockPage * stockRowsPerPage;
+    return filteredStock.slice(from, from + stockRowsPerPage);
+  }, [filteredStock, stockPage, stockRowsPerPage]);
+
   // Movements Search Filtering (Memoized)
   const filteredMovements = useMemo(() => {
     const search = movementSearch.toLowerCase();
@@ -637,6 +661,12 @@ const WarehousesHub = () => {
       return matchesSearch && matchesWarehouse;
     });
   }, [movements, movementSearch, warehouseFilter]);
+
+  // Paginated Movements (25 items per view by default)
+  const paginatedMovements = useMemo(() => {
+    const from = movementPage * movementRowsPerPage;
+    return filteredMovements.slice(from, from + movementRowsPerPage);
+  }, [filteredMovements, movementPage, movementRowsPerPage]);
 
   return (
     <Box sx={{ p: 4, maxWidth: 1400, mx: 'auto', minHeight: '100vh', bgcolor: '#f8fafc' }}>
@@ -725,6 +755,24 @@ const WarehousesHub = () => {
               }}
             >
               🔄 Transferir Stock entre Depósitos
+            </Button>
+
+            {/* BOTÓN 3: CONTEO INICIAL MASIVO */}
+            <Button
+              variant="contained"
+              onClick={() => navigate('/warehouses/conteo-inicial')}
+              startIcon={<ListAltIcon />}
+              sx={{
+                bgcolor: '#7c3aed',
+                '&:hover': { bgcolor: '#6d28d9' },
+                borderRadius: 3,
+                px: 2.5,
+                py: 1.2,
+                fontWeight: 800,
+                boxShadow: '0 10px 15px -3px rgba(124, 58, 237, 0.4)'
+              }}
+            >
+              📋 Conteo Inicial (Carga Masiva)
             </Button>
           </Box>
         </Box>
@@ -863,7 +911,7 @@ const WarehousesHub = () => {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  filteredStock.map((row) => (
+                  paginatedStock.map((row) => (
                     <TableRow key={row.item_id} hover sx={{ '&:hover': { bgcolor: '#f8fafc' } }}>
                       <TableCell>
                         <Typography variant="caption" sx={{ fontFamily: 'monospace', fontWeight: 800, color: '#1e40af', display: 'block' }}>
@@ -942,6 +990,33 @@ const WarehousesHub = () => {
                 )}
               </TableBody>
             </Table>
+            <TablePagination
+              rowsPerPageOptions={[10, 25, 50, 100]}
+              component="div"
+              count={filteredStock.length}
+              rowsPerPage={stockRowsPerPage}
+              page={stockPage}
+              onPageChange={(e, newPage) => setStockPage(newPage)}
+              onRowsPerPageChange={(e) => {
+                setStockRowsPerPage(parseInt(e.target.value, 10));
+                setStockPage(0);
+              }}
+              labelRowsPerPage="Filas por página:"
+              labelDisplayedRows={({ from, to, count }) => `${from}–${to} de ${count !== -1 ? count : `más de ${to}`}`}
+              sx={{
+                bgcolor: 'white',
+                borderTop: '1px solid #e2e8f0',
+                '.MuiTablePagination-selectLabel, .MuiTablePagination-displayedRows': {
+                  fontWeight: 600,
+                  color: '#475569',
+                  fontSize: 13
+                },
+                '.MuiTablePagination-select': {
+                  fontWeight: 700,
+                  color: '#0f172a'
+                }
+              }}
+            />
           </TableContainer>
         </Box>
       )}
@@ -1025,7 +1100,7 @@ const WarehousesHub = () => {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  filteredMovements.map((m) => (
+                  paginatedMovements.map((m) => (
                     <TableRow key={m.id} hover sx={{ '&:hover': { bgcolor: '#f8fafc' } }}>
                       <TableCell sx={{ fontSize: 13, fontWeight: 600, color: '#475569' }}>
                         {m.fecha_movimiento ? new Date(m.fecha_movimiento).toLocaleString('es-VE') : '-'}
@@ -1097,6 +1172,33 @@ const WarehousesHub = () => {
                 )}
               </TableBody>
             </Table>
+            <TablePagination
+              rowsPerPageOptions={[10, 25, 50, 100]}
+              component="div"
+              count={filteredMovements.length}
+              rowsPerPage={movementRowsPerPage}
+              page={movementPage}
+              onPageChange={(e, newPage) => setMovementPage(newPage)}
+              onRowsPerPageChange={(e) => {
+                setMovementRowsPerPage(parseInt(e.target.value, 10));
+                setMovementPage(0);
+              }}
+              labelRowsPerPage="Filas por página:"
+              labelDisplayedRows={({ from, to, count }) => `${from}–${to} de ${count !== -1 ? count : `más de ${to}`}`}
+              sx={{
+                bgcolor: 'white',
+                borderTop: '1px solid #e2e8f0',
+                '.MuiTablePagination-selectLabel, .MuiTablePagination-displayedRows': {
+                  fontWeight: 600,
+                  color: '#475569',
+                  fontSize: 13
+                },
+                '.MuiTablePagination-select': {
+                  fontWeight: 700,
+                  color: '#0f172a'
+                }
+              }}
+            />
           </TableContainer>
         </Box>
       )}

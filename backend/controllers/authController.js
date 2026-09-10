@@ -1,39 +1,72 @@
 const jwt = require('jsonwebtoken');
-const sql = require('mssql');
-const { dbConfig } = require('../config/db');
+const bcrypt = require('bcryptjs');
+const { getPool, sql } = require('../config/db');
 
 const login = async (req, res) => {
-  console.log('🔐 Login intent:', req.body.usuario);
+  console.log('🔐 Intento de login:', req.body.usuario);
   
   const { usuario, contraseña } = req.body;
 
+  if (!usuario || !contraseña) {
+    return res.status(400).json({ error: 'Usuario y contraseña requeridos', success: false });
+  }
+
   try {
-    // CONEXIÓN DIRECTA - SIN DEPENDER DE app.locals
-    const pool = await sql.connect(dbConfig);
+    const pool = await getPool();
     
     const result = await pool.request()
       .input('usuario', sql.VarChar, usuario)
       .query('SELECT * FROM usuarios WHERE usuario = @usuario');
 
     if (result.recordset.length === 0) {
-      await pool.close();
-      return res.status(401).json({ error: 'Usuario no encontrado' });
+      return res.status(401).json({ error: 'Usuario no encontrado', success: false });
     }
 
     const user = result.recordset[0];
-    
-    // Comparación directa (sin bcrypt por ahora)
-    if (contraseña !== user.contraseña) {
-      await pool.close();
-      return res.status(401).json({ error: 'Contraseña incorrecta' });
-    }
+    let passwordValid = false;
+    let needsHashUpgrade = false;
 
-    const token = jwt.sign(
-      { id: user.id, usuario: user.usuario, rol: user.rol },
-      'mi_secreto_temporal'
+    // Verificar si la clave almacenada ya tiene formato bcrypt ($2a$, $2b$ o $2y$)
+    const isBcrypt = user.contraseña && (
+      user.contraseña.startsWith('$2a$') || 
+      user.contraseña.startsWith('$2b$') || 
+      user.contraseña.startsWith('$2y$')
     );
 
-    await pool.close();
+    if (isBcrypt) {
+      passwordValid = await bcrypt.compare(contraseña, user.contraseña);
+    } else {
+      // Validación para contraseñas legacy en texto plano
+      if (contraseña === user.contraseña) {
+        passwordValid = true;
+        needsHashUpgrade = true;
+      }
+    }
+
+    if (!passwordValid) {
+      return res.status(401).json({ error: 'Contraseña incorrecta', success: false });
+    }
+
+    // Auto-migración transparente: si la clave estaba en texto plano, hashearla a bcrypt en la BD
+    if (needsHashUpgrade) {
+      try {
+        const hashedPassword = await bcrypt.hash(contraseña, 12);
+        await pool.request()
+          .input('id', sql.Int, user.id)
+          .input('hash', sql.VarChar, hashedPassword)
+          .query('UPDATE usuarios SET contraseña = @hash WHERE id = @id');
+        console.log(`🔒 [Seguridad P1] Contraseña del usuario '${usuario}' migrada automáticamente a hash bcrypt.`);
+      } catch (upgradeErr) {
+        console.error('Aviso: Error durante auto-migración de clave:', upgradeErr.message);
+      }
+    }
+
+    // Generar token JWT seguro con expiración de 12 horas
+    const token = jwt.sign(
+      { id: user.id, usuario: user.usuario, rol: user.rol },
+      process.env.JWT_SECRET || 'mi_secreto_temporal',
+      { expiresIn: process.env.JWT_EXPIRES_IN || '12h' }
+    );
 
     res.json({
       success: true,
@@ -49,7 +82,7 @@ const login = async (req, res) => {
 
   } catch (error) {
     console.error('❌ Error en login:', error);
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: 'Error procesando autenticación', details: error.message, success: false });
   }
 };
 
