@@ -1,5 +1,6 @@
 const sql = require('mssql');
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 
 const parseDatabaseUrl = (url) => {
   if (!url) return null;

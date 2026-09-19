@@ -13,7 +13,9 @@ import {
   TableChart as ExcelIcon,
   AttachMoney as MoneyIcon,
   TrendingUp as TrendingIcon,
-  ShowChart as MarginIcon
+  ShowChart as MarginIcon,
+  Science as ScienceIcon,
+  Warehouse as WarehouseIcon
 } from '@mui/icons-material';
 import { useSnackbar } from 'notistack';
 import * as XLSX from 'xlsx';
@@ -21,6 +23,8 @@ import * as XLSX from 'xlsx';
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
 const REPORTS_CONFIG = [
+  { id: 'stock-cajas-almacenes', title: 'Stock Cajas por Almacén', icon: <WarehouseIcon fontSize="large" />, color: '#0284c7', endpoint: '/reports/quick/stock-cajas-almacenes' },
+  { id: 'rendimiento-cajas', title: 'Rendimiento Cajas & Reactivos', icon: <ScienceIcon fontSize="large" />, color: '#059669', endpoint: '/reports/quick/rendimiento-cajas' },
   { id: 'stock-critico', title: 'Stock Crítico', icon: <WarnIcon fontSize="large" />, color: '#ef4444', endpoint: '/reports/quick/stock-critico' },
   { id: 'vencimientos', title: 'Próximos a Vencer', icon: <StockIcon fontSize="large" />, color: '#f59e0b', endpoint: '/reports/quick/vencimientos' },
   { id: 'movimientos', title: 'Kárdex Mensual', icon: <MovementIcon fontSize="large" />, color: '#3b82f6', endpoint: '/reports/quick/movimientos' },

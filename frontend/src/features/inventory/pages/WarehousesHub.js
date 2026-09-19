@@ -20,8 +20,10 @@ import {
   SwapVert as SwapVertIcon,
   TrendingUp as EntryIcon,
   TrendingDown as ExitIcon,
-  ListAlt as ListAltIcon
+  ListAlt as ListAltIcon,
+  TableChart as ExcelIcon
 } from '@mui/icons-material';
+import * as XLSX from 'xlsx';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
@@ -29,6 +31,35 @@ const customFilterOptions = createFilterOptions({
   limit: 50,
   stringify: (option) => `${option.codigo} ${option.nombre} ${option.referencia_abreviada || ''} ${option.equipo_asociado || ''}`
 });
+
+// Descargador directo de comprobante PDF mediante Blob (inmune a bloqueadores de popups)
+const downloadTransferPdfBlob = async (referencia) => {
+  if (!referencia) return false;
+  try {
+    const token = localStorage.getItem('token');
+    const res = await fetch(`${API_BASE_URL}/movements/transfer/pdf?referencia=${encodeURIComponent(referencia)}`, {
+      headers: {
+        ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+      }
+    });
+    if (!res.ok) {
+      throw new Error(`Error ${res.status}: Fallo al generar comprobante PDF`);
+    }
+    const blob = await res.blob();
+    const blobUrl = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = blobUrl;
+    link.download = `Comprobante_Transferencia_${referencia}.pdf`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setTimeout(() => window.URL.revokeObjectURL(blobUrl), 1500);
+    return true;
+  } catch (err) {
+    console.error('Error al descargar PDF:', err);
+    return false;
+  }
+};
 
 // MODAL MEMOIZADO: REGISTRAR MOVIMIENTO (ENTRADA / SALIDA)
 const MovementModalForm = memo(({ open, onClose, products, onProductSelect, onSubmitSuccess, showSnackbar }) => {
@@ -46,8 +77,9 @@ const MovementModalForm = memo(({ open, onClose, products, onProductSelect, onSu
   useEffect(() => {
     if (open) {
       if (onProductSelect) {
-        setSelectedProduct(onProductSelect);
-        setFormData(prev => ({ ...prev, item_id: onProductSelect.id }));
+        const found = (products || []).find(p => p.id === onProductSelect.id || p.codigo === onProductSelect.codigo) || onProductSelect;
+        setSelectedProduct(found);
+        setFormData(prev => ({ ...prev, item_id: found.id || found.item_id }));
       } else {
         setSelectedProduct(null);
         setFormData({
@@ -60,7 +92,7 @@ const MovementModalForm = memo(({ open, onClose, products, onProductSelect, onSu
         });
       }
     }
-  }, [open, onProductSelect]);
+  }, [open, onProductSelect, products]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -164,6 +196,7 @@ const MovementModalForm = memo(({ open, onClose, products, onProductSelect, onSu
               <Autocomplete
                 options={products}
                 filterOptions={customFilterOptions}
+                isOptionEqualToValue={(option, val) => !val || option.id === val.id || option.codigo === val.codigo}
                 getOptionLabel={(option) => `[${option.codigo}] ${option.nombre} ${option.referencia_abreviada ? '(REF: ' + option.referencia_abreviada + ')' : ''}`}
                 value={selectedProduct}
                 onChange={(e, val) => {
@@ -252,7 +285,7 @@ const MovementModalForm = memo(({ open, onClose, products, onProductSelect, onSu
 });
 
 // MODAL MEMOIZADO: TRANSFERENCIA ENTRE ALMACENES
-const TransferModalForm = memo(({ open, onClose, products, onProductSelect, onSubmitSuccess, showSnackbar }) => {
+const TransferModalForm = memo(({ open, onClose, products, stockSummary, onProductSelect, onSubmitSuccess, showSnackbar }) => {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [transferData, setTransferData] = useState({
@@ -267,8 +300,21 @@ const TransferModalForm = memo(({ open, onClose, products, onProductSelect, onSu
   useEffect(() => {
     if (open) {
       if (onProductSelect) {
-        setSelectedProduct(onProductSelect);
-        setTransferData(prev => ({ ...prev, item_id: onProductSelect.id }));
+        const found = (products || []).find(p => p.id === onProductSelect.id || p.codigo === onProductSelect.codigo) || onProductSelect;
+        const presentacionFinal = found.presentacion || onProductSelect.presentacion || onProductSelect.item_presentacion || '';
+        setSelectedProduct({
+          ...found,
+          presentacion: presentacionFinal,
+          equipo_asociado: found.equipo_asociado || onProductSelect.equipo_asociado
+        });
+        setTransferData({
+          item_id: found.id || found.item_id,
+          cantidad: '',
+          almacen_origen_id: 1,
+          almacen_destino_id: 2,
+          motivo: 'Suministro operativo a laboratorio',
+          referencia: `TRANS-${Date.now().toString().slice(-6)}`
+        });
       } else {
         setSelectedProduct(null);
         setTransferData({
@@ -281,11 +327,31 @@ const TransferModalForm = memo(({ open, onClose, products, onProductSelect, onSu
         });
       }
     }
-  }, [open, onProductSelect]);
+  }, [open, onProductSelect, products]);
+
+  // CÁLCULO DE STOCK DISPONIBLE EN EL ALMACÉN DE ORIGEN
+  const availableStockOrigen = useMemo(() => {
+    if (!selectedProduct) return null;
+    const targetId = selectedProduct.id || selectedProduct.item_id;
+    const summaryItem = (stockSummary || []).find(s => s.item_id === targetId);
+    if (!summaryItem) return 0;
+    const origenId = parseInt(transferData.almacen_origen_id, 10);
+    if (origenId === 1) {
+      return Number(summaryItem.stock_central) || 0;
+    } else if (origenId === 2) {
+      return Number(summaryItem.stock_laboratorio) || 0;
+    }
+    return 0;
+  }, [selectedProduct, transferData.almacen_origen_id, stockSummary]);
+
+  const cantidadNum = parseFloat(transferData.cantidad) || 0;
+  const isZeroStock = selectedProduct !== null && availableStockOrigen !== null && availableStockOrigen <= 0;
+  const isExceeded = selectedProduct !== null && availableStockOrigen !== null && cantidadNum > availableStockOrigen;
+  const origenNombre = parseInt(transferData.almacen_origen_id, 10) === 1 ? 'Almacén Central' : 'Almacén Laboratorio';
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const targetItemId = selectedProduct ? selectedProduct.id : transferData.item_id;
+    const targetItemId = selectedProduct ? (selectedProduct.id || selectedProduct.item_id) : transferData.item_id;
     if (!targetItemId) {
       showSnackbar('Por favor selecciona un producto a transferir', 'error');
       return;
@@ -296,6 +362,16 @@ const TransferModalForm = memo(({ open, onClose, products, onProductSelect, onSu
     }
     if (String(transferData.almacen_origen_id) === String(transferData.almacen_destino_id)) {
       showSnackbar('El almacén de origen y destino deben ser diferentes', 'error');
+      return;
+    }
+
+    // REGLA ESTRICTA: NUNCA PUEDE SER MAYOR A LA CANTIDAD EXISTENTE EN EL ALMACÉN
+    if (availableStockOrigen !== null && availableStockOrigen <= 0) {
+      showSnackbar(`REGLA DE CONTROL: El ${origenNombre} no posee cajas disponibles de este producto (Stock: 0).`, 'error');
+      return;
+    }
+    if (availableStockOrigen !== null && parseFloat(transferData.cantidad) > availableStockOrigen) {
+      showSnackbar(`REGLA DE CONTROL: La cantidad a transferir (${transferData.cantidad} cajas) NUNCA puede ser mayor al stock existente en ${origenNombre} (${availableStockOrigen} cajas).`, 'error');
       return;
     }
 
@@ -322,13 +398,16 @@ const TransferModalForm = memo(({ open, onClose, products, onProductSelect, onSu
 
       const result = await res.json();
       if (res.ok) {
-        showSnackbar(result.message || 'Transferencia realizada con éxito');
+        showSnackbar(result.message || 'Transferencia realizada con éxito', 'success');
+
+        // Descarga directa e inmediata del comprobante PDF oficial (inmune a bloqueadores)
+        if (payload.referencia) {
+          showSnackbar('Descargando comprobante oficial en PDF...', 'info');
+          await downloadTransferPdfBlob(payload.referencia);
+        }
+
         onClose();
         onSubmitSuccess();
-
-        if (payload.referencia) {
-          window.open(`${API_BASE_URL}/movements/transfer/pdf?referencia=${encodeURIComponent(payload.referencia)}`, '_blank');
-        }
       } else {
         showSnackbar(result.error || 'Error procesando transferencia', 'error');
       }
@@ -360,7 +439,8 @@ const TransferModalForm = memo(({ open, onClose, products, onProductSelect, onSu
               <Autocomplete
                 options={products}
                 filterOptions={customFilterOptions}
-                getOptionLabel={(option) => `[${option.codigo}] ${option.nombre} ${option.referencia_abreviada ? '(REF: ' + option.referencia_abreviada + ')' : ''}`}
+                isOptionEqualToValue={(option, val) => !val || option.id === val.id || option.codigo === val.codigo}
+                getOptionLabel={(option) => `[${option.codigo}] ${option.nombre} ${option.presentacion ? ' • (' + option.presentacion + ')' : (option.referencia_abreviada ? ' (REF: ' + option.referencia_abreviada + ')' : '')}`}
                 value={selectedProduct}
                 onChange={(e, val) => {
                   setSelectedProduct(val);
@@ -376,6 +456,49 @@ const TransferModalForm = memo(({ open, onClose, products, onProductSelect, onSu
                 )}
               />
             </Grid>
+
+            {/* PRESENTACIÓN COMERCIAL EXTRAÍDA DE LA FICHA TÉCNICA DEL PRODUCTO */}
+            {selectedProduct && (
+              <Grid item xs={12}>
+                <Paper
+                  elevation={0}
+                  sx={{
+                    p: 2,
+                    bgcolor: '#f8fafc',
+                    border: '1.5px solid #0284c7',
+                    borderRadius: 2.5,
+                    display: 'flex',
+                    flexDirection: { xs: 'column', sm: 'row' },
+                    alignItems: { xs: 'flex-start', sm: 'center' },
+                    justifyContent: 'space-between',
+                    gap: 1.5,
+                    boxShadow: '0 2px 8px -2px rgba(2, 132, 199, 0.15)'
+                  }}
+                >
+                  <Box display="flex" alignItems="center" gap={1.5}>
+                    <Box sx={{ p: 1, bgcolor: '#e0f2fe', borderRadius: 2, color: '#0284c7', display: 'flex' }}>
+                      <BiotechIcon sx={{ fontSize: 26 }} />
+                    </Box>
+                    <Box>
+                      <Typography variant="caption" sx={{ color: '#0284c7', fontWeight: 800, textTransform: 'uppercase', letterSpacing: 0.5, display: 'block' }}>
+                        Presentación Comercial (Ficha de Producto)
+                      </Typography>
+                      <Typography variant="subtitle1" sx={{ fontWeight: 900, color: '#0f172a', fontSize: 15 }}>
+                        📦 {selectedProduct.presentacion || selectedProduct.item_presentacion || 'Presentación estándar por caja'}
+                      </Typography>
+                    </Box>
+                  </Box>
+
+                  {selectedProduct.equipo_asociado && (
+                    <Chip
+                      label={`Equipo: ${selectedProduct.equipo_asociado}`}
+                      size="small"
+                      sx={{ fontWeight: 800, bgcolor: '#eff6ff', color: '#1e40af', border: '1px solid #bfdbfe' }}
+                    />
+                  )}
+                </Paper>
+              </Grid>
+            )}
 
             <Grid item xs={12} sm={6}>
               <Typography variant="subtitle2" fontWeight={800} color="#1e293b" mb={1}>
@@ -407,6 +530,21 @@ const TransferModalForm = memo(({ open, onClose, products, onProductSelect, onSu
               </TextField>
             </Grid>
 
+            {/* BANNER DINÁMICO DE VALIDACIÓN DE STOCK DISPONIBLE EN ALMACÉN ORIGEN */}
+            {selectedProduct && availableStockOrigen !== null && (
+              <Grid item xs={12}>
+                {availableStockOrigen > 0 ? (
+                  <Alert severity="info" sx={{ borderRadius: 2.5, fontWeight: 700, bgcolor: '#f0f9ff', color: '#0369a1', border: '1px solid #bae6fd' }}>
+                    📦 Existencia actual en <strong>{origenNombre}</strong>: <strong>{availableStockOrigen} Cajas</strong> disponibles para transferir.
+                  </Alert>
+                ) : (
+                  <Alert severity="error" sx={{ borderRadius: 2.5, fontWeight: 800, bgcolor: '#fef2f2', color: '#991b1b', border: '1px solid #fecaca' }}>
+                    ⛔ ALMACÉN ORIGEN SIN EXISTENCIAS: <strong>{origenNombre}</strong> posee <strong>0 Cajas</strong> de este producto. La cantidad a transferir nunca puede ser mayor al stock existente.
+                  </Alert>
+                )}
+              </Grid>
+            )}
+
             <Grid item xs={12} sm={6}>
               <Typography variant="subtitle2" fontWeight={800} color="#1e293b" mb={1}>
                 CANTIDAD A TRANSFERIR (CAJAS) *
@@ -414,26 +552,38 @@ const TransferModalForm = memo(({ open, onClose, products, onProductSelect, onSu
               <TextField
                 fullWidth
                 type="number"
-                placeholder="Ej. 2"
+                placeholder={isZeroStock ? "0 Cajas disponibles" : "Ej. 2"}
                 required
+                disabled={isZeroStock}
+                error={isExceeded || (isZeroStock && cantidadNum > 0)}
+                helperText={
+                  isExceeded
+                    ? `⚠️ REGLA: La cantidad (${cantidadNum} cajas) NUNCA puede ser mayor al stock en almacén (${availableStockOrigen} cajas).`
+                    : isZeroStock
+                    ? "Sin existencias en el almacén de origen seleccionado"
+                    : availableStockOrigen !== null
+                    ? `Máximo permitido: ${availableStockOrigen} Cajas`
+                    : ""
+                }
                 value={transferData.cantidad}
                 onChange={(e) => setTransferData({ ...transferData, cantidad: e.target.value })}
-                inputProps={{ min: 1, step: 1 }}
+                inputProps={{
+                  min: 1,
+                  max: availableStockOrigen > 0 ? availableStockOrigen : 1,
+                  step: 1
+                }}
               />
             </Grid>
 
-            {/* BANNER DE DESGLOSE AUTOMÁTICO SEGÚN FICHA DE PRODUCTO */}
-            {selectedProduct && transferData.cantidad && parseFloat(transferData.cantidad) > 0 && String(transferData.almacen_destino_id) === '2' && (
+            {/* BANNER DE DESGLOSE OPERATIVO */}
+            {selectedProduct && transferData.cantidad && parseFloat(transferData.cantidad) > 0 && String(transferData.almacen_destino_id) === '2' && !isExceeded && !isZeroStock && (
               <Grid item xs={12}>
                 <Paper elevation={0} sx={{ p: 2, bgcolor: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 3 }}>
                   <Typography variant="caption" sx={{ fontWeight: 800, color: '#166534', textTransform: 'uppercase', display: 'block', mb: 0.5 }}>
                     🔬 Desglose Operativo según Ficha de Producto (ISO 15189):
                   </Typography>
                   <Typography variant="body2" sx={{ fontWeight: 900, color: '#0f172a' }}>
-                    {transferData.cantidad} Cajas ➔ { (parseFloat(transferData.cantidad) * (selectedProduct.pruebas_teoricas_caja || selectedProduct.rendimiento_teorico || 500)).toLocaleString() } Determinaciones / Pruebas Operativas disponibles en Almacén Laboratorio
-                  </Typography>
-                  <Typography variant="caption" sx={{ color: '#475569', mt: 0.5, display: 'block' }}>
-                    El Sniffer descontará las pruebas consumidas directamente de estas determinaciones en Almacén Laboratorio.
+                    {transferData.cantidad} Cajas ➔ { (parseFloat(transferData.cantidad) * (selectedProduct.pruebas_teoricas_caja || selectedProduct.rendimiento_teorico || 500)).toLocaleString() } Determinaciones disponibles en Almacén Laboratorio
                   </Typography>
                 </Paper>
               </Grid>
@@ -472,12 +622,30 @@ const TransferModalForm = memo(({ open, onClose, products, onProductSelect, onSu
           Cancelar
         </Button>
         <Button
+          type="submit"
           onClick={handleSubmit}
           variant="contained"
-          disabled={submitting}
-          sx={{ bgcolor: '#0284c7', '&:hover': { bgcolor: '#0369a1' }, fontWeight: 800, px: 4, borderRadius: 2 }}
+          disabled={submitting || isZeroStock || isExceeded || !transferData.cantidad || parseFloat(transferData.cantidad) <= 0}
+          sx={{
+            bgcolor: '#0284c7',
+            '&:hover': { bgcolor: '#0369a1' },
+            fontWeight: 800,
+            px: 4,
+            py: 1.2,
+            borderRadius: 2,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 1.5
+          }}
         >
-          {submitting ? 'Procesando...' : 'Confirmar Transferencia y Emitir PDF'}
+          {submitting ? (
+            <>
+              <CircularProgress size={18} sx={{ color: 'white' }} />
+              Emitiendo PDF y Guardando...
+            </>
+          ) : (
+            'Confirmar Transferencia y Emitir PDF'
+          )}
         </Button>
       </DialogActions>
     </Dialog>
@@ -612,7 +780,9 @@ const WarehousesHub = () => {
         id: productItem.item_id,
         codigo: productItem.item_codigo,
         nombre: productItem.item_nombre,
-        referencia_abreviada: productItem.item_referencia
+        referencia_abreviada: productItem.item_referencia,
+        presentacion: productItem.item_presentacion || productItem.presentacion,
+        equipo_asociado: productItem.item_equipo || productItem.equipo_asociado
       });
     } else {
       setSelectedProductForAction(null);
@@ -620,9 +790,44 @@ const WarehousesHub = () => {
     setOpenTransferModal(true);
   };
 
-  const handleDownloadPdf = (referencia) => {
+  const handleDownloadPdf = async (referencia) => {
     if (!referencia) return;
-    window.open(`${API_BASE_URL}/movements/transfer/pdf?referencia=${encodeURIComponent(referencia)}`, '_blank');
+    showSnackbar('Generando y descargando comprobante PDF oficial...', 'info');
+    const ok = await downloadTransferPdfBlob(referencia);
+    if (ok) {
+      showSnackbar('Comprobante PDF descargado exitosamente', 'success');
+    } else {
+      showSnackbar('No se pudo descargar el comprobante PDF', 'error');
+    }
+  };
+
+  const handleExportStockExcel = () => {
+    if (!stockSummary || stockSummary.length === 0) {
+      showSnackbar('No hay existencias para exportar', 'warning');
+      return;
+    }
+
+    const rowsToExport = stockSummary.map((item, idx) => ({
+      'N°': idx + 1,
+      'Código / REF': item.item_codigo || 'N/A',
+      'Producto': item.item_nombre || 'Desconocido',
+      'Referencia': item.item_referencia || '',
+      'Categoría': item.item_categoria || 'General',
+      'Autoanalizador': item.item_equipo || 'General',
+      'Marca': item.item_marca || 'N/A',
+      'Stock Almacén Central (Cajas)': Number(item.stock_central) || 0,
+      'Stock Almacén Laboratorio (Cajas)': Number(item.stock_laboratorio) || 0,
+      'Stock Total Global (Cajas)': Number(item.stock_total_global) || 0,
+      'Pruebas Teóricas / Caja': Number(item.rendimiento_teorico) || 500,
+      'Total Determinaciones Disponibles': (Number(item.stock_total_global) || 0) * (Number(item.rendimiento_teorico) || 500),
+      'Estado Stock': (Number(item.stock_total_global) || 0) <= 0 ? 'AGOTADO' : ((Number(item.stock_total_global) || 0) <= 2 ? 'CRÍTICO' : 'DISPONIBLE')
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(rowsToExport);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Stock_Cajas_Almacenes");
+    XLSX.writeFile(wb, `Reporte_Stock_Cajas_Almacenes_${new Date().toISOString().slice(0, 10)}.xlsx`);
+    showSnackbar('Reporte de Stock de Cajas exportado exitosamente a Excel', 'success');
   };
 
   // Stock Search Filtering (Memoized)
@@ -859,7 +1064,7 @@ const WarehousesHub = () => {
         <Box>
           <Paper elevation={2} sx={{ p: 2.5, mb: 3, borderRadius: 3, bgcolor: 'white' }}>
             <Grid container spacing={2} alignItems="center">
-              <Grid item xs={12}>
+              <Grid item xs={12} md={7}>
                 <TextField
                   fullWidth
                   size="small"
@@ -874,6 +1079,24 @@ const WarehousesHub = () => {
                     ),
                   }}
                 />
+              </Grid>
+              <Grid item xs={12} md={5} display="flex" justifyContent="flex-end" gap={1.5}>
+                <Button
+                  variant="contained"
+                  startIcon={<ExcelIcon />}
+                  onClick={handleExportStockExcel}
+                  sx={{
+                    bgcolor: '#10b981',
+                    '&:hover': { bgcolor: '#059669' },
+                    fontWeight: 800,
+                    px: 3,
+                    py: 1,
+                    borderRadius: 2.5,
+                    boxShadow: '0 4px 6px -1px rgba(16, 185, 129, 0.3)'
+                  }}
+                >
+                  📊 Exportar Reporte de Cajas (Excel)
+                </Button>
               </Grid>
             </Grid>
           </Paper>
@@ -969,8 +1192,11 @@ const WarehousesHub = () => {
                             variant="contained"
                             color="success"
                             startIcon={<SwapVertIcon />}
-                            onClick={() => handleOpenMovementModal(row)}
-                            sx={{ borderRadius: 2, fontWeight: 700, textTransform: 'none', px: 1.5 }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleOpenMovementModal(row);
+                            }}
+                            sx={{ borderRadius: 2, fontWeight: 700, textTransform: 'none', px: 1.5, cursor: 'pointer', '&:active': { transform: 'scale(0.97)' } }}
                           >
                             Movimiento
                           </Button>
@@ -978,8 +1204,11 @@ const WarehousesHub = () => {
                             size="small"
                             variant="outlined"
                             startIcon={<TransferIcon />}
-                            onClick={() => handleOpenTransferModal(row)}
-                            sx={{ borderRadius: 2, fontWeight: 700, textTransform: 'none', px: 1.5 }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleOpenTransferModal(row);
+                            }}
+                            sx={{ borderRadius: 2, fontWeight: 700, textTransform: 'none', px: 1.5, cursor: 'pointer', '&:active': { transform: 'scale(0.97)' } }}
                           >
                             Transferir
                           </Button>
@@ -1218,6 +1447,7 @@ const WarehousesHub = () => {
         open={openTransferModal}
         onClose={() => setOpenTransferModal(false)}
         products={products}
+        stockSummary={stockSummary}
         onProductSelect={selectedProductForAction}
         onSubmitSuccess={() => { loadStockSummary(); loadMovements(); }}
         showSnackbar={showSnackbar}

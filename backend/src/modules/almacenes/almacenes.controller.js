@@ -41,9 +41,10 @@ class AlmacenesController {
           i.categoria as item_categoria,
           i.marca as item_marca,
           i.equipo_asociado as item_equipo,
+          i.presentacion as item_presentacion,
           ISNULL(i.pruebas_teoricas_caja, ISNULL(i.rendimiento_teorico, 500)) as rendimiento_teorico,
           i.stock_actual as stock_total_global,
-          ISNULL(sc.stock_actual, 0) as stock_central,
+          COALESCE(sc.stock_actual, CASE WHEN sl.stock_actual IS NULL THEN i.stock_actual ELSE 0 END, 0) as stock_central,
           ISNULL(sl.stock_actual, 0) as stock_laboratorio
         FROM items_inventario i
         LEFT JOIN stock_por_almacen sc ON (i.id = sc.item_id AND sc.almacen_id = 1)

@@ -43,7 +43,8 @@ const SnifferDashboard = () => {
   const EQUIPOS_LIST = [
     { key: 'ALL', label: 'Todos los Equipos', ip: 'Red General' },
     { key: 'CM_260I', label: 'CM 260i', ip: '192.168.10.188:5050' },
-    { key: 'BS_230', label: 'Mindray BS-230', ip: '192.168.30.148:5050' }
+    { key: 'BS_230', label: 'Mindray BS-230', ip: '192.168.30.148:5050' },
+    { key: 'CLIA_900I', label: 'CLIA 900i', ip: '192.168.30.211:5050' }
   ];
 
   const fetchLogs = async () => {
@@ -156,6 +157,9 @@ const SnifferDashboard = () => {
     }
     if (selectedTab === 'BS_230') {
       return origin.includes('bs 230') || origin.includes('bs-230') || origin.includes('bs230') || origin.includes('192.168.30.148') || raw.includes('bs-230') || raw.includes('192.168.30.148');
+    }
+    if (selectedTab === 'CLIA_900I') {
+      return origin.includes('clia') || origin.includes('900i') || origin.includes('192.168.30.211') || raw.includes('clia') || raw.includes('192.168.30.211');
     }
     return origin.includes(selectedTab.toLowerCase());
   });
@@ -380,10 +384,16 @@ const SnifferDashboard = () => {
                 
                 // Formatear nombre descriptivo del equipo
                 let displayEquipo = log.equipo_origen || 'Desconocido';
+                let equipoColor = '#0288d1';
                 if (displayEquipo.includes('192.168.10.188') || displayEquipo.includes('CM 260') || displayEquipo.toLowerCase().includes('wiener')) {
                   displayEquipo = 'CM 260i (Inmunología)';
+                  equipoColor = '#38bdf8';
                 } else if (displayEquipo.includes('192.168.30.148') || displayEquipo.includes('BS 230') || displayEquipo.includes('BS-230')) {
                   displayEquipo = 'Mindray BS 230 (Química)';
+                  equipoColor = '#06b6d4';
+                } else if (displayEquipo.includes('192.168.30.211') || displayEquipo.toLowerCase().includes('clia') || displayEquipo.includes('900i')) {
+                  displayEquipo = 'CLIA 900i (Quimioluminiscencia)';
+                  equipoColor = '#c084fc';
                 }
 
                 return (
@@ -425,7 +435,7 @@ const SnifferDashboard = () => {
                         );
                       })()}
                     </TableCell>
-                    <TableCell sx={{ color: '#0288d1', fontWeight: 'bold' }}>
+                    <TableCell sx={{ color: equipoColor, fontWeight: 'bold' }}>
                       {displayEquipo}
                     </TableCell>
                     <TableCell sx={{ color: '#fff', fontWeight: (log.is_qc || log.is_repeticion) ? 'bold' : 'normal' }}>

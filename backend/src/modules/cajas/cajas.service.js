@@ -11,6 +11,13 @@ class CajasService {
   async getCajasLaboratorio() {
     // Buscar todos los lotes con sus datos de inventario
     const lotes = await prisma.lotesReactivos.findMany({
+      where: {
+        items_inventario: {
+          equipo_asociado: {
+            not: 'Mindray CL-900i'
+          }
+        }
+      },
       include: {
         items_inventario: {
           select: {
@@ -38,7 +45,10 @@ class CajasService {
         lote_afectado_id: true,
         test_name: true,
         ml_descontados: true,
-        fecha_registro: true
+        fecha_registro: true,
+        is_qc: true,
+        is_calibracion: true,
+        is_repeticion: true
       }
     });
 
@@ -50,18 +60,63 @@ class CajasService {
 
     for (const log of allSnifferLogs) {
       const lId = log.lote_afectado_id;
+      const ml = Number(log.ml_descontados) || 0;
+      const isQc = Boolean(log.is_qc);
+      const isCal = Boolean(log.is_calibracion);
+      const isRep = Boolean(log.is_repeticion);
+
       if (!consumoTotalPorLote[lId]) {
-        consumoTotalPorLote[lId] = { count: 0, ml: 0 };
+        consumoTotalPorLote[lId] = {
+          count: 0, ml: 0,
+          paciente: 0, pacienteMl: 0,
+          qc: 0, qcMl: 0,
+          calibracion: 0, calibracionMl: 0,
+          repeticion: 0, repeticionMl: 0
+        };
       }
-      consumoTotalPorLote[lId].count += 1;
-      consumoTotalPorLote[lId].ml += Number(log.ml_descontados) || 0;
+      const tot = consumoTotalPorLote[lId];
+      tot.count += 1;
+      tot.ml += ml;
+      if (isQc) {
+        tot.qc += 1;
+        tot.qcMl += ml;
+      } else if (isCal) {
+        tot.calibracion += 1;
+        tot.calibracionMl += ml;
+      } else if (isRep) {
+        tot.repeticion += 1;
+        tot.repeticionMl += ml;
+      } else {
+        tot.paciente += 1;
+        tot.pacienteMl += ml;
+      }
 
       if (log.fecha_registro && new Date(log.fecha_registro) >= today) {
         if (!consumoHoyPorLote[lId]) {
-          consumoHoyPorLote[lId] = { count: 0, ml: 0 };
+          consumoHoyPorLote[lId] = {
+            count: 0, ml: 0,
+            paciente: 0, pacienteMl: 0,
+            qc: 0, qcMl: 0,
+            calibracion: 0, calibracionMl: 0,
+            repeticion: 0, repeticionMl: 0
+          };
         }
-        consumoHoyPorLote[lId].count += 1;
-        consumoHoyPorLote[lId].ml += Number(log.ml_descontados) || 0;
+        const hoy = consumoHoyPorLote[lId];
+        hoy.count += 1;
+        hoy.ml += ml;
+        if (isQc) {
+          hoy.qc += 1;
+          hoy.qcMl += ml;
+        } else if (isCal) {
+          hoy.calibracion += 1;
+          hoy.calibracionMl += ml;
+        } else if (isRep) {
+          hoy.repeticion += 1;
+          hoy.repeticionMl += ml;
+        } else {
+          hoy.paciente += 1;
+          hoy.pacienteMl += ml;
+        }
       }
     }
 
@@ -83,28 +138,42 @@ class CajasService {
       const pruebasPorCaja = Number(meta.pruebas_por_caja || lote.items_inventario?.pruebas_teoricas_caja) || (pruebasPorFrasco * totalFrascos);
       const totalVolCaja = Number(meta.volumen_total_caja || (totalFrascos * volPorFrasco));
 
-      const frascoActual = meta.frasco_actual || 1;
-      const defaultEq = (lote.items_inventario?.marca || '').toLowerCase().includes('mindray') ? 'Mindray BS-230' : 'CM 260i';
-      const equipoAsociado = meta.equipo_asociado || defaultEq;
-
       const statsTotal = consumoTotalPorLote[lote.Id] || { count: 0, ml: 0 };
       const statsHoy = consumoHoyPorLote[lote.Id] || { count: 0, ml: 0 };
 
       const pruebasConsumidasLoteTotal = statsTotal.count;
       const mlConsumidosLoteTotal = statsTotal.ml;
 
+      // 🔄 AUTO-TRANSICIÓN AUTOMÁTICA DE FRASCOS (Sin necesidad de clic manual):
+      // Si el volumen total acumulado consumido supera la capacidad de los frascos anteriores, avanza automáticamente
+      const frascoCalculadoPorConsumo = Math.min(totalFrascos, Math.floor(mlConsumidosLoteTotal / volPorFrasco) + 1);
+      let frascoActual = Math.max(Number(meta.frasco_actual) || 1, frascoCalculadoPorConsumo);
+
+      // Si el frasco actual cambió de forma automática por el consumo del Sniffer, persistir en metadata
+      if (frascoActual !== meta.frasco_actual && frascoActual <= totalFrascos) {
+        meta.frasco_actual = frascoActual;
+        meta[`fecha_apertura_frasco_${frascoActual}`] = meta[`fecha_apertura_frasco_${frascoActual}`] || new Date().toISOString();
+        prisma.lotesReactivos.update({
+          where: { Id: lote.Id },
+          data: { CondicionesEspeciales: JSON.stringify(meta) }
+        }).catch(() => {});
+      }
+
+      const defaultEq = (lote.items_inventario?.marca || '').toLowerCase().includes('mindray') ? 'Mindray BS-230' : 'CM 260i';
+      const equipoAsociado = meta.equipo_asociado || defaultEq;
+
       // Descuento exacto por frasco en uso a través de los días:
       const consumoPorPrueba = Number(meta.consumo_indicado || lote.items_inventario?.consumo_indicado) || 0.25;
-      const mlRestantesCaja = Number(Math.min(totalVolCaja, Math.max(0, Number(lote.CantidadActual))).toFixed(2));
+      const mlRestantesCaja = Number(Math.min(totalVolCaja, Math.max(0, totalVolCaja - mlConsumidosLoteTotal, Number(lote.CantidadActual))).toFixed(2));
       const pruebasRestantesCaja = Math.max(0, Math.floor(mlRestantesCaja / consumoPorPrueba));
 
       const mlConsumidosEnFrascosPrevios = (frascoActual - 1) * volPorFrasco;
       const mlConsumidosEnFrascoActual = Math.max(0, mlConsumidosLoteTotal - mlConsumidosEnFrascosPrevios);
-      const mlRestantesFrasco = Number(Math.min(volPorFrasco, Math.max(0, volPorFrasco - mlConsumidosEnFrascoActual), mlRestantesCaja).toFixed(2));
+      const mlRestantesFrasco = Number(Math.min(volPorFrasco, Math.max(0, volPorFrasco - mlConsumidosEnFrascoActual)).toFixed(2));
       const pruebasRestantesFrasco = Math.max(0, Math.floor(mlRestantesFrasco / consumoPorPrueba));
       const porcentajeRestante = volPorFrasco > 0 ? Math.min(100, Math.round((mlRestantesFrasco / volPorFrasco) * 100)) : 0;
 
-      const esCajaAgotada = lote.Estado === 'Agotado' || mlRestantesCaja <= 0 || (frascoActual >= totalFrascos && mlRestantesFrasco <= 0);
+      const esCajaAgotada = lote.Estado === 'Agotado' || mlRestantesCaja <= 0 || (frascoActual >= totalFrascos && mlRestantesFrasco <= 0 && mlConsumidosLoteTotal >= totalVolCaja);
 
       // Detalle individual de cada frasco en la caja para la UI del monitor
       const frascos = [];
@@ -170,6 +239,18 @@ class CajasService {
         mlConsumidosHoy: statsHoy.ml,
         pruebasConsumidasTotal: pruebasConsumidasLoteTotal,
         mlConsumidosTotal: mlConsumidosLoteTotal,
+        desgloseHoy: {
+          paciente: { count: statsHoy.paciente || 0, ml: statsHoy.pacienteMl || 0 },
+          qc: { count: statsHoy.qc || 0, ml: statsHoy.qcMl || 0 },
+          calibracion: { count: statsHoy.calibracion || 0, ml: statsHoy.calibracionMl || 0 },
+          repeticion: { count: statsHoy.repeticion || 0, ml: statsHoy.repeticionMl || 0 }
+        },
+        desgloseTotal: {
+          paciente: { count: statsTotal.paciente || 0, ml: statsTotal.pacienteMl || 0 },
+          qc: { count: statsTotal.qc || 0, ml: statsTotal.qcMl || 0 },
+          calibracion: { count: statsTotal.calibracion || 0, ml: statsTotal.calibracionMl || 0 },
+          repeticion: { count: statsTotal.repeticion || 0, ml: statsTotal.repeticionMl || 0 }
+        },
         pruebasRestantesFrasco,
         pruebasRestantesCaja,
         mlRestantesFrasco,

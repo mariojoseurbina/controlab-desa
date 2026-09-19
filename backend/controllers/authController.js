@@ -1,11 +1,12 @@
-const jwt = require('jsonwebtoken');
+﻿const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const { getPool, sql } = require('../config/db');
 
 const login = async (req, res) => {
-  console.log('🔐 Intento de login:', req.body.usuario);
-  
-  const { usuario, contraseña } = req.body;
+  const usuario = req.body ? req.body.usuario : null;
+  const contraseña = req.body ? (req.body.contraseña || req.body.contrasena || req.body.password) : null;
+
+  console.log('🔑 Intento de login:', usuario);
 
   if (!usuario || !contraseña) {
     return res.status(400).json({ error: 'Usuario y contraseña requeridos', success: false });
@@ -26,18 +27,18 @@ const login = async (req, res) => {
     let passwordValid = false;
     let needsHashUpgrade = false;
 
-    // Verificar si la clave almacenada ya tiene formato bcrypt ($2a$, $2b$ o $2y$)
-    const isBcrypt = user.contraseña && (
-      user.contraseña.startsWith('$2a$') || 
-      user.contraseña.startsWith('$2b$') || 
-      user.contraseña.startsWith('$2y$')
+    const storedPassword = user.contraseña || user.contrasena || user.password;
+
+    const isBcrypt = storedPassword && (
+      storedPassword.startsWith('$') || 
+      storedPassword.startsWith('$') || 
+      storedPassword.startsWith('$')
     );
 
     if (isBcrypt) {
-      passwordValid = await bcrypt.compare(contraseña, user.contraseña);
+      passwordValid = await bcrypt.compare(contraseña, storedPassword);
     } else {
-      // Validación para contraseñas legacy en texto plano
-      if (contraseña === user.contraseña) {
+      if (contraseña === storedPassword) {
         passwordValid = true;
         needsHashUpgrade = true;
       }
@@ -47,7 +48,6 @@ const login = async (req, res) => {
       return res.status(401).json({ error: 'Contraseña incorrecta', success: false });
     }
 
-    // Auto-migración transparente: si la clave estaba en texto plano, hashearla a bcrypt en la BD
     if (needsHashUpgrade) {
       try {
         const hashedPassword = await bcrypt.hash(contraseña, 12);
@@ -55,13 +55,12 @@ const login = async (req, res) => {
           .input('id', sql.Int, user.id)
           .input('hash', sql.VarChar, hashedPassword)
           .query('UPDATE usuarios SET contraseña = @hash WHERE id = @id');
-        console.log(`🔒 [Seguridad P1] Contraseña del usuario '${usuario}' migrada automáticamente a hash bcrypt.`);
+        console.log('🔐 [Seguridad P1] Contraseña del usuario migrada a hash bcrypt.');
       } catch (upgradeErr) {
         console.error('Aviso: Error durante auto-migración de clave:', upgradeErr.message);
       }
     }
 
-    // Generar token JWT seguro con expiración de 12 horas
     const token = jwt.sign(
       { id: user.id, usuario: user.usuario, rol: user.rol },
       process.env.JWT_SECRET || 'mi_secreto_temporal',

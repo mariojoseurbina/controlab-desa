@@ -21,7 +21,6 @@ import {
   Biotech as KitsPruebaIcon,
   ExpandLess,
   ExpandMore,
-  LocalOffer as DescuentoIcon,
   MonetizationOn as CostosIcon,
   SmartToy as SmartToyIcon,
   Radar as RadarIcon,
@@ -95,11 +94,6 @@ const Sidebar = ({ open, onClose }) => {
       text: 'Estructura de Costos', 
       icon: <CostosIcon />, 
       path: '/costos' 
-    },
-    { 
-      text: 'Descuentos por Pruebas', 
-      icon: <DescuentoIcon />, 
-      path: '/descuentos' 
     },
     { 
       text: 'Reportes', 

@@ -2,16 +2,7 @@
 title Instalador Servicio Sniffer Controlab IA
 color 0a
 
-:: 1. Comprobar y solicitar elevacion de Administrador automaticamente
-net session >nul 2>&1
-if %errorLevel% neq 0 (
-    echo =====================================================================
-    echo  Solicitando permisos de Administrador de Windows...
-    echo  Por favor haga clic en "Si" en la ventana de control de cuentas (UAC).
-    echo =====================================================================
-    powershell -NoProfile -ExecutionPolicy Bypass -Command "Start-Process cmd -ArgumentList '/c \"\"%~f0\"\"' -Verb RunAs"
-    exit /b
-)
+
 
 cls
 echo =====================================================================

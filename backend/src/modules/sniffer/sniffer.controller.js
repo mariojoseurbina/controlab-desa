@@ -77,8 +77,10 @@ exports.webhookSniffer = async (req, res) => {
         // Normalización automática de equipos según IPs del laboratorio (.env)
         if (dev_name === '192.168.10.188' || dev_name.includes('192.168.10.188') || dev_name.toLowerCase().includes('wiener') || dev_name.toLowerCase().includes('cm')) {
             dev_name = 'CM 260i';
-        } else if (dev_name === '192.168.30.148' || dev_name.includes('192.168.30.148') || dev_name.toLowerCase().includes('mindray')) {
+        } else if (dev_name === '192.168.30.148' || dev_name.includes('192.168.30.148') || dev_name.toLowerCase().includes('mindray') || dev_name.toLowerCase().includes('bs 230') || dev_name.toLowerCase().includes('bs-230')) {
             dev_name = 'Mindray BS 230';
+        } else if (dev_name === '192.168.30.211' || dev_name.includes('192.168.30.211') || dev_name.toLowerCase().includes('clia') || dev_name.toLowerCase().includes('900i')) {
+            dev_name = 'CLIA 900i';
         }
 
         const raw_text = raw_frame || '';
@@ -97,7 +99,7 @@ exports.webhookSniffer = async (req, res) => {
             if (qrdMatch && qrdMatch[1]) {
                 resolvedPatientId = qrdMatch[1].trim();
             }
-        } else {
+        } else if (!resolvedTestName || resolvedTestName === 'RAW_TEST' || resolvedTestName === 'TEST_DESCONOCIDO' || resolvedTestName === 'RAW_TEST_HL7') {
             // Verificar si en el OBX viene tanto código numérico como descripción clínica
             // Ej: OBX|1|NM|13|Glucose (GOD-POD Method)|... o OBX|1|NM|38|Hemoglobin|...
             const obxFullMatch = raw_text.match(/OBX\|\d+\|[A-Za-z0-9]+\|([^|^|\r\n]*)\|([^|^|\r\n]*)/);
@@ -142,13 +144,20 @@ exports.webhookSniffer = async (req, res) => {
             }
         }
 
-        // Extraer ID de muestra o paciente si viene genérico
-        if (!resolvedPatientId || resolvedPatientId === 'PAC-AUTO' || resolvedPatientId === 'UNKNOWN') {
-            const obrMatch = raw_text.match(/OBR\|[^|]*\|([A-Za-z0-9_-]+)/);
+        // Extraer ID de muestra o paciente si viene genérico o si coincide con el nombre de la prueba
+        const isGenericOrTestName = !resolvedPatientId || 
+            resolvedPatientId === 'PAC-AUTO' || 
+            resolvedPatientId === 'UNKNOWN' ||
+            resolvedPatientId.toLowerCase() === (resolvedTestName || '').toLowerCase() ||
+            resolvedPatientId.toLowerCase() === 'calcium' ||
+            resolvedPatientId.toLowerCase() === 'calcio';
+
+        if (isGenericOrTestName) {
+            const obrMatch = raw_text.match(/OBR\|[^|]*\|([A-Za-z0-9_\- ]+)/);
             if (obrMatch && obrMatch[1]) {
                 resolvedPatientId = obrMatch[1].trim();
             } else {
-                const dspPid = raw_text.match(/DSP\|21\|\|([A-Za-z0-9_-]+)/);
+                const dspPid = raw_text.match(/DSP\|21\|\|([A-Za-z0-9_\- ]+)/);
                 if (dspPid && dspPid[1]) {
                     resolvedPatientId = dspPid[1].trim();
                 }
@@ -161,9 +170,14 @@ exports.webhookSniffer = async (req, res) => {
 
         const pid_lower = resolvedPatientId.toLowerCase();
 
-        // 1. Auto-detección de tipo de corrida
+        // 1. Auto-detección de tipo de corrida (excluyendo analitos como Calcio/Calcium de ser clasificados como calibrador)
         const isQcAuto = is_qc || pid_lower.startsWith('qc') || pid_lower.startsWith('ctrl') || pid_lower.includes('control');
-        const isCalAuto = is_calibracion || pid_lower.startsWith('cal') || pid_lower.startsWith('std') || pid_lower.includes('standard') || pid_lower.includes('calib');
+        const isCalAuto = is_calibracion || 
+            (pid_lower.startsWith('cal') && !pid_lower.startsWith('calci') && !pid_lower.startsWith('calc')) || 
+            pid_lower.startsWith('std') || 
+            pid_lower.includes('standard') || 
+            pid_lower.includes('calib') ||
+            pid_lower.includes('calibrad');
         
         let isRepAuto = is_repeticion || false;
 
@@ -312,6 +326,31 @@ exports.webhookSniffer = async (req, res) => {
                             data: { Estado: 'Agotado' }
                         });
                     }
+
+                    // Auto-transición de frascos automática (Frasco 1 -> Frasco 2...)
+                    let meta = {};
+                    try {
+                        if (loteActivo.CondicionesEspeciales) {
+                            meta = JSON.parse(loteActivo.CondicionesEspeciales);
+                        }
+                    } catch (_) {}
+
+                    const totalFrascos = Number(meta.total_frascos || frascosCaja) || 4;
+                    const volPorFrasco = Number(meta.vol_por_frasco || volFrasco) || 45;
+                    const totalVolCaja = Number(meta.volumen_total_caja || (totalFrascos * volPorFrasco));
+                    const mlConsumidosTotal = Math.max(0, totalVolCaja - restMl);
+                    const frascoCalculado = Math.min(totalFrascos, Math.floor(mlConsumidosTotal / volPorFrasco) + 1);
+
+                    if (frascoCalculado > (meta.frasco_actual || 1) && frascoCalculado <= totalFrascos) {
+                        meta.frasco_actual = frascoCalculado;
+                        meta[`fecha_apertura_frasco_${frascoCalculado}`] = new Date().toISOString();
+                        await tx.lotesReactivos.update({
+                            where: { Id: loteActivo.Id },
+                            data: { CondicionesEspeciales: JSON.stringify(meta) }
+                        });
+                        console.log(`🔄 [Auto-Transición Sniffer] Lote ${loteActivo.NumeroLote}: Frasco ${frascoCalculado} montado y activado automáticamente.`);
+                    }
+
                     const frascosRestantes = (restMl / volFrasco).toFixed(1);
                     const cajasRestantes = (restMl / (volFrasco * frascosCaja)).toFixed(2);
 

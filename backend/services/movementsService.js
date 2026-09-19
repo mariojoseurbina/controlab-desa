@@ -76,6 +76,10 @@ class MovementsService {
       const qty = parseFloat(cantidad);
       const stock_nuevo = tipo_movimiento === 'ENTRADA' ? stock_anterior + qty : stock_anterior - qty;
 
+      if ((tipo_movimiento === 'SALIDA' || tipo_movimiento === 'MERMA') && (stock_anterior <= 0 || qty > stock_anterior)) {
+        throw new Error(`REGLA DE CONTROL: La cantidad a egresar (${qty} cajas) NUNCA puede ser mayor al stock existente en el almacén (${stock_anterior} cajas).`);
+      }
+
       if (stock_nuevo < 0) {
         throw new Error('Stock insuficiente en la ubicación seleccionada para realizar este egreso');
       }
@@ -168,8 +172,12 @@ class MovementsService {
       const stock_anterior_origen = stockOrigen ? Number(stockOrigen.stock_actual) : 0;
       const qty = parseFloat(cantidad);
 
-      if (stock_anterior_origen < qty) {
-        throw new Error('Stock insuficiente en el almacén de origen para realizar la transferencia');
+      if (stock_anterior_origen <= 0) {
+        throw new Error(`REGLA DE CONTROL: El almacén de origen seleccionado posee 0 cajas disponibles de este producto. No se pueden realizar transferencias sin existencia previa.`);
+      }
+
+      if (qty > stock_anterior_origen) {
+        throw new Error(`REGLA DE CONTROL: La cantidad a transferir (${qty} cajas) NUNCA puede ser mayor a la cantidad existente en el almacén de origen (${stock_anterior_origen} cajas).`);
       }
 
       const stock_nuevo_origen = stock_anterior_origen - qty;

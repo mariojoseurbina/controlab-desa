@@ -505,6 +505,27 @@ const Costos = () => {
     }
   };
 
+  // Eliminar Prueba Genérica
+  const handleEliminarPrueba = async (pruebaId, pruebaNombre) => {
+    if (!window.confirm(`¿Está seguro de eliminar la prueba genérica "${pruebaNombre}" y todas sus asociaciones?`)) return;
+    setGuardando(true);
+    setError('');
+    setExito('');
+    try {
+      const response = await api.delete(`/costos/pruebas/${pruebaId}`);
+      if (response.data && response.data.success) {
+        setExito(`Prueba genérica "${pruebaNombre}" eliminada exitosamente.`);
+        if (vinculoPruebaId === pruebaId) setVinculoPruebaId('');
+        await cargarTodosLosDatos();
+      }
+    } catch (err) {
+      console.error('Error al eliminar prueba genérica:', err);
+      setError(err.response?.data?.error || 'Error al eliminar la prueba genérica.');
+    } finally {
+      setGuardando(false);
+    }
+  };
+
   // Vincular marca/item a Prueba
   const handleCrearVinculo = async (e) => {
     e.preventDefault();
@@ -1106,7 +1127,22 @@ const Costos = () => {
                             {pruebasFiltradas.map((prueba) => (
                               <TableRow key={prueba.id} hover>
                                 <TableCell component="th" scope="row" sx={{ verticalAlign: 'top', pt: 2, fontWeight: 500 }}>
-                                  {prueba.nombre_prueba}
+                                  <Box display="flex" alignItems="center" justifyContent="space-between">
+                                    <Typography variant="body2" fontWeight="bold">
+                                      {prueba.nombre_prueba}
+                                    </Typography>
+                                    <Tooltip title={`Eliminar prueba genérica "${prueba.nombre_prueba}"`}>
+                                      <IconButton
+                                        size="small"
+                                        color="default"
+                                        onClick={() => handleEliminarPrueba(prueba.id, prueba.nombre_prueba)}
+                                        disabled={guardando}
+                                        sx={{ opacity: 0.6, '&:hover': { opacity: 1, color: 'error.main' } }}
+                                      >
+                                        <DeleteIcon fontSize="small" />
+                                      </IconButton>
+                                    </Tooltip>
+                                  </Box>
                                 </TableCell>
                                 <TableCell>
                                   {prueba.vinculos && prueba.vinculos.length > 0 ? (

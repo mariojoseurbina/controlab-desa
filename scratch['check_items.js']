@@ -1,0 +1,9 @@
+const { PrismaClient } = require('C:/controlab-desa/backend/node_modules/@prisma/client');
+const prisma = new PrismaClient();
+
+async function check() {
+  const items = await prisma.$queryRaw`SELECT id, nombre, codigo_item, categoria, abreviatura FROM items_inventario WHERE id IN (17506, 17507)`;
+  console.log('Items inventario:', items);
+}
+
+check().catch(console.error).finally(() => prisma.$disconnect());

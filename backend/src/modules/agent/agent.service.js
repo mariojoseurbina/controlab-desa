@@ -16,6 +16,17 @@ if (process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY !== 'pega_tu_clave_
 const systemTools = [{
   functionDeclarations: [
     {
+      name: "getReceptionsReport",
+      description: "Obtiene un reporte completo y detallado de todos los ingresos de productos y recepciones de mercancía con todos los campos (lotes, fechas de vencimiento, proveedor, factura, nota de entrega, almacén, código de barras, precios y totales en USD).",
+      parameters: {
+        type: "OBJECT",
+        properties: {
+          limit: { type: "INTEGER", description: "Cantidad máxima de registros a devolver. Por defecto es 30." },
+          search: { type: "STRING", description: "Opcional. Término de búsqueda por producto, lote, proveedor o factura." }
+        }
+      }
+    },
+    {
       name: "checkInventory",
       description: "Obtiene un resumen de los items del inventario. Puede filtrar por stock bajo o por categoría.",
       parameters: {
@@ -254,6 +265,7 @@ class AgentService {
             else if (functionName === 'checkAverageStorageDays') toolResult = await inventoryTools.checkAverageStorageDays(args);
             else if (functionName === 'checkPriceVariation') toolResult = await inventoryTools.checkPriceVariation(args);
             else if (functionName === 'checkSupplierPerformance') toolResult = await inventoryTools.checkSupplierPerformance(args);
+            else if (functionName === 'getReceptionsReport') toolResult = await inventoryTools.getReceptionsReport(args);
             else if (functionName === 'checkPendingPurchases') toolResult = await inventoryTools.checkPendingPurchases(args);
             else if (functionName === 'calculateTestMargins') toolResult = await costTools.calculateTestMargins(args);
             else if (functionName === 'calculateGlobalExpenses') toolResult = await costTools.calculateGlobalExpenses(args);
@@ -263,6 +275,7 @@ class AgentService {
             else if (functionName === 'calculateBreakEvenPoint') toolResult = await costTools.calculateBreakEvenPoint(args);
             else if (functionName === 'checkExpensiveLowVolumeReagents') toolResult = await costTools.checkExpensiveLowVolumeReagents(args);
             else if (functionName === 'obtenerReporteDiarioSniffer') toolResult = await snifferTools.snifferToolsFunctions.obtenerReporteDiarioSniffer(args);
+            else if (functionName === 'obtenerReporteCompletoReactivo') toolResult = await snifferTools.snifferToolsFunctions.obtenerReporteCompletoReactivo(args);
             else toolResult = { error: `Herramienta ${functionName} no encontrada.` };
           } catch (toolError) {
             toolResult = { error: toolError.message };

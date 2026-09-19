@@ -2,8 +2,8 @@ const net = require('net');
 const axios = require('axios');
 require('dotenv').config();
 
-const CONTROLAB_API_URL = process.env.CONTROLAB_API_URL || 'http://192.168.40.251:5000/api/sniffer/webhook';
-const mappingsStr = process.env.PROXY_MAPPINGS || '5155:127.0.0.1:5155,5050:127.0.0.1:5050';
+const CONTROLAB_API_URL = process.env.CONTROLAB_API_URL || 'http://localhost:5000/api/sniffer/webhook';
+const mappingsStr = process.env.PROXY_MAPPINGS || '5050:192.168.10.188:5050,5150:192.168.30.148:5050,5250:192.168.30.211:5050';
 
 console.log(`[CANS]=============================================`);
 console.log(`[CANS] Iniciando Controlab IA TCP Proxy Bridge (Universal)...`);
@@ -29,24 +29,33 @@ if (mappings.length === 0) {
 
 // Iniciar un servidor TCP por cada mapeo configurado
 mappings.forEach(mapping => {
+    let equipoNombre = 'CM 260i';
+    if (mapping.egressHost === '192.168.30.211' || mapping.ingressPort === 5250) {
+        equipoNombre = 'CLIA 900i';
+    } else if (mapping.egressHost === '192.168.30.148' || mapping.ingressPort === 5150) {
+        equipoNombre = 'Mindray BS 230';
+    } else if (mapping.egressHost === '192.168.10.188' || mapping.ingressPort === 5050) {
+        equipoNombre = 'CM 260i';
+    }
+
     const server = net.createServer((clientSocket) => {
         const remoteInfo = `${clientSocket.remoteAddress}:${clientSocket.remotePort}`;
-        console.log(`[+] [Puerto ${mapping.ingressPort}] Nueva conexión de analizador: ${remoteInfo}`);
+        console.log(`[+] [${equipoNombre} | Puerto ${mapping.ingressPort}] Nueva conexión de analizador: ${remoteInfo}`);
 
         let sessionBuffer = ''; // Buffer para acumular paquetes fragmentados de la misma transmisión
 
         // Conectar a LIS (Infolab)
         const lisSocket = net.connect(mapping.egressPort, mapping.egressHost, () => {
-            console.log(`[+] [Puerto ${mapping.ingressPort}] Conexión puente establecida con LIS en ${mapping.egressHost}:${mapping.egressPort}`);
+            console.log(`[+] [${equipoNombre} | Puerto ${mapping.ingressPort}] Conexión puente establecida con LIS en ${mapping.egressHost}:${mapping.egressPort}`);
         });
 
         // Manejo de errores
         lisSocket.on('error', (err) => {
-            console.error(`[!] [Puerto ${mapping.ingressPort}] Error al conectar con LIS (${mapping.egressHost}:${mapping.egressPort}):`, err.message);
+            console.error(`[!] [${equipoNombre} | Puerto ${mapping.ingressPort}] Error al conectar con LIS (${mapping.egressHost}:${mapping.egressPort}):`, err.message);
         });
 
         clientSocket.on('error', (err) => {
-            console.error(`[!] [Puerto ${mapping.ingressPort}] Error en socket del analizador:`, err.message);
+            console.error(`[!] [${equipoNombre} | Puerto ${mapping.ingressPort}] Error en socket del analizador:`, err.message);
         });
 
         // Interceptar datos del analizador
@@ -65,8 +74,8 @@ mappings.forEach(mapping => {
                 const fullFrame = sessionBuffer;
                 sessionBuffer = ''; // Limpiar buffer para la siguiente muestra
                 
-                processASTMFrame(fullFrame, mapping.ingressPort).catch(err => {
-                    console.error(`[!] [Puerto ${mapping.ingressPort}] Error al procesar trama por EOT:`, err.message);
+                processASTMFrame(fullFrame, mapping).catch(err => {
+                    console.error(`[!] [${equipoNombre} | Puerto ${mapping.ingressPort}] Error al procesar trama por EOT:`, err.message);
                 });
             }
         });
@@ -79,32 +88,44 @@ mappings.forEach(mapping => {
         });
         
         clientSocket.on('close', () => {
-            console.log(`[-] [Puerto ${mapping.ingressPort}] Analizador desconectado.`);
+            console.log(`[-] [${equipoNombre} | Puerto ${mapping.ingressPort}] Analizador desconectado.`);
             lisSocket.end();
 
             // Si el socket se cierra y quedó algo de data en el buffer sin enviar por falta de EOT, la enviamos
             if (sessionBuffer.trim().length > 0) {
                 const remainingFrame = sessionBuffer;
                 sessionBuffer = '';
-                processASTMFrame(remainingFrame, mapping.ingressPort).catch(err => {
-                    console.error(`[!] [Puerto ${mapping.ingressPort}] Error al procesar trama restante al cerrar:`, err.message);
+                processASTMFrame(remainingFrame, mapping).catch(err => {
+                    console.error(`[!] [${equipoNombre} | Puerto ${mapping.ingressPort}] Error al procesar trama restante al cerrar:`, err.message);
                 });
             }
         });
 
         lisSocket.on('close', () => {
-            console.log(`[-] [Puerto ${mapping.ingressPort}] LIS cerró la conexión.`);
+            console.log(`[-] [${equipoNombre} | Puerto ${mapping.ingressPort}] LIS cerró la conexión.`);
             clientSocket.end();
         });
     });
 
     server.listen(mapping.ingressPort, '0.0.0.0', () => {
-        console.log(`[✔] Escuchando en puerto ${mapping.ingressPort} ➔ Redirigiendo a LIS en ${mapping.egressHost}:${mapping.egressPort}`);
+        console.log(`[✔] Escuchando [${equipoNombre}] en puerto local ${mapping.ingressPort} ➔ Redirigiendo a LIS en ${mapping.egressHost}:${mapping.egressPort}`);
     });
 });
 
-// Función de procesamiento de tramas ASTM Universal
-async function processASTMFrame(frame, ingressPort) {
+// Función de procesamiento de tramas ASTM / HL7 Universal
+async function processASTMFrame(frame, mapping) {
+    const ingressPort = typeof mapping === 'object' ? mapping.ingressPort : mapping;
+    const egressHost = typeof mapping === 'object' ? mapping.egressHost : '';
+
+    let equipoOrigen = 'CM 260i';
+    if (egressHost === '192.168.30.211' || ingressPort === 5250) {
+        equipoOrigen = 'CLIA 900i';
+    } else if (egressHost === '192.168.30.148' || ingressPort === 5150) {
+        equipoOrigen = 'Mindray BS 230';
+    } else if (egressHost === '192.168.10.188' || ingressPort === 5050) {
+        equipoOrigen = 'CM 260i';
+    }
+
     // Buscar banderas de Control de Calidad (QC)
     const isQC = frame.includes('QC') || frame.includes('|C|') || frame.toLowerCase().includes('control');
     const records = frame.split(/[\r\n]+/);
@@ -153,20 +174,20 @@ async function processASTMFrame(frame, ingressPort) {
         else if (frame.includes('COL')) testName = 'COL';
     }
 
-    // INTERFAZ UNIVERSAL: Incluso si no logramos extraer el nombre de la prueba específico,
-    // ENVIAMOS la trama completa al Webhook para que quede registrada en la base de datos de auditoría.
+    // INTERFAZ UNIVERSAL: Enviamos la trama completa al Webhook para que quede registrada
     const payload = {
         raw_frame: frame,
         test_name: testName || 'RAW_FRAME',
         patient_id: patientId || (isQC ? 'QC_CONTROL' : 'UNKNOWN'),
         is_qc: isQC,
+        equipo_origen: equipoOrigen,
         timestamp: new Date().toISOString()
     };
 
     try {
         await axios.post(CONTROLAB_API_URL, payload);
-        console.log(`[IA] [Puerto ${ingressPort}] ☑ Trama registrada: ${payload.test_name} (QC: ${payload.is_qc}, Paciente: ${payload.patient_id})`);
+        console.log(`[IA] [${equipoOrigen} | Puerto ${ingressPort}] ☑ Trama registrada: ${payload.test_name} (QC: ${payload.is_qc}, Paciente: ${payload.patient_id})`);
     } catch (error) {
-        console.error(`[IA] [Puerto ${ingressPort}] ❌ Error al enviar al webhook de Controlab: ${error.message}`);
+        console.error(`[IA] [${equipoOrigen} | Puerto ${ingressPort}] ❌ Error al enviar al webhook de Controlab: ${error.message}`);
     }
 }

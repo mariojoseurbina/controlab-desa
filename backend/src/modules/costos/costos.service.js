@@ -4,6 +4,7 @@ class CostosService {
   // 1. Obtener todas las pruebas maestras con sus vínculos e ítems de inventario
   async getPruebas() {
     return await prisma.pruebas_maestra.findMany({
+      where: { activo: true },
       include: {
         vinculos: {
           where: { activo: true },
@@ -16,17 +17,79 @@ class CostosService {
     });
   }
 
-  // 2. Crear una nueva prueba genérica
+  // 2. Crear una nueva prueba genérica (con validación de duplicados y reactivación)
   async createPrueba(data) {
     const { nombre_prueba } = data;
     if (!nombre_prueba || nombre_prueba.trim() === '') {
       throw new Error('El nombre de la prueba genérica es requerido.');
     }
-    return await prisma.pruebas_maestra.create({
-      data: {
-        nombre_prueba: nombre_prueba.trim(),
-        activo: true
+    const nombreNormalizado = nombre_prueba.trim();
+
+    // Verificar si ya existe en la base de datos (insensible a mayúsculas/minúsculas)
+    const existing = await prisma.pruebas_maestra.findFirst({
+      where: {
+        nombre_prueba: {
+          equals: nombreNormalizado
+        }
+      },
+      include: {
+        vinculos: {
+          where: { activo: true },
+          include: { item: true }
+        }
       }
+    });
+
+    if (existing) {
+      if (existing.activo === false) {
+        // Reactivar prueba previa
+        return await prisma.pruebas_maestra.update({
+          where: { id: existing.id },
+          data: { activo: true },
+          include: {
+            vinculos: {
+              where: { activo: true },
+              include: { item: true }
+            }
+          }
+        });
+      }
+      throw new Error(`La prueba genérica "${nombreNormalizado}" ya existe en el catálogo.`);
+    }
+
+    try {
+      return await prisma.pruebas_maestra.create({
+        data: {
+          nombre_prueba: nombreNormalizado,
+          activo: true
+        },
+        include: {
+          vinculos: {
+            where: { activo: true },
+            include: { item: true }
+          }
+        }
+      });
+    } catch (err) {
+      if (err.code === 'P2002') {
+        throw new Error(`Ya existe una prueba genérica registrada con el nombre "${nombreNormalizado}".`);
+      }
+      throw err;
+    }
+  }
+
+  // 2.1 Eliminar / Desactivar una prueba genérica
+  async deletePrueba(id) {
+    const pid = parseInt(id);
+    // Desactivar vínculos asociados
+    await prisma.vinculo_prueba_item.updateMany({
+      where: { prueba_id: pid },
+      data: { activo: false }
+    });
+
+    return await prisma.pruebas_maestra.update({
+      where: { id: pid },
+      data: { activo: false }
     });
   }
 
@@ -40,26 +103,41 @@ class CostosService {
     const pid = parseInt(prueba_id);
     const iid = parseInt(item_id);
 
-    // Verificar si ya existe un vínculo activo
+    // Verificar si ya existe un vínculo previo (activo o inactivo)
     const existente = await prisma.vinculo_prueba_item.findFirst({
       where: {
         prueba_id: pid,
-        item_id: iid,
-        activo: true
-      }
+        item_id: iid
+      },
+      include: { item: true }
     });
 
     if (existente) {
+      if (!existente.activo) {
+        return await prisma.vinculo_prueba_item.update({
+          where: { id: existente.id },
+          data: { activo: true },
+          include: { item: true }
+        });
+      }
       return existente;
     }
 
-    return await prisma.vinculo_prueba_item.create({
-      data: {
-        prueba_id: pid,
-        item_id: iid,
-        activo: true
+    try {
+      return await prisma.vinculo_prueba_item.create({
+        data: {
+          prueba_id: pid,
+          item_id: iid,
+          activo: true
+        },
+        include: { item: true }
+      });
+    } catch (err) {
+      if (err.code === 'P2002') {
+        throw new Error('Este reactivo ya se encuentra vinculado a la prueba seleccionada.');
       }
-    });
+      throw err;
+    }
   }
 
   // 4. Eliminar/Desactivar un vínculo

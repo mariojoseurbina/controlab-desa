@@ -16,7 +16,7 @@ const getAllMovements = async (req, res) => {
 
 const createMovement = async (req, res) => {
   try {
-    const result = await movementsService.createMovement(req.body, req.user?.id || 1);
+    const result = await movementsService.createMovement(req.body, req.user?.id || 6);
     res.status(201).json(result);
   } catch (error) {
     console.error('Error creando movimiento:', error);
@@ -30,7 +30,7 @@ const createMovement = async (req, res) => {
 const transferStock = async (req, res) => {
   try {
     console.log('🚛 Solicitando transferencia de stock:', req.body);
-    const result = await movementsService.transferStock(req.body, req.user?.id || 1);
+    const result = await movementsService.transferStock(req.body, req.user?.id || 6);
     res.status(200).json(result);
   } catch (error) {
     console.error('Error realizando transferencia:', error);
@@ -65,7 +65,7 @@ const downloadTransferPdf = async (req, res) => {
     const itemIds = movements.map(m => m.item_id);
     const items = await prisma.itemInventario.findMany({
       where: { id: { in: itemIds } },
-      select: { id: true, nombre: true, codigo: true, unidad: true }
+      select: { id: true, nombre: true, codigo: true, unidad: true, presentacion: true, equipo_asociado: true }
     });
     const itemMap = new Map(items.map(i => [i.id, i]));
 
@@ -101,29 +101,32 @@ const downloadTransferPdf = async (req, res) => {
 
     // Encabezado de la tabla de ítems
     const tableTop = 210;
-    doc.rect(50, tableTop, 512, 20).fill('#f1f5f9');
-    doc.fillColor('#334155').fontSize(10).text('Código', 60, tableTop + 5, { bold: true });
-    doc.text('Descripción del Reactivo / Artículo', 160, tableTop + 5, { bold: true });
-    doc.text('Cantidad Enviada', 430, tableTop + 5, { bold: true, align: 'right' });
+    doc.rect(50, tableTop, 512, 22).fill('#f1f5f9');
+    doc.fillColor('#334155').fontSize(9).text('Código', 55, tableTop + 6, { bold: true });
+    doc.text('Descripción del Producto', 140, tableTop + 6, { bold: true });
+    doc.text('Presentación Comercial', 335, tableTop + 6, { bold: true });
+    doc.text('Cantidad', 460, tableTop + 6, { bold: true, align: 'right', width: 95 });
 
-    let currentY = tableTop + 20;
+    let currentY = tableTop + 24;
 
     // Listar las líneas de transferencia
     movements.forEach((mov) => {
       const item = itemMap.get(mov.item_id) || {};
       const code = item.codigo || 'N/A';
       const name = item.nombre || 'Producto no especificado';
-      const unit = item.unidad || 'U';
+      const presentacion = item.presentacion || 'N/A';
+      const unit = item.unidad || 'Caja(s)';
       const qty = Number(mov.cantidad);
 
-      doc.fillColor('#1e293b').fontSize(9);
-      doc.text(code, 60, currentY + 6);
-      doc.text(name, 160, currentY + 6);
-      doc.text(`${qty} ${unit}`, 430, currentY + 6, { align: 'right' });
+      doc.fillColor('#1e293b').fontSize(8.5);
+      doc.text(code, 55, currentY + 6, { width: 80 });
+      doc.text(name, 140, currentY + 6, { width: 190 });
+      doc.fillColor('#0369a1').text(presentacion, 335, currentY + 6, { width: 120 });
+      doc.fillColor('#1e293b').text(`${qty} ${unit}`, 460, currentY + 6, { align: 'right', width: 95 });
 
       // Línea fina para fila de tabla
-      doc.strokeColor('#f1f5f9').moveTo(50, currentY + 20).lineTo(562, currentY + 20).stroke();
-      currentY += 20;
+      doc.strokeColor('#e2e8f0').moveTo(50, currentY + 22).lineTo(562, currentY + 22).stroke();
+      currentY += 24;
     });
 
     // Zona de firmas

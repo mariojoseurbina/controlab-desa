@@ -7,6 +7,7 @@ router.use(authenticateToken);
 
 router.get('/pruebas', costosController.getPruebas);
 router.post('/pruebas', costosController.createPrueba);
+router.delete('/pruebas/:id', costosController.deletePrueba);
 router.post('/vinculos', costosController.createVinculo);
 router.delete('/vinculos/:id', costosController.deleteVinculo);
 router.get('/analisis', costosController.getAnalisisCostos);

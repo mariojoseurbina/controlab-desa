@@ -661,4 +661,174 @@ router.get('/quick/descuentos-hoy', async (req, res) => {
   }
 });
 
+router.get('/quick/rendimiento-cajas', async (req, res) => {
+  try {
+    const { PrismaClient } = require('@prisma/client');
+    const prisma = new PrismaClient();
+
+    const lotes = await prisma.lotesReactivos.findMany({
+      include: { items_inventario: true },
+      orderBy: { Id: 'desc' }
+    });
+
+    const reportData = [];
+
+    for (const lote of lotes) {
+      let meta = {};
+      try { if (lote.CondicionesEspeciales) meta = JSON.parse(lote.CondicionesEspeciales); } catch(_) {}
+
+      const item = lote.items_inventario || {};
+      const frascosPorCaja = Number(item.frascos_por_caja) || Number(meta.total_frascos) || 4;
+      const volPorFrasco = Number(item.volumen_por_frasco) || Number(meta.vol_por_frasco) || 45;
+      const consumoInserto = Number(item.consumo_indicado) || Number(lote.ConsumoPorPrueba) || 0.25;
+
+      const volTotalCaja = Number(lote.CantidadInicial) || (frascosPorCaja * volPorFrasco);
+      const pruebasTeoricasInserto = Math.floor(volTotalCaja / consumoInserto);
+
+      const logs = await prisma.logSniffer.findMany({
+        where: { lote_afectado_id: lote.Id }
+      });
+
+      let pacientes = 0;
+      let qcCalMermas = 0;
+      let volDescontado = 0;
+
+      logs.forEach(l => {
+        const ml = Number(l.ml_descontados) || consumoInserto;
+        volDescontado += ml;
+        if (l.is_qc || l.is_calibracion || l.is_repeticion) {
+          qcCalMermas++;
+        } else {
+          pacientes++;
+        }
+      });
+
+      const totalReales = logs.length;
+      const rendimientoPacientePct = pruebasTeoricasInserto > 0 
+        ? parseFloat(((pacientes / pruebasTeoricasInserto) * 100).toFixed(1)) 
+        : 0;
+      const deltaInserto = totalReales - pruebasTeoricasInserto;
+      const rendimientoTotalExtraccion = `${totalReales} / ${pruebasTeoricasInserto} (${deltaInserto >= 0 ? '+' : ''}${deltaInserto} test)`;
+
+      const frascoActual = Number(meta.frasco_actual) || 1;
+      let estadoCaja = 'Sellada / Sin Uso';
+      if (lote.CantidadActual <= 0) {
+        estadoCaja = 'CERRADA / AGOTADA';
+      } else if (volDescontado > 0) {
+        estadoCaja = `EN USO - Frasco ${frascoActual} de ${frascosPorCaja}`;
+      }
+
+      reportData.push({
+        id: lote.Id,
+        Numero_Lote: lote.NumeroLote || 'N/A',
+        Reactivo: item.nombre || 'Desconocido',
+        Codigo_Catalogo: item.codigo || 'N/A',
+        Equipo_Analizador: item.equipo_asociado || meta.equipo_asociado || 'CM 260i',
+        Presentacion_Caja: `${frascosPorCaja} Frascos x ${volPorFrasco} mL`,
+        Volumen_Total_Caja_mL: volTotalCaja,
+        Consumo_Inserto_mL: consumoInserto,
+        Pruebas_Teoricas_Inserto: pruebasTeoricasInserto,
+        Pruebas_Pacientes_Reales: pacientes,
+        Pruebas_QC_CAL_Mermas: qcCalMermas,
+        Pruebas_Reales_Extraidas: totalReales,
+        Eficiencia_Paciente_Pct: `${rendimientoPacientePct}%`,
+        Rendimiento_Extraccion: rendimientoTotalExtraccion,
+        Delta_vs_Inserto_Tests: deltaInserto,
+        Volumen_Consumido_mL: parseFloat(volDescontado.toFixed(2)),
+        Stock_Restante_mL: parseFloat(lote.CantidadActual.toFixed(2)),
+        Estado_Caja: estadoCaja
+      });
+    }
+
+    await prisma.$disconnect();
+    res.json({ success: true, data: reportData });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+router.get('/quick/stock-cajas-almacenes', async (req, res) => {
+  try {
+    const { PrismaClient } = require('@prisma/client');
+    const prisma = new PrismaClient();
+
+    const items = await prisma.itemInventario.findMany({
+      where: { activo: true },
+      include: {
+        stock_sucursales: {
+          include: { almacen: true }
+        }
+      },
+      orderBy: { nombre: 'asc' }
+    });
+
+    const reportData = items.map(item => {
+      let stockCentral = 0;
+      let stockLaboratorio = 0;
+      let stockOtras = 0;
+
+      if (item.stock_sucursales && item.stock_sucursales.length > 0) {
+        item.stock_sucursales.forEach(s => {
+          const qty = Number(s.stock_actual) || 0;
+          if (s.almacen_id === 1) {
+            stockCentral += qty;
+          } else if (s.almacen_id === 2) {
+            stockLaboratorio += qty;
+          } else {
+            stockOtras += qty;
+          }
+        });
+      }
+
+      // Si no tiene registros en stock_por_almacen pero sí stock_actual global, asignar a Central
+      const stockGlobal = Number(item.stock_actual) || 0;
+      if (stockCentral === 0 && stockLaboratorio === 0 && stockOtras === 0 && stockGlobal > 0) {
+        stockCentral = stockGlobal;
+      }
+
+      const totalCajas = stockCentral + stockLaboratorio + stockOtras;
+      const pruebasPorCaja = Number(item.pruebas_teoricas_caja) || 500;
+      const totalPruebasDisponibles = totalCajas * pruebasPorCaja;
+
+      let estadoStock = 'AGOTADO (0 Cajas)';
+      if (totalCajas > 10) {
+        estadoStock = 'ÓPTIMO';
+      } else if (totalCajas > 2) {
+        estadoStock = 'NORMAL';
+      } else if (totalCajas > 0) {
+        estadoStock = 'CRÍTICO';
+      }
+
+      const frascos = Number(item.frascos_por_caja) || 1;
+      const vol = Number(item.volumen_por_frasco) || 0;
+      const presentacionStr = item.presentacion || (vol > 0 ? `${frascos} Frascos x ${vol} mL` : 'Caja Estándar');
+
+      return {
+        id: item.id,
+        Codigo: item.codigo || 'N/A',
+        Producto: item.nombre || 'Desconocido',
+        Categoria: item.categoria || 'General',
+        Equipo_Asociado: item.equipo_asociado || 'General',
+        Marca: item.marca || 'N/A',
+        Stock_Almacen_Central_Cajas: stockCentral,
+        Stock_Almacen_Laboratorio_Cajas: stockLaboratorio,
+        Stock_Total_Global_Cajas: totalCajas,
+        Presentacion_Comercial: presentacionStr,
+        Pruebas_Por_Caja: pruebasPorCaja,
+        Total_Pruebas_Disponibles: totalPruebasDisponibles,
+        Estado_Stock: estadoStock,
+        Requiere_Reposicion: totalCajas <= 2 ? 'SÍ (REPOSICIÓN URGENTE)' : 'NO'
+      };
+    });
+
+    // Ordenar primero los que tienen stock disponible
+    reportData.sort((a, b) => b.Stock_Total_Global_Cajas - a.Stock_Total_Global_Cajas);
+
+    await prisma.$disconnect();
+    res.json({ success: true, data: reportData });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 module.exports = router;

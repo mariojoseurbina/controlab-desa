@@ -744,7 +744,112 @@ async function getRecentMovements({ filterType = 'ALL', days = 30, targetMonth =
   }
 }
 
+
+/**
+ * Obtiene el reporte detallado de los ingresos de productos y recepciones de mercancía con todos los campos.
+ */
+async function getReceptionsReport({ limit = 50, search = null } = {}) {
+  try {
+    const { executeQuery } = require('../../../../config/database');
+    let query = `
+      SELECT 
+        i.id as item_id,
+        i.codigo as item_codigo,
+        i.nombre as item_nombre,
+        i.referencia as item_referencia,
+        i.categoria as item_categoria,
+        i.precio_costo,
+        i.stock_actual as item_stock_total,
+        i.presentacion as item_presentacion,
+        i.fecha_creacion as item_fecha_creacion,
+        m.id as movimiento_id,
+        ISNULL(m.cantidad, i.stock_actual) as cantidad_cajas,
+        ISNULL(m.fecha_movimiento, i.fecha_creacion) as fecha_ingreso,
+        m.nro_factura,
+        m.nota_entrega,
+        m.codigo_barra,
+        m.presentacion_empaque,
+        m.referencia as referencia_documento,
+        a.id as almacen_id,
+        ISNULL(a.nombre, 'Almacén Central') as almacen_nombre,
+        p.id as proveedor_id,
+        ISNULL(p.nombre, 'Catálogo Inicial') as proveedor_nombre,
+        ISNULL(l.NumeroLote, 'LOTE-INICIAL') as lote_numero,
+        l.FechaFabricacion as fecha_fabricacion,
+        l.FechaVencimiento as fecha_vencimiento,
+        ISNULL(l.PrecioRecepcionUSD, i.precio_costo) as precio_recepcion_usd
+      FROM items_inventario i
+      LEFT JOIN (
+        SELECT item_id, MAX(id) as max_mov_id
+        FROM movimientos_inventario
+        WHERE tipo_movimiento = 'ENTRADA'
+        GROUP BY item_id
+      ) latest_mov ON i.id = latest_mov.item_id
+      LEFT JOIN movimientos_inventario m ON latest_mov.max_mov_id = m.id
+      LEFT JOIN almacenes a ON ISNULL(m.almacen_id, 1) = a.id
+      LEFT JOIN proveedores p ON m.proveedor_id = p.id
+      LEFT JOIN LotesReactivos l ON (i.id = l.InventarioId AND l.Estado = 'Activo')
+      WHERE i.activo = 1
+    `;
+
+    const params = {};
+    if (search && search.trim()) {
+      query += ` AND (LOWER(i.nombre) LIKE LOWER(@searchStr) OR LOWER(i.codigo) LIKE LOWER(@searchStr) OR LOWER(ISNULL(m.nro_factura, '')) LIKE LOWER(@searchStr) OR LOWER(ISNULL(p.nombre, '')) LIKE LOWER(@searchStr))`;
+      params.searchStr = `%${search.trim()}%`;
+    }
+
+    query += ` ORDER BY ISNULL(m.fecha_movimiento, i.fecha_creacion) DESC, i.nombre ASC`;
+
+    const rows = await executeQuery(query, params);
+
+    let totalIngresadoUSD = 0;
+    let totalCajas = 0;
+
+    const recepciones = rows.slice(0, limit).map(r => {
+      const cajas = Number(r.cantidad_cajas) || Number(r.item_stock_total) || 0;
+      const precioUSD = Number(r.precio_recepcion_usd) || Number(r.precio_costo) || 0;
+      const totalUSD = cajas * precioUSD;
+
+      totalCajas += cajas;
+      totalIngresadoUSD += totalUSD;
+
+      return {
+        id: r.movimiento_id || (`ITEM-` + r.item_id),
+        fechaIngreso: r.fecha_ingreso,
+        codigo: r.item_codigo || '-',
+        nombre: r.item_nombre,
+        referencia: r.item_referencia || 'N/A',
+        categoria: r.item_categoria || 'Reactivo',
+        lote: r.lote_numero || 'LOTE-INICIAL',
+        fechaFabricacion: r.fecha_fabricacion ? new Date(r.fecha_fabricacion).toLocaleDateString('es-VE') : 'N/A',
+        fechaVencimiento: r.fecha_vencimiento ? new Date(r.fecha_vencimiento).toLocaleDateString('es-VE') : 'Indefinido',
+        cantidad: cajas,
+        presentacion: r.presentacion_empaque || r.item_presentacion || 'Cajas',
+        proveedor: r.proveedor_nombre || 'Catálogo Inicial',
+        nroFactura: r.nro_factura || 'N/A',
+        notaEntrega: r.nota_entrega || 'N/A',
+        guiaOC: r.referencia_documento || 'REC-DIRECTA',
+        almacen: r.almacen_nombre || 'Almacén Central',
+        codigoBarra: r.codigo_barra || 'Sin Escaneo',
+        precioUnitarioUSD: parseFloat(precioUSD.toFixed(2)),
+        totalUSD: parseFloat(totalUSD.toFixed(2))
+      };
+    });
+
+    return {
+      totalRecepciones: rows.length,
+      totalCajas,
+      totalIngresadoUSD: parseFloat(totalIngresadoUSD.toFixed(2)),
+      recepciones
+    };
+  } catch (error) {
+    console.error("Error en getReceptionsReport:", error);
+    return { error: error.message };
+  }
+}
+
 module.exports = {
+  getReceptionsReport,
   checkInventory,
   checkExpiringLots,
   checkRecentPurchases,

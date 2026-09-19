@@ -185,9 +185,11 @@ const Inventory = () => {
       const eq = (item.equipo_asociado || '').toLowerCase();
       let matchesEquipment = true;
       if (equipmentFilter === 'Mindray BS-230') {
-        matchesEquipment = eq.includes('bs-230') || eq.includes('bs 230') || eq.includes('mindray');
+        matchesEquipment = (eq.includes('bs-230') || eq.includes('bs 230') || eq.includes('mindray')) && !eq.includes('cl-900') && !eq.includes('cl 900');
       } else if (equipmentFilter === 'CM 260i') {
         matchesEquipment = eq.includes('cm 260') || eq.includes('cm260') || eq.includes('wiener');
+      } else if (equipmentFilter === 'CL-900i') {
+        matchesEquipment = eq.includes('cl-900') || eq.includes('cl 900') || eq.includes('clia');
       }
 
       return matchesSearch && matchesCategory && matchesEquipment;
@@ -206,16 +208,20 @@ const Inventory = () => {
     const total = items.length;
     const bs = items.filter(i => {
       const eq = (i.equipo_asociado || '').toLowerCase();
-      return eq.includes('bs-230') || eq.includes('bs 230') || eq.includes('mindray');
+      return (eq.includes('bs-230') || eq.includes('bs 230') || eq.includes('mindray')) && !eq.includes('cl-900') && !eq.includes('cl 900');
     }).length;
     const cm = items.filter(i => {
       const eq = (i.equipo_asociado || '').toLowerCase();
       return eq.includes('cm 260') || eq.includes('cm260') || eq.includes('wiener');
     }).length;
+    const cl = items.filter(i => {
+      const eq = (i.equipo_asociado || '').toLowerCase();
+      return eq.includes('cl-900') || eq.includes('cl 900') || eq.includes('clia');
+    }).length;
     const reactivos = items.filter(i => getItemCategory(i) === 'Reactivo').length;
     const calibradores = items.filter(i => getItemCategory(i) === 'Calibrador').length;
     const controles = items.filter(i => getItemCategory(i) === 'Control').length;
-    return { total, bs, cm, reactivos, calibradores, controles };
+    return { total, bs, cm, cl, reactivos, calibradores, controles };
   }, [items]);
 
   return (
@@ -349,6 +355,7 @@ const Inventory = () => {
                   <MenuItem value="all">Todos los Equipos ({counts.total})</MenuItem>
                   <MenuItem value="Mindray BS-230">Mindray BS-230 ({counts.bs})</MenuItem>
                   <MenuItem value="CM 260i">Wiener Lab CM 260i ({counts.cm})</MenuItem>
+                  <MenuItem value="CL-900i">Mindray CL-900i ({counts.cl})</MenuItem>
                 </TextField>
               </Grid>
 
@@ -445,6 +452,17 @@ const Inventory = () => {
                 }}
                 color={equipmentFilter === 'CM 260i' ? 'primary' : 'default'}
                 variant={equipmentFilter === 'CM 260i' ? 'filled' : 'outlined'}
+                sx={{ fontWeight: 700, cursor: 'pointer' }}
+              />
+              <Chip
+                label={`Mindray CL-900i (${counts.cl})`}
+                size="small"
+                onClick={() => {
+                  setEquipmentFilter(equipmentFilter === 'CL-900i' ? 'all' : 'CL-900i');
+                  setPage(0);
+                }}
+                color={equipmentFilter === 'CL-900i' ? 'primary' : 'default'}
+                variant={equipmentFilter === 'CL-900i' ? 'filled' : 'outlined'}
                 sx={{ fontWeight: 700, cursor: 'pointer' }}
               />
               <Divider orientation="vertical" flexItem sx={{ mx: 0.5 }} />

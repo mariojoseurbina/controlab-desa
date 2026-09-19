@@ -190,7 +190,7 @@ async function createReception(req, res) {
     const proveedorIdNum = proveedor_id ? parseInt(proveedor_id, 10) : null;
     const qtyCajas = parseFloat(cantidad_cajas);
     const precioUSD = parseFloat(precio_recepcion_usd || 0);
-    const presentacionStr = presentacion_empaque || 'Cajas';
+    const presentacionStr = (presentacion_empaque && presentacion_empaque !== 'Cajas') ? presentacion_empaque : (item.presentacion || item.presentacion_comercial || presentacion_empaque || 'Cajas');
     const facturaStr = nro_factura ? String(nro_factura).trim() : null;
     const notaEntregaStr = nota_entrega ? String(nota_entrega).trim() : null;
     const barcodeStr = codigo_barra ? String(codigo_barra).trim() : null;
@@ -317,7 +317,197 @@ async function createReception(req, res) {
   }
 }
 
+
+async function createBatchReception(req, res) {
+  try {
+    const {
+      proveedor_id,
+      nro_factura,
+      nota_entrega,
+      referencia_documento,
+      almacen_id,
+      items
+    } = req.body;
+
+    if (!items || !Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({ success: false, error: 'Debe incluir al menos un producto en la recepción.' });
+    }
+
+    const almacenIdNum = parseInt(almacen_id || 1, 10);
+    const proveedorIdNum = proveedor_id ? parseInt(proveedor_id, 10) : null;
+    const facturaStr = nro_factura ? String(nro_factura).trim() : '';
+    const notaEntregaStr = nota_entrega ? String(nota_entrega).trim() : '';
+    const docRef = referencia_documento ? String(referencia_documento).trim() : `REC-BATCH-${Date.now()}`;
+
+    const almacenesRows = await executeQuery('SELECT * FROM almacenes WHERE id = @id', { id: almacenIdNum });
+    const almacenNombre = almacenesRows && almacenesRows.length > 0 ? almacenesRows[0].nombre : 'Almacén Central';
+
+    let totalProcesados = 0;
+    let totalMontoUSD = 0;
+    let totalIVAUSD = 0;
+    const itemsIngresados = [];
+
+    for (const itemData of items) {
+      const {
+        item_id,
+        cantidad_cajas,
+        lote,
+        fecha_fabricacion,
+        fecha_vencimiento,
+        codigo_barra,
+        presentacion_empaque,
+        precio_recepcion_usd,
+        aplica_iva
+      } = itemData;
+
+      if (!item_id || !cantidad_cajas || !lote) continue;
+
+      const itemIdNum = parseInt(item_id, 10);
+      const qtyCajas = parseFloat(cantidad_cajas);
+      const precioUSD = parseFloat(precio_recepcion_usd || 0);
+      const presentacionStr = presentacion_empaque || 'Cajas';
+      const barcodeStr = codigo_barra ? String(codigo_barra).trim() : null;
+      const esIva = Boolean(aplica_iva);
+      const pctIva = esIva ? 16 : 0;
+
+      const itemRows = await executeQuery('SELECT * FROM items_inventario WHERE id = @id', { id: itemIdNum });
+      if (!itemRows || itemRows.length === 0) continue;
+      const item = itemRows[0];
+
+      // Upsert stock por almacen
+      const existingStock = await executeQuery(
+        'SELECT * FROM stock_por_almacen WHERE item_id = @itemId AND almacen_id = @almacenId',
+        { itemId: itemIdNum, almacenId: almacenIdNum }
+      );
+      const currentStock = existingStock && existingStock.length > 0 ? Number(existingStock[0].stock_actual) : 0;
+      const newStock = currentStock + qtyCajas;
+
+      if (existingStock && existingStock.length > 0) {
+        await executeQuery(
+          'UPDATE stock_por_almacen SET stock_actual = @newStock WHERE item_id = @itemId AND almacen_id = @almacenId',
+          { newStock, itemId: itemIdNum, almacenId: almacenIdNum }
+        );
+      } else {
+        await executeQuery(
+          'INSERT INTO stock_por_almacen (item_id, almacen_id, stock_actual) VALUES (@itemId, @almacenId, @newStock)',
+          { itemId: itemIdNum, almacenId: almacenIdNum, newStock }
+        );
+      }
+
+      // Recalculate global cumulative stock & update barcode
+      const globalStockRows = await executeQuery(
+        'SELECT SUM(stock_actual) as totalStock FROM stock_por_almacen WHERE item_id = @itemId',
+        { itemId: itemIdNum }
+      );
+      const globalStock = globalStockRows[0]?.totalStock !== null ? Number(globalStockRows[0].totalStock) : (Number(item.stock_actual) + qtyCajas);
+
+      await executeQuery(
+        `UPDATE items_inventario 
+         SET stock_actual = @globalStock, 
+             precio_costo = CASE WHEN @precioUSD > 0 THEN @precioUSD ELSE precio_costo END,
+             codigo_barra = ISNULL(@barcodeStr, codigo_barra)
+         WHERE id = @itemId`,
+        { globalStock, precioUSD, barcodeStr, itemId: itemIdNum }
+      );
+
+      // Create / update LotesReactivos
+      const loteClean = String(lote).trim();
+      const existingLot = await executeQuery(
+        'SELECT * FROM LotesReactivos WHERE InventarioId = @itemId AND NumeroLote = @loteClean',
+        { itemId: itemIdNum, loteClean }
+      );
+      let fabDateParsed = parseDateRobust(fecha_fabricacion) || new Date();
+      let vencDateParsed = parseDateRobust(fecha_vencimiento);
+
+      if (existingLot && existingLot.length > 0) {
+        const lotId = existingLot[0].Id;
+        const currentLotQty = Number(existingLot[0].CantidadActual) || 0;
+        await executeQuery(
+          `UPDATE LotesReactivos 
+          SET CantidadActual = @newLotQty, 
+              FechaFabricacion = ISNULL(@fabDate, FechaFabricacion),
+              FechaVencimiento = ISNULL(@vencDate, FechaVencimiento),
+              PrecioRecepcionUSD = CASE WHEN @precioUSD > 0 THEN @precioUSD ELSE PrecioRecepcionUSD END,
+              ProveedorId = ISNULL(@proveedorIdNum, ProveedorId),
+              NroFactura = ISNULL(@facturaStr, NroFactura),
+              NotaEntrega = ISNULL(@notaEntregaStr, NotaEntrega),
+              CodigoBarra = ISNULL(@barcodeStr, CodigoBarra),
+              PresentacionEmpaque = ISNULL(@presentacionStr, PresentacionEmpaque),
+              Estado = 'Activo'
+          WHERE Id = @lotId`,
+          { newLotQty: currentLotQty + qtyCajas, fabDate: fabDateParsed, vencDate: vencDateParsed, precioUSD, proveedorIdNum, facturaStr, notaEntregaStr, barcodeStr, presentacionStr, lotId }
+        );
+      } else {
+        await executeQuery(
+          `INSERT INTO LotesReactivos (
+            InventarioId, NumeroLote, CantidadInicial, CantidadActual, Estado, 
+            FechaRegistro, FechaFabricacion, FechaVencimiento, PrecioRecepcionUSD, AlmacenId,
+            ProveedorId, NroFactura, NotaEntrega, CodigoBarra, PresentacionEmpaque
+          )
+          VALUES (
+            @itemId, @loteClean, @qtyCajas, @qtyCajas, 'Activo',
+            GETDATE(), @fabDate, @vencDate, @precioUSD, @almacenIdNum,
+            @proveedorIdNum, @facturaStr, @notaEntregaStr, @barcodeStr, @presentacionStr
+          )`,
+          { itemId: itemIdNum, loteClean, qtyCajas, fabDate: fabDateParsed, vencDate: vencDateParsed, precioUSD, almacenIdNum, proveedorIdNum, facturaStr, notaEntregaStr, barcodeStr, presentacionStr }
+        );
+      }
+
+      // Record movement
+      const motivoStr = `Ingreso Recepción Lote: ${loteClean} - ${pctIva > 0 ? 'IVA 16%' : 'Exento'}`;
+      await executeQuery(
+        `INSERT INTO movimientos_inventario (
+          item_id, tipo_movimiento, cantidad, stock_anterior, stock_nuevo, 
+          motivo, referencia, fecha_movimiento, almacen_id, creado_por,
+          proveedor_id, nro_factura, nota_entrega, codigo_barra, presentacion_empaque
+        )
+        VALUES (
+          @itemId, 'ENTRADA', @qtyCajas, @currentStock, @newStock,
+          @motivoStr, @docRef, GETDATE(), @almacenIdNum, 1,
+          @proveedorIdNum, @facturaStr, @notaEntregaStr, @barcodeStr, @presentacionStr
+        )`,
+        { itemId: itemIdNum, qtyCajas, currentStock, newStock, motivoStr, docRef, almacenIdNum, proveedorIdNum, facturaStr, notaEntregaStr, barcodeStr, presentacionStr }
+      );
+
+      const subtotalItem = qtyCajas * precioUSD;
+      const ivaItem = subtotalItem * (pctIva / 100);
+
+      totalProcesados += 1;
+      totalMontoUSD += subtotalItem + ivaItem;
+      totalIVAUSD += ivaItem;
+
+      itemsIngresados.push({
+        item_id: itemIdNum,
+        nombre: item.nombre,
+        codigo: item.codigo,
+        cantidad: qtyCajas,
+        presentacion: presentacionStr,
+        lote: loteClean,
+        precio_unitario: precioUSD,
+        aplica_iva: esIva,
+        subtotal: subtotalItem,
+        iva: ivaItem,
+        total: subtotalItem + ivaItem
+      });
+    }
+
+    res.status(201).json({
+      success: true,
+      message: `Recepción de ${totalProcesados} producto(s) registrada exitosamente en ${almacenNombre}.`,
+      referencia: docRef,
+      totalProcesados,
+      totalMontoUSD,
+      totalIVAUSD,
+      items: itemsIngresados
+    });
+  } catch (error) {
+    console.error('Error in createBatchReception:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+}
+
 module.exports = {
+  createBatchReception,
   getSuppliers,
   createSupplier,
   getReceptions,

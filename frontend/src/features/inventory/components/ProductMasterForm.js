@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import api from '../../../services/api';
 import {
   Box, Paper, Typography, Button, TextField, Grid, MenuItem, Divider,
-  Stepper, Step, StepLabel, Card, CardContent, IconButton
+  Stepper, Step, StepLabel, Card, CardContent, IconButton, InputAdornment
 } from '@mui/material';
 import {
   Biotech as BiotechIcon,
@@ -34,14 +35,14 @@ const getInitialFormData = (data) => {
       presentacion: '',
       nombre: '',
       descripcion: '',
-      marca: '',
+      marca: 'Wiener Lab',
       categoria: 'Reactivo',
-      unidad_negocio: '',
-      equipo_asociado: '',
+      unidad_negocio: 'LABORATORIO CLINICO',
+      equipo_asociado: 'WIENER CM 260I',
       grupo: '',
       calibradores_asociados: '',
       control_asociado: '',
-      ubicacion: '',
+      ubicacion: 'Almacen Central',
       nivel: '',
       unidad: 'Frasco',
       frascos_por_caja: '1',
@@ -91,14 +92,14 @@ const getInitialFormData = (data) => {
     presentacion: gv(data.presentacion, data.descripcion),
     nombre: gv(data.nombre),
     descripcion: gv(data.descripcion),
-    marca: gv(data.marca),
+    marca: gv(data.marca, 'Wiener Lab'),
     categoria: gv(data.categoria, 'Reactivo'),
-    unidad_negocio: gv(data.unidad_negocio),
-    equipo_asociado: gv(data.equipo_asociado),
+    unidad_negocio: gv(data.unidad_negocio, 'LABORATORIO CLINICO'),
+    equipo_asociado: gv(data.equipo_asociado, 'WIENER CM 260I'),
     grupo: gv(data.grupo),
     calibradores_asociados: gv(data.calibradores_asociados),
     control_asociado: gv(data.control_asociado),
-    ubicacion: gv(data.ubicacion),
+    ubicacion: gv(data.ubicacion, 'Almacen Central'),
     nivel: gv(data.nivel),
     unidad: gv(data.unidad, 'Frasco'),
     frascos_por_caja: frascosCaja,
@@ -118,14 +119,71 @@ const getInitialFormData = (data) => {
 
 const ProductMasterForm = ({ initialData, onSubmit, onCancel, isSubmitting }) => {
   const [activeStep, setActiveStep] = useState(0);
-
   const [formData, setFormData] = useState(() => getInitialFormData(initialData));
+  const [existingItems, setExistingItems] = useState([]);
+
+  useEffect(() => {
+    const fetchCatalog = async () => {
+      try {
+        const res = await api.get('/inventory');
+        if (res.data && res.data.items) {
+          setExistingItems(res.data.items);
+        }
+      } catch (err) {
+        console.warn('No se pudo precargar el catálogo para verificación de SKU:', err.message);
+      }
+    };
+    fetchCatalog();
+  }, []);
 
   useEffect(() => {
     if (initialData) {
       setFormData(getInitialFormData(initialData));
     }
   }, [initialData]);
+
+  // Verificación en tiempo real del SKU para corroborar si el producto ya existe en catálogo
+  const skuTrimmed = (formData.codigo || '').trim().toLowerCase();
+  const matchedItem = existingItems.find(item => {
+    const itemSku = (item.codigo || '').trim().toLowerCase();
+    const itemId = item.id || item.item_id;
+    const currentId = formData.id;
+    return itemSku === skuTrimmed && skuTrimmed !== '' && (!currentId || String(itemId) !== String(currentId));
+  });
+
+  const skuExiste = Boolean(matchedItem);
+
+  const getSkuHelperText = () => {
+    if (skuExiste) {
+      return `⚠️ Este Código SKU ya existe en el sistema (${matchedItem.nombre || 'Producto Registrado'})`;
+    }
+    if (skuTrimmed !== '') {
+      return `✓ Código SKU único disponible`;
+    }
+    return `Identificador único del producto`;
+  };
+
+  const marcasPredefinidas = ['Mindray', 'Wiener Lab', 'Wiener Lab / Mindray', 'Cromatest', 'Roche', 'Sysmex', 'Otro / Genérico'];
+  const marcaOptions = Array.from(new Set([...marcasPredefinidas, ...(formData.marca ? [formData.marca] : [])]));
+
+  const unidadesNegocioPredefinidas = [
+    'LABORATORIO ANATOMIA',
+    'LABORATORIO CLINICO',
+    'MOLECULAR',
+    'TOMA DE MUESTRA',
+    'EXTERNO'
+  ];
+  const unidadNegocioOptions = Array.from(new Set([...unidadesNegocioPredefinidas, ...(formData.unidad_negocio ? [formData.unidad_negocio] : [])]));
+
+  const equiposPredefinidos = [
+    'WIENER CM 260I',
+    'MINDRAY BS - 230',
+    'Mindray CL-900i',
+    'MINDRAY CLIA 900I',
+    'MINDRAY BC 5300',
+    'MINDRAY BC 5380'
+  ];
+  const equipoOptions = Array.from(new Set([...equiposPredefinidos, ...(formData.equipo_asociado ? [formData.equipo_asociado] : [])]));
 
   // Recálculo automático de rendimiento (Inserto -> Pruebas/Frasco y Pruebas/Caja)
   useEffect(() => {
@@ -276,7 +334,25 @@ const ProductMasterForm = ({ initialData, onSubmit, onCancel, isSubmitting }) =>
                       fullWidth
                       size="small"
                       placeholder="Ej: REAC-HEMO-01"
-                      helperText="Identificador único del producto"
+                      error={skuExiste}
+                      helperText={getSkuHelperText()}
+                      FormHelperTextProps={{
+                        sx: {
+                          color: skuExiste ? '#d97706' : (skuTrimmed !== '' ? '#10b981' : 'text.secondary'),
+                          fontWeight: skuExiste || skuTrimmed !== '' ? 700 : 400
+                        }
+                      }}
+                      InputProps={{
+                        endAdornment: skuExiste ? (
+                          <InputAdornment position="end">
+                            <AlertIcon sx={{ color: '#f59e0b', fontSize: 18 }} />
+                          </InputAdornment>
+                        ) : (skuTrimmed !== '' ? (
+                          <InputAdornment position="end">
+                            <CheckIcon sx={{ color: '#10b981', fontSize: 18 }} />
+                          </InputAdornment>
+                        ) : null)
+                      }}
                     />
                   </Grid>
 
@@ -345,14 +421,20 @@ const ProductMasterForm = ({ initialData, onSubmit, onCancel, isSubmitting }) =>
 
                   <Grid item xs={12} sm={4}>
                     <TextField
+                      select
                       label="Marca / Fabricante"
                       name="marca"
                       value={formData.marca}
                       onChange={handleChange}
                       fullWidth
                       size="small"
-                      placeholder="Ej: Roche / Mindray"
-                    />
+                    >
+                      {marcaOptions.map((m) => (
+                        <MenuItem key={m} value={m}>
+                          {m}
+                        </MenuItem>
+                      ))}
+                    </TextField>
                   </Grid>
 
                   <Grid item xs={12} sm={4}>
@@ -376,14 +458,20 @@ const ProductMasterForm = ({ initialData, onSubmit, onCancel, isSubmitting }) =>
 
                   <Grid item xs={12} sm={4}>
                     <TextField
+                      select
                       label="Unidad de Negocio"
                       name="unidad_negocio"
                       value={formData.unidad_negocio}
                       onChange={handleChange}
                       fullWidth
                       size="small"
-                      placeholder="Ej: Bioquímica"
-                    />
+                    >
+                      {unidadNegocioOptions.map((u) => (
+                        <MenuItem key={u} value={u}>
+                          {u}
+                        </MenuItem>
+                      ))}
+                    </TextField>
                   </Grid>
                 </Grid>
               </CardContent>
@@ -402,14 +490,20 @@ const ProductMasterForm = ({ initialData, onSubmit, onCancel, isSubmitting }) =>
                 <Grid container spacing={2}>
                   <Grid item xs={12} sm={4}>
                     <TextField
+                      select
                       label="Equipo Autoanalizador"
                       name="equipo_asociado"
                       value={formData.equipo_asociado}
                       onChange={handleChange}
                       fullWidth
                       size="small"
-                      placeholder="Ej: Mindray BS-200"
-                    />
+                    >
+                      {equipoOptions.map((eq) => (
+                        <MenuItem key={eq} value={eq}>
+                          {eq}
+                        </MenuItem>
+                      ))}
+                    </TextField>
                   </Grid>
 
                   <Grid item xs={12} sm={4}>
@@ -450,31 +544,33 @@ const ProductMasterForm = ({ initialData, onSubmit, onCancel, isSubmitting }) =>
 
                   <Grid item xs={12} sm={4}>
                     <TextField
+                      select
                       label="Ubicación Física"
                       name="ubicacion"
-                      value={formData.ubicacion}
+                      value={formData.ubicacion || 'Almacen Central'}
                       onChange={handleChange}
                       fullWidth
                       size="small"
-                      placeholder="Ej: Nevera 1 / Estante B-3"
-                    />
+                    >
+                      <MenuItem value="Almacen Central">Almacen Central</MenuItem>
+                      <MenuItem value="Almacen Laboratorio">Almacen Laboratorio</MenuItem>
+                    </TextField>
                   </Grid>
 
                   <Grid item xs={12} sm={4}>
                     <TextField
-                      label="Nivel Térmico"
+                      label="Nivel / Complejidad"
                       name="nivel"
                       value={formData.nivel}
                       onChange={handleChange}
                       fullWidth
                       size="small"
-                      placeholder="Ej: Refrigeración (2-8°C)"
+                      placeholder="Ej: Nivel 2 - Especializado"
                     />
                   </Grid>
                 </Grid>
               </CardContent>
             </Card>
-
           </Box>
         )}
 
@@ -482,46 +578,84 @@ const ProductMasterForm = ({ initialData, onSubmit, onCancel, isSubmitting }) =>
         {activeStep === 1 && (
           <Box space={3}>
             
-            {/* Bloque 2.1: Rendimiento y Empaque */}
+            {/* Bloque 2.1: Rendimiento por Dosis */}
             <Card variant="outlined" sx={{ borderRadius: 3, mb: 3, borderColor: '#e2e8f0' }}>
               <CardContent>
                 <Box display="flex" alignItems="center" gap={1} mb={2} pb={1} borderBottom="2px solid #10b981">
                   <SpeedIcon sx={{ color: '#10b981' }} />
                   <Typography variant="subtitle1" fontWeight={700} color="#1e293b">
-                    3. Rendimiento Métrico y Configuración de Empaque
+                    3. Rendimiento por Dosis e Inserto Técnico
                   </Typography>
                 </Box>
 
                 <Grid container spacing={2}>
-                  <Grid item xs={12} sm={4}>
+                  <Grid item xs={12} sm={3}>
                     <TextField
-                      label="Presentación Comercial"
-                      name="presentacion"
-                      value={formData.presentacion}
+                      label="Volumen por Frasco (mL)"
+                      name="volumen_por_frasco"
+                      value={formData.volumen_por_frasco}
                       onChange={handleChange}
                       fullWidth
                       size="small"
-                      placeholder="Ej: R1 1x40 mL + R2 1x20 mL"
-                      helperText="Desglose de reactivos / kit"
+                      placeholder="Ej: 50"
                     />
                   </Grid>
 
-                  <Grid item xs={12} sm={4}>
+                  <Grid item xs={12} sm={3}>
                     <TextField
-                      label="Unidad de Compra"
-                      name="unidad"
-                      value={formData.unidad}
+                      label="Consumo por Prueba (mL) *"
+                      name="consumo_indicado"
+                      value={formData.consumo_indicado}
                       onChange={handleChange}
                       fullWidth
                       size="small"
-                      placeholder="Ej: Caja / Frasco"
+                      placeholder="Ej: 0.25"
+                      helperText="Consumo técnico según inserto"
                     />
                   </Grid>
 
-                  <Grid item xs={12} sm={4}>
+                  <Grid item xs={12} sm={3}>
                     <TextField
-                      type="number"
-                      label="Frascos por Caja"
+                      label="Pruebas Teóricas / Frasco"
+                      name="pruebas_teoricas_frasco"
+                      value={formData.pruebas_teoricas_frasco}
+                      onChange={handleChange}
+                      fullWidth
+                      size="small"
+                      placeholder="Ej: 200"
+                      helperText="Autocalculado: Vol / Consumo"
+                    />
+                  </Grid>
+
+                  <Grid item xs={12} sm={3}>
+                    <TextField
+                      label="Volumen Muerto Residual (mL)"
+                      name="volumen_muerto_residual"
+                      value={formData.volumen_muerto_residual}
+                      onChange={handleChange}
+                      fullWidth
+                      size="small"
+                      placeholder="Ej: 2.0"
+                    />
+                  </Grid>
+                </Grid>
+              </CardContent>
+            </Card>
+
+            {/* Bloque 2.2: Empaque y Presentación Comercial */}
+            <Card variant="outlined" sx={{ borderRadius: 3, mb: 3, borderColor: '#e2e8f0' }}>
+              <CardContent>
+                <Box display="flex" alignItems="center" gap={1} mb={2} pb={1} borderBottom="2px solid #f59e0b">
+                  <DocumentIcon sx={{ color: '#f59e0b' }} />
+                  <Typography variant="subtitle1" fontWeight={700} color="#1e293b">
+                    4. Empaque y Presentación Comercial
+                  </Typography>
+                </Box>
+
+                <Grid container spacing={2}>
+                  <Grid item xs={12} sm={3}>
+                    <TextField
+                      label="Unidad por Caja"
                       name="frascos_por_caja"
                       value={formData.frascos_por_caja}
                       onChange={handleChange}
@@ -531,159 +665,102 @@ const ProductMasterForm = ({ initialData, onSubmit, onCancel, isSubmitting }) =>
                     />
                   </Grid>
 
-                  <Grid item xs={12} sm={4}>
+                  <Grid item xs={12} sm={3}>
                     <TextField
-                      type="number"
-                      label="Volumen por Frasco (mL)"
-                      name="volumen_por_frasco"
-                      value={formData.volumen_por_frasco}
-                      onChange={handleChange}
-                      fullWidth
-                      size="small"
-                      placeholder="Ej: 50.00"
-                    />
-                  </Grid>
-
-                  <Grid item xs={12} sm={4}>
-                    <TextField
-                      type="number"
-                      label="Volumen Muerto Residual (mL)"
-                      name="volumen_muerto_residual"
-                      value={formData.volumen_muerto_residual}
-                      onChange={handleChange}
-                      fullWidth
-                      size="small"
-                      placeholder="Ej: 2.50"
-                    />
-                  </Grid>
-
-                  <Grid item xs={12} sm={4}>
-                    <TextField
-                      type="number"
-                      step="0.0001"
-                      label="Consumo por Prueba (Inserto mL/Test) *"
-                      name="consumo_indicado"
-                      value={formData.consumo_indicado}
-                      onChange={handleChange}
-                      fullWidth
-                      size="small"
-                      placeholder="Ej: 0.2500"
-                      helperText="Valor del inserto técnico"
-                    />
-                  </Grid>
-
-                  <Grid item xs={12} sm={4}>
-                    <TextField
-                      type="number"
-                      label="Pruebas Teóricas / Frasco (Auto)"
-                      name="pruebas_teoricas_frasco"
-                      value={formData.pruebas_teoricas_frasco}
-                      onChange={handleChange}
-                      fullWidth
-                      size="small"
-                      placeholder="Ej: 200"
-                      helperText="Cálculo: Volumen Frasco / Inserto"
-                      InputProps={{ style: { fontWeight: 'bold', color: '#047857' } }}
-                    />
-                  </Grid>
-
-                  <Grid item xs={12} sm={4}>
-                    <TextField
-                      type="number"
-                      label="Pruebas Totales / Caja (Auto)"
+                      label="Pruebas Teóricas / Caja"
                       name="pruebas_teoricas_caja"
                       value={formData.pruebas_teoricas_caja}
                       onChange={handleChange}
                       fullWidth
                       size="small"
-                      placeholder="Ej: 1200"
-                      helperText="Cálculo: Pruebas Frasco x Frascos Caja"
-                      InputProps={{ style: { fontWeight: 'bold', color: '#1e3a8a' } }}
+                      placeholder="Ej: 800"
                     />
                   </Grid>
 
-                  <Grid item xs={12} sm={4}>
+                  <Grid item xs={12} sm={3}>
                     <TextField
-                      type="date"
-                      label="Fecha de Vencimiento / Caducidad"
-                      name="fecha_vencimiento"
-                      value={formData.fecha_vencimiento}
+                      label="Volumen Total / Caja (mL)"
+                      name="volumen_total_caja"
+                      value={formData.volumen_total_caja}
                       onChange={handleChange}
                       fullWidth
                       size="small"
-                      InputLabelProps={{ shrink: true }}
-                      helperText="Fecha de caducidad registrada"
+                      placeholder="Ej: 200"
+                    />
+                  </Grid>
+
+                  <Grid item xs={12} sm={3}>
+                    <TextField
+                      label="Presentación Comercial"
+                      name="presentacion"
+                      value={formData.presentacion}
+                      onChange={handleChange}
+                      fullWidth
+                      size="small"
+                      placeholder="Ej: 4 x 50 mL"
                     />
                   </Grid>
                 </Grid>
               </CardContent>
             </Card>
 
-            {/* Bloque 2.2: Umbrales de Stock y Costos */}
+            {/* Bloque 2.3: Parámetros de Stock y Finanzas */}
             <Card variant="outlined" sx={{ borderRadius: 3, borderColor: '#e2e8f0' }}>
               <CardContent>
-                <Box display="flex" alignItems="center" gap={1} mb={2} pb={1} borderBottom="2px solid #f59e0b">
-                  <AlertIcon sx={{ color: '#f59e0b' }} />
+                <Box display="flex" alignItems="center" gap={1} mb={2} pb={1} borderBottom="2px solid #8b5cf6">
+                  <AlertIcon sx={{ color: '#8b5cf6' }} />
                   <Typography variant="subtitle1" fontWeight={700} color="#1e293b">
-                    4. Umbrales de Seguridad y Evaluación Financiera
+                    5. Parámetros de Stock y Valoración
                   </Typography>
                 </Box>
 
                 <Grid container spacing={2}>
-                  <Grid item xs={12} sm={12}>
-                    <Grid container spacing={2}>
-                      <Grid item xs={12} sm={3}>
-                        <TextField
-                          type="number"
-                          label="Stock Crítico (Urgencia)"
-                          name="stock_critico"
-                          value={formData.stock_critico}
-                          onChange={handleChange}
-                          fullWidth
-                          size="small"
-                          placeholder="Ej: 2"
-                        />
-                      </Grid>
+                  <Grid item xs={12} sm={3}>
+                    <TextField
+                      label="Stock Mínimo (Cajas/Unidades)"
+                      name="stock_minimo"
+                      value={formData.stock_minimo}
+                      onChange={handleChange}
+                      fullWidth
+                      size="small"
+                      placeholder="Ej: 2"
+                    />
+                  </Grid>
 
-                      <Grid item xs={12} sm={3}>
-                        <TextField
-                          type="number"
-                          label="Stock Mínimo (Alerta Reorden)"
-                          name="stock_minimo"
-                          value={formData.stock_minimo}
-                          onChange={handleChange}
-                          fullWidth
-                          size="small"
-                          placeholder="Ej: 4"
-                        />
-                      </Grid>
+                  <Grid item xs={12} sm={3}>
+                    <TextField
+                      label="Stock Crítico (Alerta)"
+                      name="stock_critico"
+                      value={formData.stock_critico}
+                      onChange={handleChange}
+                      fullWidth
+                      size="small"
+                      placeholder="Ej: 1"
+                    />
+                  </Grid>
 
-                      <Grid item xs={12} sm={3}>
-                        <TextField
-                          type="number"
-                          label="Stock Máximo (Capacidad)"
-                          name="stock_maximo"
-                          value={formData.stock_maximo}
-                          onChange={handleChange}
-                          fullWidth
-                          size="small"
-                          placeholder="Ej: 6"
-                        />
-                      </Grid>
+                  <Grid item xs={12} sm={3}>
+                    <TextField
+                      label="Stock Máximo (Sobrecompra)"
+                      name="stock_maximo"
+                      value={formData.stock_maximo}
+                      onChange={handleChange}
+                      fullWidth
+                      size="small"
+                      placeholder="Ej: 10"
+                    />
+                  </Grid>
 
-                      <Grid item xs={12} sm={3}>
-                        <TextField
-                          type="number"
-                          label="Precio Unitario Base (USD)"
-                          name="precio_costo"
-                          value={formData.precio_costo}
-                          onChange={handleChange}
-                          fullWidth
-                          size="small"
-                          placeholder="Ej: 120.00"
-                        />
-                      </Grid>
-                    </Grid>
+                  <Grid item xs={12} sm={3}>
+                    <TextField
+                      label="Precio Costo ($ / €)"
+                      name="precio_costo"
+                      value={formData.precio_costo}
+                      onChange={handleChange}
+                      fullWidth
+                      size="small"
+                      placeholder="Ej: 120.50"
+                    />
                   </Grid>
                 </Grid>
               </CardContent>
@@ -692,45 +769,43 @@ const ProductMasterForm = ({ initialData, onSubmit, onCancel, isSubmitting }) =>
           </Box>
         )}
 
-        {/* Botones de Navegación del Wizard */}
-        <Box display="flex" justifyContent="space-between" alignItems="center" mt={4} pt={3} borderTop="1px solid #e2e8f0">
-          <Button
-            type="button"
-            disabled={activeStep === 0}
-            onClick={handleBackStep}
-            startIcon={<BackIcon />}
-            variant="outlined"
-            sx={{ borderRadius: 2 }}
-          >
-            Anterior Paso
-          </Button>
+        {/* Botones de Navegación del Formulario */}
+        <Box display="flex" justifyContent="space-between" alignItems="center" mt={4} pt={2} borderTop="1px solid #e2e8f0">
+          {activeStep > 0 ? (
+            <Button
+              variant="outlined"
+              onClick={handleBackStep}
+              startIcon={<BackIcon />}
+              sx={{ color: '#475569', borderColor: '#cbd5e1' }}
+            >
+              Volver al Paso 1
+            </Button>
+          ) : <div />}
 
-          <Box display="flex" gap={2}>
-            {activeStep < steps.length - 1 ? (
-              <Button
-                type="button"
-                variant="contained"
-                onClick={handleNextStep}
-                endIcon={<NextIcon />}
-                sx={{ borderRadius: 2, bgcolor: '#2563eb', px: 4, py: 1, fontWeight: 700 }}
-              >
-                Siguiente Paso
-              </Button>
-            ) : (
-              <Button
-                type="submit"
-                variant="contained"
-                disabled={isSubmitting}
-                startIcon={<SaveIcon />}
-                sx={{ borderRadius: 2, bgcolor: '#16a34a', '&:hover': { bgcolor: '#15803d' }, px: 4, py: 1, fontWeight: 800 }}
-              >
-                {isSubmitting ? 'Guardando...' : 'Guardar y Generar Ficha Oficial'}
-              </Button>
-            )}
-          </Box>
+          {activeStep < steps.length - 1 ? (
+            <Button
+              variant="contained"
+              onClick={handleNextStep}
+              endIcon={<NextIcon />}
+              sx={{ background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)', px: 4, py: 1, fontWeight: 700 }}
+            >
+              Siguiente: Rendimiento y Stock
+            </Button>
+          ) : (
+            <Button
+              type="submit"
+              variant="contained"
+              disabled={isSubmitting || skuExiste}
+              startIcon={<SaveIcon />}
+              sx={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', px: 4, py: 1, fontWeight: 700 }}
+            >
+              {isSubmitting ? 'Guardando...' : (initialData ? 'Actualizar Ficha Maestra' : 'Guardar Ficha de Producto')}
+            </Button>
+          )}
         </Box>
 
       </Box>
+
     </Paper>
   );
 };
