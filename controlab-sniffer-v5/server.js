@@ -2,6 +2,18 @@ const net = require('net');
 const axios = require('axios');
 require('dotenv').config();
 
+// ==========================================
+// BLINDAJE DE PRODUCCIÓN: Manejo de Errores Globales
+// ==========================================
+process.on('uncaughtException', (err) => {
+  console.error('🔥 [CRÍTICO] Excepción no capturada en el Sniffer:', err);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('⚠️ [ADVERTENCIA] Promesa rechazada no manejada en el Sniffer:', reason);
+});
+// ==========================================
+
 const CONTROLAB_API_URL = process.env.CONTROLAB_API_URL || 'http://localhost:5000/api/sniffer/webhook';
 const mappingsStr = process.env.PROXY_MAPPINGS || '5050:192.168.10.188:5050,5150:192.168.30.148:5050,5250:192.168.30.211:5050';
 

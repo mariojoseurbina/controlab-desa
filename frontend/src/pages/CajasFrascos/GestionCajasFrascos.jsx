@@ -97,21 +97,87 @@ const GestionCajasFrascos = () => {
   const [equipoSeleccionado, setEquipoSeleccionado] = useState('CM 260i');
   const [actionLoading, setActionLoading] = useState(false);
 
-  // Cargar datos
+  const [cajasEnTransito, setCajasEnTransito] = useState([]);
+  const [loadingTransito, setLoadingTransito] = useState(false);
+
+  // Cargar datos de laboratorio y cajas en tránsito desde almacén central
   const fetchCajas = async (silent = false) => {
     try {
       if (!silent) setLoading(true);
       else setRefreshing(true);
 
-      const response = await api.get('/cajas/laboratorio');
-      if (response.data && response.data.success) {
-        setCajasData(response.data.data);
+      const [resLab, resTrans] = await Promise.all([
+        api.get('/cajas/laboratorio'),
+        api.get('/cajas/transito').catch(() => ({ data: { success: false, data: [] } }))
+      ]);
+
+      if (resLab.data && resLab.data.success) {
+        setCajasData(resLab.data.data);
+      }
+      if (resTrans.data && resTrans.data.success) {
+        setCajasEnTransito(resTrans.data.data || []);
       }
     } catch (err) {
       console.error('Error al cargar datos de cajas:', err);
     } finally {
       setLoading(false);
       setRefreshing(false);
+    }
+  };
+
+  // Confirmación Electrónica de Recepción (1 Clic / Escáner)
+  const handleConfirmarRecepcion = async (loteId, barcodeVal = null) => {
+    setActionLoading(true);
+    try {
+      const response = await api.post('/cajas/confirmar-recepcion', {
+        loteId,
+        barcode: barcodeVal,
+        usuarioNombre: 'Dra. María Urbina (Bioanalista)'
+      });
+
+      if (response.data && response.data.success) {
+        setScanMessage({
+          type: 'success',
+          text: response.data.message || 'Caja recibida electrónicamente en Laboratorio.'
+        });
+        await fetchCajas(true);
+      }
+    } catch (err) {
+      setScanMessage({
+        type: 'error',
+        text: err.response?.data?.message || 'Error al confirmar recepción electrónica.'
+      });
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  // Rechazar y Devolver Caja a Almacén Central
+  const handleRechazarDevolucion = async (loteId) => {
+    const motivo = prompt('Ingrese la razón del rechazo / devolución a Almacén Central:');
+    if (motivo === null) return;
+
+    setActionLoading(true);
+    try {
+      const response = await api.post('/cajas/rechazar-devolucion', {
+        loteId,
+        motivo: motivo || 'Devolución desde Recepción de Laboratorio'
+      });
+
+      if (response.data && response.data.success) {
+        setScanMessage({
+          type: 'info',
+          text: response.data.message || 'Caja devuelta a Almacén Central.'
+        });
+        await fetchCajas(true);
+      }
+    } catch (err) {
+      setScanMessage({
+        type: 'error',
+        text: err.response?.data?.message || 'Error al devolver caja.'
+      });
+    } finally {
+      setActionLoading(false);
     }
   };
 
@@ -388,7 +454,7 @@ const GestionCajasFrascos = () => {
                 inputRef={scanInputRef}
                 fullWidth
                 size="medium"
-                placeholder="Escanee con la pistola láser el código de barra de la caja o frasco (GS1-128)..."
+                placeholder="Escanee con pistola láser o escriba Lote, Código de Producto, Nombre o Referencia (ej: 20206206, FER)..."
                 value={barcodeInput}
                 onChange={(e) => setBarcodeInput(e.target.value)}
                 disabled={scanning}
@@ -412,13 +478,13 @@ const GestionCajasFrascos = () => {
                           px: 3
                         }}
                       >
-                        {scanning ? <CircularProgress size={20} color="inherit" /> : 'Procesar'}
+                        {scanning ? <CircularProgress size={20} color="inherit" /> : 'Procesar / Validar'}
                       </Button>
                     </InputAdornment>
                   ),
                   sx: {
                     borderRadius: 2,
-                    fontSize: '1rem',
+                    fontSize: '0.95rem',
                     backgroundColor: '#f8fafc',
                     '& fieldset': { borderColor: '#cbd5e1' },
                     '&:hover fieldset': { borderColor: '#f59e0b !important' },
@@ -432,18 +498,30 @@ const GestionCajasFrascos = () => {
           <Grid item xs={12} md={5}>
             <Box display="flex" alignItems="center" gap={1} flexWrap="wrap">
               <Typography variant="caption" color="text.secondary" fontWeight={600}>
-                Simular lectura:
+                Probar multicriterio:
               </Typography>
               <Chip
                 size="small"
-                label="📦 Caja Wiener (GS1-128)"
-                onClick={() => setBarcodeInput('017791778040338410LDK0527060')}
+                label="🏷️ Lote: 20206206"
+                onClick={() => setBarcodeInput('20206206')}
                 sx={{ cursor: 'pointer', backgroundColor: '#f1f5f9', '&:hover': { backgroundColor: '#e2e8f0' } }}
               />
               <Chip
                 size="small"
-                label="🧪 Frasco Rotor (2331586700451)"
-                onClick={() => setBarcodeInput('2331586700451')}
+                label="📦 Código: REA-BQ-FER-BS-02"
+                onClick={() => setBarcodeInput('REA-BQ-FER-BS-02')}
+                sx={{ cursor: 'pointer', backgroundColor: '#f1f5f9', '&:hover': { backgroundColor: '#e2e8f0' } }}
+              />
+              <Chip
+                size="small"
+                label="🧪 Nombre: Ferretina"
+                onClick={() => setBarcodeInput('Ferretina')}
+                sx={{ cursor: 'pointer', backgroundColor: '#f1f5f9', '&:hover': { backgroundColor: '#e2e8f0' } }}
+              />
+              <Chip
+                size="small"
+                label="📷 GS1-128 Wiener"
+                onClick={() => setBarcodeInput('017791778040338410LDK0527060')}
                 sx={{ cursor: 'pointer', backgroundColor: '#f1f5f9', '&:hover': { backgroundColor: '#e2e8f0' } }}
               />
             </Box>
@@ -463,6 +541,85 @@ const GestionCajasFrascos = () => {
           </Box>
         )}
       </Paper>
+
+      {/* 🚚 CAJAS EN TRÁNSITO POR CONFIRMAR (RECEPCIÓN ELECTRÓNICA DE ALMACÉN CENTRAL) */}
+      {cajasEnTransito && cajasEnTransito.length > 0 && (
+        <Paper
+          elevation={0}
+          sx={{
+            p: 2.5,
+            mb: 3,
+            backgroundColor: '#fffbebfb',
+            borderRadius: 3,
+            border: '2px solid #f59e0b'
+          }}
+        >
+          <Box display="flex" alignItems="center" justifyContent="space-between" mb={2}>
+            <Box display="flex" alignItems="center" gap={1.5}>
+              <Box sx={{ p: 1, backgroundColor: '#fef3c7', borderRadius: 2, color: '#d97706' }}>
+                <WaitingIcon />
+              </Box>
+              <Box>
+                <Typography variant="h6" fontWeight={700} color="#92400e">
+                  🚚 Cajas en Tránsito desde Almacén Central ({cajasEnTransito.length})
+                </Typography>
+                <Typography variant="caption" color="#b45309">
+                  Escanee el código GS1-128 con la pistola láser o haga clic en "Confirmar Recepción Electrónica"
+                </Typography>
+              </Box>
+            </Box>
+            <Chip label="Pendiente Recepción Lab" color="warning" size="small" sx={{ fontWeight: 700 }} />
+          </Box>
+
+          <Grid container spacing={2}>
+            {cajasEnTransito.map(trans => (
+              <Grid item xs={12} sm={6} md={4} key={trans.id}>
+                <Card variant="outlined" sx={{ borderRadius: 2, borderColor: '#fcd34d', backgroundColor: '#ffffff' }}>
+                  <CardContent sx={{ p: 2, pb: 1 }}>
+                    <Box display="flex" justifyContent="space-between" alignItems="start" mb={1}>
+                      <Typography variant="subtitle1" fontWeight={700} color="#1e293b">
+                        {trans.productoNombre}
+                      </Typography>
+                      <Chip label={trans.numeroLote} size="small" variant="outlined" color="primary" sx={{ fontWeight: 700 }} />
+                    </Box>
+                    <Typography variant="body2" color="text.secondary">
+                      Código: <strong>{trans.productoCodigo}</strong>
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary" display="block" mt={0.5}>
+                      Despachado por: <strong>{trans.usuarioDespacho}</strong>
+                    </Typography>
+                  </CardContent>
+                  <CardActions sx={{ px: 2, pb: 2, pt: 0, gap: 1 }}>
+                    <Button
+                      variant="contained"
+                      color="success"
+                      size="small"
+                      fullWidth
+                      startIcon={<CheckIcon />}
+                      onClick={() => handleConfirmarRecepcion(trans.id)}
+                      disabled={actionLoading}
+                      sx={{ fontWeight: 700 }}
+                    >
+                      Confirmar Recepción
+                    </Button>
+                    <Button
+                      variant="outlined"
+                      color="error"
+                      size="small"
+                      onClick={() => handleRechazarDevolucion(trans.id)}
+                      disabled={actionLoading}
+                      sx={{ minWidth: '40px' }}
+                      title="Rechazar y Devolver a Almacén"
+                    >
+                      ↩️
+                    </Button>
+                  </CardActions>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
+        </Paper>
+      )}
 
       {/* TABS DE ESTADO & FILTRO DE EQUIPO */}
       <Paper

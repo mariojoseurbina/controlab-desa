@@ -10,6 +10,18 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// ==========================================
+// BLINDAJE DE PRODUCCIÓN: Manejo de Errores Globales
+// ==========================================
+process.on('uncaughtException', (err) => {
+  console.error('🔥 [CRÍTICO] Excepción no capturada:', err);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('⚠️ [ADVERTENCIA] Promesa rechazada no manejada:', reason);
+});
+// ==========================================
+
 app.use(helmet());
 app.use(cors());
 app.use(express.json());

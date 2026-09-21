@@ -1,5 +1,5 @@
 const express = require('express');
-const { authenticateToken } = require('../middleware/authMiddleware');
+const { authenticateToken, optionalAuth } = require('../middleware/authMiddleware');
 const {
   getAllMovements,
   createMovement,
@@ -10,7 +10,7 @@ const {
 
 const router = express.Router();
 
-router.get('/', authenticateToken, getAllMovements);
+router.get('/', optionalAuth, getAllMovements);
 router.post('/', authenticateToken, createMovement);
 router.post('/transfer', authenticateToken, transferStock);
 router.post('/carga-inicial-masiva', authenticateToken, cargaMasivaInicial);

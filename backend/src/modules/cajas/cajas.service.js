@@ -12,11 +12,10 @@ class CajasService {
     // Buscar todos los lotes con sus datos de inventario
     const lotes = await prisma.lotesReactivos.findMany({
       where: {
-        items_inventario: {
-          equipo_asociado: {
-            not: 'Mindray CL-900i'
-          }
-        }
+        OR: [
+          { items_inventario: { equipo_asociado: null } },
+          { items_inventario: { equipo_asociado: { not: 'Mindray CL-900i' } } }
+        ]
       },
       include: {
         items_inventario: {
@@ -423,7 +422,7 @@ class CajasService {
    */
   async procesarEscaneo({ barcode, usuarioNombre, equipo }) {
     const raw = String(barcode).trim();
-    console.log('🔍 [CajasService] Procesando código escaneado:', raw);
+    console.log('🔍 [CajasService] Procesando código escaneado o búsqueda manual:', raw);
 
     let gtin = null;
     let loteDetectado = null;
@@ -438,55 +437,81 @@ class CajasService {
         loteDetectado = resto;
       }
     } else if (raw.includes('LDK') || raw.includes('LOT') || raw.length >= 6) {
-      // B) Lectura directa del número de lote
       loteDetectado = raw;
     }
 
-    // Buscar el lote en la base de datos
-    let lote = null;
-    if (loteDetectado) {
-      lote = await prisma.lotesReactivos.findFirst({
-        where: {
-          NumeroLote: { contains: loteDetectado }
-        },
-        include: { items_inventario: true }
-      });
+    // Colectar términos de búsqueda para consulta multicriterio
+    const searchTerms = Array.from(new Set([raw, loteDetectado, gtin].filter(Boolean)));
+    const orConditions = [];
+
+    for (const term of searchTerms) {
+      orConditions.push({ NumeroLote: { contains: term } });
+      orConditions.push({ items_inventario: { codigo: { contains: term } } });
+      orConditions.push({ items_inventario: { nombre: { contains: term } } });
+      orConditions.push({ items_inventario: { referencia: { contains: term } } });
+      orConditions.push({ items_inventario: { codigo_barra: { contains: term } } });
     }
 
-    // Fallback: si no encontró por lote, buscar por código de barra del producto
-    if (!lote && gtin) {
-      lote = await prisma.lotesReactivos.findFirst({
-        where: {
-          items_inventario: {
-            OR: [
-              { codigo_barra: { contains: gtin } },
-              { codigo: { contains: gtin } }
-            ]
-          }
-        },
-        include: { items_inventario: true },
-        orderBy: { Id: 'desc' }
-      });
-    }
+    // Buscar todos los lotes candidatos en base de datos
+    const candidatos = await prisma.lotesReactivos.findMany({
+      where: {
+        OR: orConditions
+      },
+      include: { items_inventario: true },
+      orderBy: [
+        { FechaVencimiento: 'asc' },
+        { Id: 'desc' }
+      ]
+    });
 
-    if (!lote) {
+    if (!candidatos || candidatos.length === 0) {
       return {
         success: false,
         reconocido: false,
         raw,
         gtin,
         loteDetectado,
-        message: `⚠️ Código escaneado: "${raw}". No se encontró ningún lote activo o registrado que coincida con "${loteDetectado || raw}".`
+        message: `⚠️ Búsqueda/Escaneo: "${raw}". No se encontró ningún lote o reactivo registrado por Lote, Código, Nombre o Código de Barra.`
       };
     }
 
-    // Si la caja está CERRADA, abrirla automáticamente
+    // Priorizar selección según el ciclo operativo:
+    // 1. Cajas en tránsito hacia laboratorio (Pendiente por confirmar recepción)
+    // 2. Cajas cerradas en reserva/nevera (Pendiente por abrir para uso)
+    // 3. Cajas activas en analizadores
+    let lote = candidatos.find(c => c.estado_transferencia === 'EN_TRANSITO');
+    if (!lote) {
+      lote = candidatos.find(c => !c.FechaApertura || c.Estado === 'Cerrado');
+    }
+    if (!lote) {
+      lote = candidatos[0];
+    }
+
+    // Si la caja estaba EN TRANSITO, confirmar su recepción electrónica a la nevera del laboratorio
+    if (lote.estado_transferencia === 'EN_TRANSITO') {
+      await this.confirmarRecepcionElectronica({
+        loteId: lote.Id,
+        usuarioRecepcion: usuarioNombre || 'Bioanalista (Recepción)'
+      });
+
+      return {
+        success: true,
+        reconocido: true,
+        accion: 'RECEPCION_CONFIRMADA',
+        producto: lote.items_inventario?.nombre,
+        lote: lote.NumeroLote,
+        message: `🟢 ¡Recepción Electrónica Confirmada! Reactivo: ${lote.items_inventario?.nombre} | Lote: ${lote.NumeroLote}. Caja ingresada a Reserva de Nevera.`
+      };
+    }
+
+    // Si la caja está CERRADA en nevera, abrirla para el analizador
     const esCajaCerrada = !lote.FechaApertura || lote.Estado === 'Cerrado';
     if (esCajaCerrada) {
-      const aperturaResult = await this.abrirCaja({
+      const equipoDestino = equipo || ((lote.items_inventario?.marca || '').toLowerCase().includes('mindray') ? 'Mindray BS-230' : 'CM 260i');
+      await this.abrirCaja({
         loteId: lote.Id,
-        usuarioNombre: usuarioNombre || 'Bioanalista (Escáner)',
-        equipo: equipo || ((lote.items_inventario?.marca || '').toLowerCase().includes('mindray') ? 'Mindray BS-230' : 'CM 260i')
+        usuarioNombre: usuarioNombre || 'Bioanalista (Validación)',
+        equipo: equipoDestino
       });
 
       return {
@@ -497,7 +522,7 @@ class CajasService {
         lote: lote.NumeroLote,
         frascoActual: 1,
         totalFrascos: Number(lote.items_inventario?.frascos_por_caja) || 4,
-        message: `🟢 ¡Caja Abierta por Escáner! Reactivo: ${lote.items_inventario?.nombre} | Lote: ${lote.NumeroLote}. Frasco 1 colocado en ${equipo || 'CM 260i'}.`
+        message: `🟢 ¡Caja Abierta por Validación! Reactivo: ${lote.items_inventario?.nombre} | Lote: ${lote.NumeroLote}. Frasco 1 colocado en ${equipoDestino}.`
       };
     } else {
       // La caja ya estaba abierta, confirmar su estado activo
@@ -511,7 +536,7 @@ class CajasService {
         lote: lote.NumeroLote,
         frascoActual: meta.frasco_actual || 1,
         totalFrascos: Number(lote.items_inventario?.frascos_por_caja) || 4,
-        message: `ℹ️ Caja ya en uso. Reactivo: ${lote.items_inventario?.nombre} | Lote: ${lote.NumeroLote} | Frasco actual: ${meta.frasco_actual || 1}.`
+        message: `ℹ️ Caja ya en uso activo. Reactivo: ${lote.items_inventario?.nombre} | Lote: ${lote.NumeroLote} | Frasco actual: ${meta.frasco_actual || 1}.`
       };
     }
   }
@@ -682,6 +707,203 @@ class CajasService {
 
     // Ejecutar la transición de agotamiento y activación de la siguiente caja
     return await this.finalizarCajaYActivarSiguiente({ loteId, usuarioNombre: usuarioNombre || 'Bioanalista Validador' });
+  }
+
+  /**
+   * Obtener todas las cajas que se encuentran actualmente EN TRÁNSITO desde Almacén Central hacia Laboratorio
+   */
+  async getCajasEnTransito() {
+    const lotes = await prisma.lotesReactivos.findMany({
+      where: {
+        estado_transferencia: 'EN_TRANSITO_LAB'
+      },
+      include: {
+        items_inventario: true
+      },
+      orderBy: { fecha_despacho: 'desc' }
+    });
+
+    return lotes.map(lote => ({
+      id: lote.Id,
+      inventarioId: lote.InventarioId,
+      productoNombre: lote.items_inventario?.nombre || 'Reactivo',
+      productoCodigo: lote.items_inventario?.codigo || '',
+      numeroLote: lote.NumeroLote,
+      fechaVencimiento: lote.FechaVencimiento,
+      usuarioDespacho: lote.usuario_despacho || 'Almacén Central',
+      fechaDespacho: lote.fecha_despacho,
+      almacenOrigenId: lote.almacen_origen_id || 1,
+      almacenDestinoId: lote.almacen_destino_id || 2,
+      estadoTransferencia: lote.estado_transferencia
+    }));
+  }
+
+  /**
+   * FASE 1: Despachar Caja desde Almacén Central hacia Laboratorio (Estado: EN_TRANSITO_LAB)
+   */
+  async despacharCajaAlmacen({ loteId, almacenDestinoId, usuarioDespacho }) {
+    const lote = await prisma.lotesReactivos.findUnique({
+      where: { Id: parseInt(loteId) },
+      include: { items_inventario: true }
+    });
+
+    if (!lote) throw new Error('Caja o lote no encontrado.');
+
+    const usuario = usuarioDespacho || 'Encargado de Almacén';
+    const destId = almacenDestinoId ? parseInt(almacenDestinoId) : 2;
+
+    const updated = await prisma.$transaction(async (tx) => {
+      const loteActualizado = await tx.lotesReactivos.update({
+        where: { Id: lote.Id },
+        data: {
+          estado_transferencia: 'EN_TRANSITO_LAB',
+          almacen_origen_id: 1,
+          almacen_destino_id: destId,
+          usuario_despacho: usuario,
+          fecha_despacho: new Date()
+        }
+      });
+
+      await tx.movimientoInventario.create({
+        data: {
+          item_id: lote.InventarioId,
+          tipo_movimiento: 'DESPACHO_LABORATORIO',
+          cantidad: 1,
+          stock_anterior: Number(lote.CantidadActual),
+          stock_nuevo: Number(lote.CantidadActual),
+          almacen_id: 1,
+          almacen_destino_id: destId,
+          motivo: `Despacho de Caja a Laboratorio (En Tránsito)`,
+          referencia: `Lote: ${lote.NumeroLote} - Despachado por ${usuario}`,
+          creado_por: 1
+        }
+      });
+
+      return loteActualizado;
+    });
+
+    return {
+      success: true,
+      message: `🚚 Caja del lote ${lote.NumeroLote} despachada hacia el Laboratorio. Estado: EN TRÁNSITO.`,
+      lote: updated
+    };
+  }
+
+  /**
+   * FASE 2: Confirmación Electrónica de Recepción en Laboratorio (Escáner o Clic)
+   * Cambia el estado a RECIBIDO_LABORATORIO (Nevera / Reserva) y registra usuario y timestamp
+   */
+  async confirmarRecepcionElectronica({ barcode, loteId, usuarioRecepcion }) {
+    let lote = null;
+    const usuario = usuarioRecepcion || 'Bioanalista Receptores';
+
+    if (loteId) {
+      lote = await prisma.lotesReactivos.findUnique({
+        where: { Id: parseInt(loteId) },
+        include: { items_inventario: true }
+      });
+    } else if (barcode) {
+      const raw = String(barcode).trim();
+      let loteCode = raw;
+      if (raw.startsWith('01') && raw.length >= 16) {
+        const resto = raw.substring(16);
+        loteCode = resto.startsWith('10') ? resto.substring(2) : resto;
+      }
+
+      lote = await prisma.lotesReactivos.findFirst({
+        where: {
+          NumeroLote: { contains: loteCode }
+        },
+        include: { items_inventario: true }
+      });
+    }
+
+    if (!lote) {
+      throw new Error(`Caja o código "${barcode || loteId}" no encontrado.`);
+    }
+
+    const updated = await prisma.$transaction(async (tx) => {
+      const loteActualizado = await tx.lotesReactivos.update({
+        where: { Id: lote.Id },
+        data: {
+          estado_transferencia: 'RECIBIDO_LABORATORIO',
+          usuario_recepcion: usuario,
+          fecha_recepcion_lab: new Date()
+        }
+      });
+
+      await tx.movimientoInventario.create({
+        data: {
+          item_id: lote.InventarioId,
+          tipo_movimiento: 'RECEPCION_ELECTRONICA_LAB',
+          cantidad: 1,
+          stock_anterior: Number(lote.CantidadActual),
+          stock_nuevo: Number(lote.CantidadActual),
+          almacen_id: lote.almacen_origen_id || 1,
+          almacen_destino_id: lote.almacen_destino_id || 2,
+          motivo: `Confirmación Electrónica de Recepción en Laboratorio`,
+          referencia: `Lote: ${lote.NumeroLote} - Recibido por ${usuario}`,
+          creado_por: 1
+        }
+      });
+
+      return loteActualizado;
+    });
+
+    return {
+      success: true,
+      message: `📥 Confirmación Electrónica Exitosa: Caja del lote ${lote.NumeroLote} ingresada a la Nevera de Reserva del Laboratorio por ${usuario}.`,
+      lote: updated
+    };
+  }
+
+  /**
+   * Rechazar y Devolver Caja a Almacén Central desde Recepción de Laboratorio
+   */
+  async rechazarDevolverAlmacen({ loteId, motivo, usuarioNombre }) {
+    const lote = await prisma.lotesReactivos.findUnique({
+      where: { Id: parseInt(loteId) },
+      include: { items_inventario: true }
+    });
+
+    if (!lote) throw new Error('Caja o lote no encontrado.');
+
+    const usuario = usuarioNombre || 'Bioanalista';
+    const razon = motivo || 'Devolución desde Recepción de Laboratorio';
+
+    const updated = await prisma.$transaction(async (tx) => {
+      const loteActualizado = await tx.lotesReactivos.update({
+        where: { Id: lote.Id },
+        data: {
+          estado_transferencia: 'ALMACEN_CENTRAL',
+          fecha_despacho: null,
+          usuario_despacho: null
+        }
+      });
+
+      await tx.movimientoInventario.create({
+        data: {
+          item_id: lote.InventarioId,
+          tipo_movimiento: 'DEVOLUCION_ALMACEN',
+          cantidad: 1,
+          stock_anterior: Number(lote.CantidadActual),
+          stock_nuevo: Number(lote.CantidadActual),
+          almacen_id: 2,
+          almacen_destino_id: 1,
+          motivo: `Devolución de Caja a Almacén Central: ${razon}`,
+          referencia: `Lote: ${lote.NumeroLote} - Rechazado por ${usuario}`,
+          creado_por: 1
+        }
+      });
+
+      return loteActualizado;
+    });
+
+    return {
+      success: true,
+      message: `↩️ Caja del lote ${lote.NumeroLote} devuelta a Almacén Central. Razón: ${razon}.`,
+      lote: updated
+    };
   }
 
 }

@@ -227,7 +227,14 @@ model LotesReactivos {
   ConsumoPorPruebaR2        Decimal?       @db.Decimal(10, 4)
   FechaApertura             DateTime?      @db.Date
   UsuarioApertura           String?        @db.VarChar(100)
-  items_inventario          ItemInventario @relation(fields: [InventarioId], references: [id], onUpdate: NoAction, map: "FK_LotesReactivos_Inventario")
+  almacen_origen_id         Int?
+  almacen_destino_id        Int?
+  estado_transferencia      String?        @db.VarChar(50)
+  usuario_despacho          String?        @db.VarChar(100)
+  usuario_recepcion         String?        @db.VarChar(100)
+  fecha_despacho            DateTime?      @db.DateTime
+  fecha_recepcion_lab       DateTime?      @db.DateTime
+  items_inventario          ItemInventario @relation(fields: [InventarioId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_LotesReactivos_Inventario")
 
   @@index([Estado], map: "IX_LotesReactivos_Estado")
   @@index([FechaVencimiento], map: "IX_LotesReactivos_FechaVencimiento")
