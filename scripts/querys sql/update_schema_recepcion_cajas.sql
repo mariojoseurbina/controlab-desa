@@ -1,11 +1,28 @@
 -- =================================================================================
--- Script de Actualización de Esquema de Base de Datos - Recepción Electrónica de Cajas
+-- Script de Actualización de Esquema y Configuración - Controlab A.I.
 -- Proyecto: Controlab A.I. / LIMS
--- Descripción: Agrega de forma segura e idempotente las columnas de trazabilidad de 
---              transferencia (Almacén ↔ Laboratorio) a la tabla LotesReactivos.
+-- Descripción: 1. Agrega campos de trazabilidad (Almacén ↔ Laboratorio)
+--              2. Crea índices para búsquedas de cajas en tránsito
+--              3. Optimiza la memoria RAM de SQL Server (4096 MB) para evitar timeouts
 -- =================================================================================
 
--- 1. Agregar columnas a LotesReactivos si no existen
+USE master;
+GO
+
+-- 1. Optimización de Memoria RAM del Servidor SQL (Previene colapsos por Buffer Pool)
+EXEC sp_configure 'show advanced options', 1;
+RECONFIGURE WITH OVERRIDE;
+GO
+
+EXEC sp_configure 'max server memory (MB)', 4096; -- Ajustar a 4096 MB (4 GB) o según la RAM disponible en el servidor del cliente
+RECONFIGURE WITH OVERRIDE;
+GO
+PRINT '✅ Límite de memoria max server memory (MB) configurado en 4096 MB.';
+
+-- 2. Agregar columnas a LotesReactivos si no existen
+USE [Controlab]; -- Ajustar al nombre de la BD en producción si difiere
+GO
+
 IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'LotesReactivos' AND COLUMN_NAME = 'almacen_origen_id')
 BEGIN
     ALTER TABLE LotesReactivos ADD almacen_origen_id INT NULL;
@@ -48,11 +65,11 @@ BEGIN
     PRINT '✅ Columna fecha_recepcion_lab agregada correctamente.';
 END;
 
--- 2. Crear índice no agrupado para acelerar consultas de cajas en tránsito
+-- 3. Crear índice no agrupado para acelerar consultas de cajas en tránsito
 IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_LotesReactivos_EstadoTransferencia' AND object_id = OBJECT_ID('LotesReactivos'))
 BEGIN
     CREATE INDEX IX_LotesReactivos_EstadoTransferencia ON LotesReactivos(estado_transferencia);
     PRINT '✅ Índice IX_LotesReactivos_EstadoTransferencia creado correctamente.';
 END;
 
-PRINT '🚀 Actualización de esquema finalizada exitosamente.';
+PRINT '🚀 Actualización de esquema y optimización de memoria finalizada exitosamente.';
