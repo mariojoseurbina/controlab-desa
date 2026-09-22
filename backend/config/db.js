@@ -49,12 +49,15 @@ const dbConfig = {
   options: {
     encrypt: parsedConfig ? parsedConfig.encrypt : (process.env.DB_ENCRYPT === 'true'),
     trustServerCertificate: parsedConfig ? parsedConfig.trustServerCertificate : true,
-    enableArithAbort: true
+    enableArithAbort: true,
+    requestTimeout: 60000,
+    connectionTimeout: 30000
   },
   pool: {
-    max: 20,
-    min: 0,
-    idleTimeoutMillis: 30000
+    max: 50,
+    min: 2,
+    idleTimeoutMillis: 30000,
+    acquireTimeoutMillis: 30000
   }
 };
 

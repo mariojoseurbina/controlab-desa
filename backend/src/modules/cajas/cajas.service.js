@@ -38,8 +38,9 @@ class CajasService {
     });
 
     // 1. Conteo total histórico y conteo de hoy desde el sniffer
-    const allSnifferLogs = await prisma.logSniffer.findMany({
-      where: { lote_afectado_id: { not: null } },
+    const loteIds = lotes.map(l => l.Id);
+    const allSnifferLogs = loteIds.length > 0 ? await prisma.logSniffer.findMany({
+      where: { lote_afectado_id: { in: loteIds } },
       select: {
         lote_afectado_id: true,
         test_name: true,
@@ -49,7 +50,7 @@ class CajasService {
         is_calibracion: true,
         is_repeticion: true
       }
-    });
+    }) : [];
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -479,7 +480,7 @@ class CajasService {
     // 1. Cajas en tránsito hacia laboratorio (Pendiente por confirmar recepción)
     // 2. Cajas cerradas en reserva/nevera (Pendiente por abrir para uso)
     // 3. Cajas activas en analizadores
-    let lote = candidatos.find(c => c.estado_transferencia === 'EN_TRANSITO');
+    let lote = candidatos.find(c => c.estado_transferencia?.startsWith('EN_TRANSITO'));
     if (!lote) {
       lote = candidatos.find(c => !c.FechaApertura || c.Estado === 'Cerrado');
     }
@@ -488,7 +489,7 @@ class CajasService {
     }
 
     // Si la caja estaba EN TRANSITO, confirmar su recepción electrónica a la nevera del laboratorio
-    if (lote.estado_transferencia === 'EN_TRANSITO') {
+    if (lote.estado_transferencia?.startsWith('EN_TRANSITO')) {
       await this.confirmarRecepcionElectronica({
         loteId: lote.Id,
         usuarioRecepcion: usuarioNombre || 'Bioanalista (Recepción)'
