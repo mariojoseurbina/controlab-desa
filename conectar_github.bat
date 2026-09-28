@@ -1,32 +1,13 @@
 @echo off
 echo =======================================================
-echo Conectando controlab-desa con GitHub (controlabIA)...
+echo  ATENCION: Este script ya no se usa para subir cambios.
+echo  USA: subir_github.bat para subir cambios a GitHub.
 echo =======================================================
-cd /d C:\controlab-desa
-
-echo [1/5] Inicializando repositorio Git...
-git init
-
-echo [2/5] Configurando remoto origin a controlabIA...
-git remote remove origin 2>nul
-git remote add origin https://github.com/mariojoseurbina/controlabIA.git
-
-echo [3/5] Agregando archivos de codigo...
-git add .
-
-echo Configurando identidad de usuario...
-git config user.name "Mario Jose Urbina"
-git config user.email "mariojoseurbina@gmail.com"
-
-echo [4/5] Creando commit de sincronizacion...
-git commit -m "Sincronizacion de controlab-desa como repositorio activo de desarrollo"
-
-
-echo [5/5] Subiendo cambios a GitHub...
-git branch -M main
-git push -u origin main --force
-
-echo =======================================================
-echo ¡Proceso completado! controlab-desa ahora esta en GitHub.
-echo =======================================================
+echo.
+echo  El repositorio activo es: controlab-desa (rama master)
+echo  Remote: https://github.com/mariojoseurbina/controlab-desa.git
+echo.
+echo  NO ejecutes este script. Esta desactivado para evitar
+echo  conflictos de ramas. Usa subir_github.bat en su lugar.
+echo.
 pause
