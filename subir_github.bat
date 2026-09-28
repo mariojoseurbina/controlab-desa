@@ -15,10 +15,10 @@ echo 1. Preparando archivos modificados del dia de hoy...
 git add .
 
 echo 2. Registrando resumen del trabajo realizado...
-git commit -m "Actualizacion Ficha de Producto 2 Pasos, Rendimiento por Caja, Inserto y Fecha Vencimiento"
+git commit -m "Solucion Definitiva: Conectividad Dinamica de API Host y Timeout de 15s para evitar bloqueos en cargando" 2>nul
 
-echo 3. Subiendo modificaciones a GitHub (main)...
-git push -u origin main --force
+echo 3. Subiendo modificaciones a GitHub (master)...
+git push origin master
 
 echo ========================================================
 echo   ¡EXITO! TODOS LOS CAMBIOS DE HOY ESTAN EN GITHUB.
