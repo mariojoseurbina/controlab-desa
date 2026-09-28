@@ -1,67 +1,64 @@
-// Navbar scroll effect
-window.addEventListener('scroll', () => {
+document.addEventListener('DOMContentLoaded', () => {
+    // Scroll Navbar Effect
     const navbar = document.querySelector('.navbar');
-    if (window.scrollY > 50) {
-        navbar.classList.add('scrolled');
-    } else {
-        navbar.classList.remove('scrolled');
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 50) {
+            navbar.classList.add('scrolled');
+        } else {
+            navbar.classList.remove('scrolled');
+        }
+    });
+
+    // Reveal Animation on Scroll
+    const reveals = document.querySelectorAll('.reveal');
+    const revealOnScroll = () => {
+        const windowHeight = window.innerHeight;
+        reveals.forEach(reveal => {
+            const revealTop = reveal.getBoundingClientRect().top;
+            const revealPoint = 150;
+            if (revealTop < windowHeight - revealPoint) {
+                reveal.classList.add('active');
+            }
+        });
+    };
+
+    window.addEventListener('scroll', revealOnScroll);
+    revealOnScroll(); // Trigger initial
+
+    // Lightbox Modal for Screenshots
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = document.getElementById('lightbox-img');
+    const lightboxClose = document.querySelector('.lightbox-close');
+
+    document.querySelectorAll('.glass-card img').forEach(img => {
+        img.addEventListener('click', () => {
+            lightbox.style.display = 'flex';
+            lightboxImg.src = img.src;
+        });
+    });
+
+    if (lightboxClose) {
+        lightboxClose.addEventListener('click', () => {
+            lightbox.style.display = 'none';
+        });
+    }
+
+    if (lightbox) {
+        lightbox.addEventListener('click', (e) => {
+            if (e.target !== lightboxImg) {
+                lightbox.style.display = 'none';
+            }
+        });
     }
 });
 
-// Scroll Reveal Animation via IntersectionObserver
-const revealElements = document.querySelectorAll('.reveal');
-
-const revealCallback = (entries, observer) => {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            entry.target.classList.add('active');
-            observer.unobserve(entry.target); // Optional: stop observing once revealed
-        }
+// Helper Function for Copying LinkedIn Post Text
+function copyPostText() {
+    const postText = `💡 "En la gestión médica, la velocidad de desaprender modelos obsoletos es la mayor ventaja competitiva."\n\nPresentamos Controlab IA LIMS: La suite tecnológica que elimina las planillas manuales y automatiza el descuento de reactivos directamente desde los analizadores de red. Cero mermas no justificadas, 100% trazabilidad en SQL Server.\n\n#LIMS #LaboratorioClinico #SaludTech #ControlabIA #SoftwareMedico #Venezuela`;
+    
+    navigator.clipboard.writeText(postText).then(() => {
+        alert("¡Texto promocional para LinkedIn copiado al portapapeles exitosamente!");
+    }).catch(err => {
+        console.error("Error al copiar texto:", err);
     });
-};
-
-const revealOptions = {
-    threshold: 0.15, // Trigger when 15% of element is visible
-    rootMargin: "0px 0px -50px 0px"
-};
-
-const revealObserver = new IntersectionObserver(revealCallback, revealOptions);
-
-revealElements.forEach(el => {
-    revealObserver.observe(el);
-});
-
-// Activate first section immediately
-document.addEventListener('DOMContentLoaded', () => {
-    setTimeout(() => {
-        const hero = document.getElementById('hero');
-        if(hero) hero.classList.add('active');
-    }, 100);
-});
-
-// Lightbox Logic
-const lightbox = document.getElementById('lightbox');
-const lightboxImg = document.getElementById('lightbox-img');
-const closeBtn = document.querySelector('.lightbox-close');
-const images = document.querySelectorAll('img');
-
-images.forEach(img => {
-    // Evitar que el logo o iconos abran el lightbox si hubiera, pero aquí todas las img son capturas
-    img.classList.add('clickable-img');
-    img.title = "Haz clic para ampliar pantalla completa";
-    img.addEventListener('click', () => {
-        lightboxImg.src = img.src;
-        lightbox.classList.add('active');
-        document.body.style.overflow = 'hidden'; // Detener el scroll de fondo
-    });
-});
-
-const closeLightbox = () => {
-    lightbox.classList.remove('active');
-    document.body.style.overflow = 'auto'; // Restaurar scroll
-};
-
-if(closeBtn) closeBtn.addEventListener('click', closeLightbox);
-if(lightbox) lightbox.addEventListener('click', (e) => {
-    if (e.target !== lightboxImg) closeLightbox();
-});
+}

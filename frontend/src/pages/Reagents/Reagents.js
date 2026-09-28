@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { lotService } from '../../services/lotService';
 import { usersService } from '../../services/usersService';
+import { getApiBaseUrl } from '../../utils/apiConfig';
 import './Reagents.css';
 
-// ✅ URL base de la API (desde variable de entorno)
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+// ✅ URL base de la API (Dinámica)
+const API_BASE_URL = getApiBaseUrl();
 
 // ✅ Formateador de fecha local para evitar desfase de zona horaria (resta de un día)
 const formatLocalDate = (dateStr) => {

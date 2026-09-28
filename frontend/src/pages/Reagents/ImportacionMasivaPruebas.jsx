@@ -771,6 +771,7 @@ import {
 } from '@mui/icons-material';
 import * as XLSX from 'xlsx';
 import { useNavigate } from 'react-router-dom';
+import { getApiBaseUrl } from '../../utils/apiConfig';
 
 const ImportacionMasivaPruebas = () => {
   const [archivo, setArchivo] = useState(null);
@@ -976,7 +977,7 @@ const ImportacionMasivaPruebas = () => {
         return;
       }
 
-      const response = await fetch('http://localhost:5000/api/reagents/importar-pruebas-masivas', {
+      const response = await fetch(`${getApiBaseUrl()}/reagents/importar-pruebas-masivas`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`

@@ -7,6 +7,7 @@ import SendIcon from '@mui/icons-material/Send';
 import SmartToyIcon from '@mui/icons-material/SmartToy';
 import PersonIcon from '@mui/icons-material/Person';
 import axios from 'axios';
+import { getApiBaseUrl } from '../../utils/apiConfig';
 
 const AgentChat = () => {
   const [messages, setMessages] = useState([
@@ -58,7 +59,7 @@ Estoy conectado directamente a tu base de datos. Puedes copiar y pegar cualquier
     setLoading(true);
 
     try {
-      const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+      const API_BASE_URL = getApiBaseUrl();
       const response = await axios.post(`${API_BASE_URL}/agent/chat`, {
         message: textoMsg
       });

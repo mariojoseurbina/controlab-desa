@@ -17,8 +17,9 @@ import {
   FileUpload as FileUploadIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
+import { getApiBaseUrl } from '../../../utils/apiConfig';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const API_BASE_URL = getApiBaseUrl();
 
 const emptyRow = () => ({
   _id: Date.now() + Math.random(),

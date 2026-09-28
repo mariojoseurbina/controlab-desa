@@ -1,9 +1,9 @@
-﻿import axios from 'axios';
-
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+import axios from 'axios';
+import { getApiBaseUrl } from '../utils/apiConfig';
 
 const api = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: getApiBaseUrl(),
+  timeout: 15000, // Timeout estricto de 15 segundos para impedir relojes de arena infinitos
   headers: {
     'Content-Type': 'application/json',
   },
@@ -11,6 +11,8 @@ const api = axios.create({
 
 api.interceptors.request.use(
   (config) => {
+    // Actualizar la URL base dinámicamente en cada petición si la ventana cambia de host
+    config.baseURL = getApiBaseUrl();
     const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -25,6 +27,9 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
+    if (error.code === 'ECONNABORTED' || error.message.includes('timeout')) {
+      console.error('⚠️ Petición cancelada por tiempo de espera excedido (Timeout 15s)');
+    }
     if (error.response?.status === 401 && !error.config?.url?.includes('/auth/login')) {
       localStorage.removeItem('token');
       window.location.href = '/login';

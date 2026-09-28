@@ -20,8 +20,9 @@ import {
 
 import ProductMasterForm from '../components/ProductMasterForm';
 import ProductMasterSheet from '../components/ProductMasterSheet';
+import { getApiBaseUrl } from '../../../utils/apiConfig';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const API_BASE_URL = getApiBaseUrl();
 
 const getItemCategory = (item) => {
   if (!item) return 'Reactivo';

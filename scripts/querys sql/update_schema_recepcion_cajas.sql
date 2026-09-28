@@ -72,4 +72,11 @@ BEGIN
     PRINT '✅ Índice IX_LotesReactivos_EstadoTransferencia creado correctamente.';
 END;
 
-PRINT '🚀 Actualización de esquema y optimización de memoria finalizada exitosamente.';
+-- 4. Crear índice compuesto de cobertura para acelerar consultas del Sniffer por Lote
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_log_sniffer_lote_fecha' AND object_id = OBJECT_ID('log_sniffer'))
+BEGIN
+    CREATE INDEX IX_log_sniffer_lote_fecha ON log_sniffer(lote_afectado_id, fecha_registro);
+    PRINT '✅ Índice IX_log_sniffer_lote_fecha creado correctamente.';
+END;
+
+PRINT '🚀 Actualización de esquema, índices y optimización de memoria finalizada exitosamente.';

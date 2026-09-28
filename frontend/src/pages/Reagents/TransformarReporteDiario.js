@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Container, Paper, Typography, Button, Box, Alert } from '@mui/material';
 import { Upload, Download } from '@mui/icons-material';
+import { getApiBaseUrl } from '../../utils/apiConfig';
 
 const TransformarReporteDiario = () => {
   const [file, setFile] = useState(null);
@@ -15,7 +16,7 @@ const TransformarReporteDiario = () => {
     setError('');
     
     try {
-      const response = await fetch('http://localhost:5000/api/transformar-reporte-diario', {
+      const response = await fetch(`${getApiBaseUrl()}/transformar-reporte-diario`, {
         method: 'POST',
         body: formData
       });
@@ -71,7 +72,7 @@ const TransformarReporteDiario = () => {
 
           <Button 
             variant="outlined"
-            href="http://localhost:5000/api/descargar-template-reporte"
+            href={`${getApiBaseUrl()}/descargar-template-reporte`}
             startIcon={<Download />}
           >
             Descargar Template

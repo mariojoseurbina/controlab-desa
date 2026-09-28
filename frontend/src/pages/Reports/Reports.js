@@ -19,8 +19,9 @@ import {
 } from '@mui/icons-material';
 import { useSnackbar } from 'notistack';
 import * as XLSX from 'xlsx';
+import { getApiBaseUrl } from '../../utils/apiConfig';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const API_BASE_URL = getApiBaseUrl();
 
 const REPORTS_CONFIG = [
   { id: 'stock-cajas-almacenes', title: 'Stock Cajas por Almacén', icon: <WarehouseIcon fontSize="large" />, color: '#0284c7', endpoint: '/reports/quick/stock-cajas-almacenes' },

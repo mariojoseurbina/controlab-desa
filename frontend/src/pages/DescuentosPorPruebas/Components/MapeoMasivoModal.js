@@ -349,9 +349,9 @@ import {
   Check as CheckIcon,
   Science as ScienceIcon,
   AutoAwesome as AutoAwesomeIcon
-} from '@mui/icons-material';
+import { getApiServerOrigin } from '../../../utils/apiConfig';
 
-const API_BASE_URL = 'http://localhost:5000';
+const API_BASE_URL = getApiServerOrigin();
 
 const MapeoMasivoModal = ({ open, onClose, examenes, fecha, onGuardado }) => {
   const [examenesParaMapear, setExamenesParaMapear] = useState([]);

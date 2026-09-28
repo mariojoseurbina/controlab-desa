@@ -24,8 +24,9 @@ import {
   TableChart as ExcelIcon
 } from '@mui/icons-material';
 import * as XLSX from 'xlsx';
+import { getApiBaseUrl } from '../../../utils/apiConfig';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const API_BASE_URL = getApiBaseUrl();
 
 const customFilterOptions = createFilterOptions({
   limit: 50,

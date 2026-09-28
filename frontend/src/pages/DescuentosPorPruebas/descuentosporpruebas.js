@@ -22,9 +22,10 @@ import {
   Error as ErrorIcon
 } from '@mui/icons-material';
 import MuiAlert from '@mui/material/Alert';
+import { getApiBaseUrl } from '../../utils/apiConfig';
 
-// ✅ CONFIGURACIÓN CON VARIABLE DE ENTORNO
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+// ✅ CONFIGURACIÓN DINÁMICA DE API
+const API_BASE_URL = getApiBaseUrl();
 
 const AlertComponent = React.forwardRef(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;

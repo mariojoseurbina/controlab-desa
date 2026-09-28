@@ -5,6 +5,7 @@ import {
   CircularProgress, Chip
 } from '@mui/material';
 import { Upload, Download, CheckCircle, Error } from '@mui/icons-material';
+import { getApiBaseUrl } from '../../utils/apiConfig';
 
 const DescuentoAutomatico = () => {
   const [file, setFile] = useState(null);
@@ -19,7 +20,7 @@ const DescuentoAutomatico = () => {
     setResultado(null);
     
     try {
-      const response = await fetch('http://localhost:5000/api/descuento-masivo-automatico', {
+      const response = await fetch(`${getApiBaseUrl()}/descuento-masivo-automatico`, {
         method: 'POST',
         body: formData
       });
