@@ -220,7 +220,6 @@ class SistemaConsumoReal {
             FROM LotesReactivos
             WHERE InventarioId = @reactivoId
                 AND Estado = 'Activo'
-                AND CantidadActual > 0
                 AND FechaVencimiento > GETDATE()
             ORDER BY 
                 FechaFabricacion ASC,  -- FIFO
@@ -244,7 +243,7 @@ class SistemaConsumoReal {
             if (cantidadRestante <= 0) break;
             
             const cantidadDisponible = parseFloat(lote.CantidadActual);
-            const cantidadAConsumir = Math.min(cantidadDisponible, cantidadRestante);
+            const cantidadAConsumir = cantidadRestante;
             
             console.log(`   🏷️  Lote ${lote.NumeroLote}: ${cantidadDisponible}ml disponible, consumiendo ${cantidadAConsumir}ml`);
             
@@ -258,8 +257,7 @@ class SistemaConsumoReal {
                     PruebasRestantes = FLOOR(@nuevaCantidad / NULLIF(ConsumoPorPrueba, 0)),
                     FechaActualizacion = GETDATE(),
                     Estado = CASE 
-                        WHEN @nuevaCantidad <= 0 THEN 'Agotado'
-                        WHEN @nuevaCantidad <= (ConsumoPorPrueba * 10) THEN 'Bajo Stock'
+                        WHEN @nuevaCantidad <= (ConsumoPorPrueba * 10) AND @nuevaCantidad > 0 THEN 'Bajo Stock'
                         ELSE 'Activo'
                     END,
                     Rendimiento = CASE 
@@ -281,8 +279,7 @@ class SistemaConsumoReal {
                 cantidadConsumida: cantidadAConsumir,
                 cantidadRestante: nuevaCantidad,
                 fechaVencimiento: lote.FechaVencimiento,
-                estadoNuevo: nuevaCantidad <= 0 ? 'Agotado' : 
-                           nuevaCantidad <= (lote.ConsumoPorPrueba * 10) ? 'Bajo Stock' : 'Activo'
+                estadoNuevo: (nuevaCantidad <= (lote.ConsumoPorPrueba * 10) && nuevaCantidad > 0) ? 'Bajo Stock' : 'Activo'
             });
             
             cantidadRestante -= cantidadAConsumir;

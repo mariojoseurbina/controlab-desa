@@ -287,7 +287,7 @@ const ProductMasterSheet = ({ product, onEdit, onClose }) => {
 
                 <Grid item xs={6} sm={3}>
                   <Paper variant="outlined" sx={{ p: 1.5, bgcolor: '#ecfdf5', borderColor: '#a7f3d0', borderRadius: 2 }}>
-                    <Typography variant="caption" color="success" sx={{ fontWeight: 800 }}>Frascos x Caja/Kit</Typography>
+                    <Typography variant="caption" color="success" sx={{ fontWeight: 800 }}>Unidad x Caja/Kit</Typography>
                     <Typography variant="h6" sx={{ fontWeight: 900, color: '#064e3b' }}>{valFrascosCaja || '1'} Unid.</Typography>
                   </Paper>
                 </Grid>

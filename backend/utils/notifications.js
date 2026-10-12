@@ -1,10 +1,10 @@
-const { getPool } = require('../config/database');
+﻿const { getPool } = require('../config/db');
 
 const checkStockAlerts = async () => {
   try {
     const pool = await getPool();
     
-    // Buscar items con stock bajo o crítico
+    // Buscar items con stock bajo o crÃ­tico
     const result = await pool.request().query(`
       SELECT 
         ii.id,
@@ -34,7 +34,7 @@ const checkStockAlerts = async () => {
       const titulo = `Alerta de Stock ${item.tipo_alerta.toUpperCase()}`;
       const mensaje = `El item ${item.codigo} - ${item.nombre} tiene stock ${item.tipo_alerta}. Stock actual: ${item.stock_actual}`;
 
-      // Crear notificación para todos los administradores
+      // Crear notificaciÃ³n para todos los administradores
       await pool.request()
         .input('tipo', 'alerta_stock')
         .input('titulo', titulo)
@@ -47,7 +47,7 @@ const checkStockAlerts = async () => {
         `);
     }
 
-    console.log(`✅ Verificadas alertas de stock: ${result.recordset.length} alertas encontradas`);
+    console.log(`âœ… Verificadas alertas de stock: ${result.recordset.length} alertas encontradas`);
     
   } catch (error) {
     console.error('Error verificando alertas de stock:', error);
@@ -59,7 +59,7 @@ const createNotification = async (tipo, titulo, mensaje, userId = null) => {
     const pool = await getPool();
     
     if (userId) {
-      // Notificación para usuario específico
+      // NotificaciÃ³n para usuario especÃ­fico
       await pool.request()
         .input('tipo', tipo)
         .input('titulo', titulo)
@@ -70,7 +70,7 @@ const createNotification = async (tipo, titulo, mensaje, userId = null) => {
           VALUES (@tipo, @titulo, @mensaje, @creada_para)
         `);
     } else {
-      // Notificación para todos los administradores
+      // NotificaciÃ³n para todos los administradores
       await pool.request()
         .input('tipo', tipo)
         .input('titulo', titulo)
@@ -84,7 +84,7 @@ const createNotification = async (tipo, titulo, mensaje, userId = null) => {
     }
     
   } catch (error) {
-    console.error('Error creando notificación:', error);
+    console.error('Error creando notificaciÃ³n:', error);
   }
 };
 
@@ -125,7 +125,7 @@ const markNotificationAsRead = async (notificationId, userId) => {
       `);
       
   } catch (error) {
-    console.error('Error marcando notificación como leída:', error);
+    console.error('Error marcando notificaciÃ³n como leÃ­da:', error);
   }
 };
 

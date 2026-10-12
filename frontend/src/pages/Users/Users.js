@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿﻿import React, { useState, useEffect } from 'react';
 import {
   Box,
   Typography,
@@ -36,7 +36,7 @@ const Users = () => {
   const [formData, setFormData] = useState({
     usuario: '',
     correo: '',
-    contraseña: '',
+    contrasena: '',
     rol: 'tecnico',
     nombre_completo: '',
     activo: true
@@ -61,7 +61,7 @@ const Users = () => {
       setFormData({
         usuario: user.usuario,
         correo: user.correo,
-        contraseña: '',
+        contrasena: '',
         rol: user.rol,
         nombre_completo: user.nombre_completo,
         activo: user.activo
@@ -71,7 +71,7 @@ const Users = () => {
       setFormData({
         usuario: '',
         correo: '',
-        contraseña: '',
+        contrasena: '',
         rol: 'tecnico',
         nombre_completo: '',
         activo: true
@@ -105,6 +105,7 @@ const Users = () => {
       case 'administrador': return 'error';
       case 'tecnico': return 'warning';
       case 'visor': return 'info';
+      case 'bioanalista': return 'success';
       default: return 'default';
     }
   };
@@ -235,20 +236,19 @@ const Users = () => {
                   <MenuItem value="administrador">Administrador</MenuItem>
                   <MenuItem value="tecnico">Técnico</MenuItem>
                   <MenuItem value="visor">Visor</MenuItem>
+                  <MenuItem value="bioanalista">Bioanalista</MenuItem>
                 </TextField>
               </Grid>
-              {!editingUser && (
-                <Grid item xs={12} sm={6}>
+              <Grid item xs={12} sm={6}>
                   <TextField
                     fullWidth
-                    label="Contraseña"
+                    label={editingUser ? "Nueva Contraseña (Opcional)" : "Contraseña"}
                     type="password"
-                    value={formData.contraseña}
-                    onChange={(e) => setFormData({...formData, contraseña: e.target.value})}
-                    required
+                    value={formData.contrasena || ''}
+                    onChange={(e) => setFormData({...formData, contrasena: e.target.value})}
+                    required={!editingUser}
                   />
                 </Grid>
-              )}
               {editingUser && (
                 <Grid item xs={12}>
                   <Box display="flex" alignItems="center">
@@ -275,3 +275,8 @@ const Users = () => {
 };
 
 export default Users;
+
+
+
+
+

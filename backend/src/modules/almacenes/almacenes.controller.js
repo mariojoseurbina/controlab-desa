@@ -1,5 +1,5 @@
 const almacenesService = require('./almacenes.service');
-const { executeQuery } = require('../../../config/database');
+const { executeQuery } = require('../../../config/db');
 
 class AlmacenesController {
   async listarAlmacenes(req, res, next) {
@@ -41,9 +41,11 @@ class AlmacenesController {
           i.categoria as item_categoria,
           i.marca as item_marca,
           i.equipo_asociado as item_equipo,
+          i.presentacion as item_presentacion,
+          i.unidad_manejo,
           ISNULL(i.pruebas_teoricas_caja, ISNULL(i.rendimiento_teorico, 500)) as rendimiento_teorico,
           i.stock_actual as stock_total_global,
-          ISNULL(sc.stock_actual, 0) as stock_central,
+          COALESCE(sc.stock_actual, CASE WHEN sl.stock_actual IS NULL THEN i.stock_actual ELSE 0 END, 0) as stock_central,
           ISNULL(sl.stock_actual, 0) as stock_laboratorio
         FROM items_inventario i
         LEFT JOIN stock_por_almacen sc ON (i.id = sc.item_id AND sc.almacen_id = 1)
@@ -60,7 +62,7 @@ class AlmacenesController {
       const formatted = rows.map(r => {
         const sc = Number(r.stock_central) || 0;
         const sl = Number(r.stock_laboratorio) || 0;
-        const st = Number(r.stock_total_global) || (sc + sl);
+        const st = sc + sl;
         
         totalStockCentral += sc;
         totalStockLaboratorio += sl;
@@ -91,3 +93,4 @@ class AlmacenesController {
 }
 
 module.exports = new AlmacenesController();
+

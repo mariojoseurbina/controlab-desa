@@ -1,9 +1,9 @@
-const { getPool } = require('./config/database');
+﻿const { getPool } = require('./config/db');
 
 async function run() {
   try {
     const pool = await getPool();
-    console.log('=== Iniciando Actualización del Esquema e Inventario (Controlab IA) ===');
+    console.log('=== Iniciando ActualizaciÃ³n del Esquema e Inventario (Controlab IA) ===');
 
     // 1. Columnas a asegurar en items_inventario
     const columnsToEnsure = [
@@ -50,7 +50,7 @@ async function run() {
         DELETE FROM consumible_prueba;
         DELETE FROM items_inventario;
         COMMIT TRANSACTION;
-        PRINT 'Tablas vaciadas con éxito.';
+        PRINT 'Tablas vaciadas con Ã©xito.';
       END TRY
       BEGIN CATCH
         ROLLBACK TRANSACTION;
@@ -58,12 +58,13 @@ async function run() {
       END CATCH
     `);
 
-    console.log('✅ Base de datos de inventario actualizada y vaciada exitosamente.');
+    console.log('âœ… Base de datos de inventario actualizada y vaciada exitosamente.');
     process.exit(0);
   } catch (error) {
-    console.error('❌ Error en script de actualización:', error.message);
+    console.error('âŒ Error en script de actualizaciÃ³n:', error.message);
     process.exit(1);
   }
 }
 
 run();
+

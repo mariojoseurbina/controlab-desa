@@ -59,11 +59,93 @@ class DashboardService {
       console.error('Error en lotes próximos a vencer (DashboardService):', error.message);
     }
 
+    // 🚨 REGLA DE NEGOCIO: Alertas de Reactivos en Analizador en Penúltimo/Último Frasco
+    // Para que el encargado de inventario reponga una caja desde el Almacén Central al Laboratorio
+    let alertasReposicionAnalizador = [];
+    try {
+      const lotesActivosResult = await pool.request().query(`
+        SELECT 
+          lr.Id as lote_id,
+          lr.NumeroLote,
+          lr.CantidadActual,
+          lr.CantidadInicial,
+          lr.FechaApertura,
+          lr.CondicionesEspeciales,
+          ii.id as item_id,
+          ii.nombre as item_nombre,
+          ii.codigo as item_codigo,
+          ii.marca,
+          ii.presentacion,
+          ii.frascos_por_caja,
+          ii.volumen_por_frasco,
+          ii.consumo_indicado,
+          ii.stock_actual as stock_inventario
+        FROM LotesReactivos lr
+        INNER JOIN items_inventario ii ON lr.InventarioId = ii.id
+        WHERE lr.Estado = 'Activo' AND lr.FechaApertura IS NOT NULL
+      `);
+
+      for (const row of lotesActivosResult.recordset) {
+        let meta = {};
+        try {
+          if (row.CondicionesEspeciales) meta = JSON.parse(row.CondicionesEspeciales);
+        } catch (_) {}
+
+        const totalFrascos = Number(meta.total_frascos || row.frascos_por_caja) || 4;
+        const volPorFrasco = Number(meta.vol_por_frasco || row.volumen_por_frasco) || 45;
+        const totalVolCaja = Number(meta.volumen_total_caja || (totalFrascos * volPorFrasco));
+        const cantActual = Number(row.CantidadActual) || 0;
+        const mlConsumidosTotal = Math.max(0, totalVolCaja - cantActual);
+        const frascoCalculado = Math.min(totalFrascos, Math.floor(mlConsumidosTotal / volPorFrasco) + 1);
+        const frascoActual = Math.max(Number(meta.frasco_actual) || 1, frascoCalculado);
+        const penultimoFrasco = Math.max(1, totalFrascos - 1);
+
+        const esPenultimoOUltimo = frascoActual >= penultimoFrasco;
+        const consumoIndicado = Number(meta.consumo_indicado || row.consumo_indicado) || 0.25;
+        const mlConsumidosEnFrascosPrevios = (frascoActual - 1) * volPorFrasco;
+        const mlConsumidosEnFrascoActual = Math.max(0, mlConsumidosTotal - mlConsumidosEnFrascosPrevios);
+        const mlRestantesFrasco = Number(Math.max(0, volPorFrasco - mlConsumidosEnFrascoActual).toFixed(2));
+        const pruebasRestantesFrasco = Math.max(0, Math.floor(mlRestantesFrasco / consumoIndicado));
+        const pruebasRestantesCaja = Math.max(0, Math.floor(cantActual / consumoIndicado));
+
+        if (esPenultimoOUltimo) {
+          alertasReposicionAnalizador.push({
+            loteId: row.lote_id,
+            numeroLote: row.NumeroLote,
+            itemId: row.item_id,
+            itemCodigo: row.item_codigo,
+            itemNombre: row.item_nombre,
+            marca: row.marca || 'Wiener Lab',
+            presentacion: row.presentacion || `${totalFrascos}F x ${volPorFrasco}mL`,
+            equipo: meta.equipo_asociado || 'CM 260i',
+            frascoActual,
+            totalFrascos,
+            esUltimoFrasco: frascoActual === totalFrascos,
+            esPenultimoFrasco: frascoActual === penultimoFrasco,
+            nivelCriticidad: frascoActual === totalFrascos ? 'CRITICO' : 'ALTO',
+            mlRestantesFrasco,
+            pruebasRestantesFrasco,
+            mlRestantesCaja: cantActual,
+            pruebasRestantesCaja,
+            stockAlmacenCentral: Number(row.stock_inventario) || 0,
+            mensaje: `🚨 REPONER CAJA: ${row.item_nombre} se encuentra en Frasco ${frascoActual} de ${totalFrascos} en ${meta.equipo_asociado || 'CM 260i'}. Extraer caja del Almacén Central para Laboratorio.`
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error en alertas de reposición analizador (DashboardService):', error.message);
+    }
+
     return {
-      metrics: { ...metricsResult.recordset[0], ...lotesMetrics },
+      metrics: { 
+        ...metricsResult.recordset[0], 
+        ...lotesMetrics,
+        reactivosCriticosAnalizador: alertasReposicionAnalizador.length
+      },
       stockAlerts: alertsResult.recordset || [],
       recentMovements: movementsResult.recordset || [],
-      lotesAlerts: lotesAlerts
+      lotesAlerts: lotesAlerts,
+      alertasReposicionAnalizador: alertasReposicionAnalizador
     };
   }
 

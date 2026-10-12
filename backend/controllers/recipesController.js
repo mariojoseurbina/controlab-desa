@@ -1,4 +1,4 @@
-const { executeQuery } = require('../config/database');
+﻿const { executeQuery } = require('../config/db');
 
 const getAllRecipes = async (req, res) => {
   try {

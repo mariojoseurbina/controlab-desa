@@ -1,11 +1,11 @@
-//////// ARCHVO INGRESADO 11/12/2025 ///////
+﻿//////// ARCHVO INGRESADO 11/12/2025 ///////
 
 
 const sql = require('mssql');
-const db = require('../config/database');
+const db = require('../config/db');
 
 class DescuentosController {
-    // Obtener pruebas del día actual
+    // Obtener pruebas del dÃ­a actual
     async getPruebasDia(req, res) {
         try {
             const fecha = req.query.fecha || new Date().toISOString().split('T')[0];
@@ -21,7 +21,7 @@ class DescuentosController {
         }
     }
 
-    // Importar pruebas del día
+    // Importar pruebas del dÃ­a
     async importarPruebas(req, res) {
         try {
             const { fecha } = req.body;

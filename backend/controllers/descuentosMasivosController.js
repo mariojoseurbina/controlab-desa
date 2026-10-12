@@ -1,11 +1,11 @@
-const sql = require('mssql');
-const db = require('../config/database');
+﻿const sql = require('mssql');
+const db = require('../config/db');
 const logger = require('../utils/logger');
 
 class DescuentosMasivosController {
     
     /**
-     * Importar exámenes desde Infolab
+     * Importar exÃ¡menes desde Infolab
      */
     async importarExamenes(req, res) {
         try {
@@ -42,7 +42,7 @@ class DescuentosMasivosController {
             });
             
         } catch (error) {
-            logger.error('Error importando exámenes:', error);
+            logger.error('Error importando exÃ¡menes:', error);
             res.status(500).json({
                 success: false,
                 message: 'Error interno del servidor',
@@ -52,7 +52,7 @@ class DescuentosMasivosController {
     }
     
     /**
-     * Obtener exámenes pendientes de una fecha
+     * Obtener exÃ¡menes pendientes de una fecha
      */
     async getExamenesPendientes(req, res) {
         try {
@@ -93,7 +93,7 @@ class DescuentosMasivosController {
             
             await pool.close();
             
-            // Separar exámenes con y sin mapeo
+            // Separar exÃ¡menes con y sin mapeo
             const examenes = result.recordset;
             const conMapeo = examenes.filter(e => e.tiene_mapeo);
             const sinMapeo = examenes.filter(e => !e.tiene_mapeo);
@@ -112,7 +112,7 @@ class DescuentosMasivosController {
             });
             
         } catch (error) {
-            logger.error('Error obteniendo exámenes:', error);
+            logger.error('Error obteniendo exÃ¡menes:', error);
             res.status(500).json({
                 success: false,
                 message: 'Error interno del servidor'
@@ -145,7 +145,7 @@ class DescuentosMasivosController {
             
             await pool.close();
             
-            // El SP retorna múltiples resultsets
+            // El SP retorna mÃºltiples resultsets
             const data = {
                 resultado: result.recordsets[0][0] || {},
                 por_reactivo: result.recordsets[1] || [],
@@ -346,7 +346,7 @@ class DescuentosMasivosController {
     }
     
     /**
-     * Obtener sugerencias de mapeo basadas en exámenes sin mapeo
+     * Obtener sugerencias de mapeo basadas en exÃ¡menes sin mapeo
      */
     async getSugerenciasMapeo(req, res) {
         try {

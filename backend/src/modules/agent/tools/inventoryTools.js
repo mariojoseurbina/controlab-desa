@@ -1,8 +1,8 @@
-const { PrismaClient } = require('@prisma/client');
+﻿const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient(); // O importarlo de tu core si existe
 
 /**
- * Obtiene un resumen de ítems del inventario, opcionalmente filtrando por stock bajo.
+ * Obtiene un resumen de Ã­tems del inventario, opcionalmente filtrando por stock bajo.
  */
 async function checkInventory({ filterLowStock = false, category = null }) {
   try {
@@ -47,7 +47,7 @@ async function checkInventory({ filterLowStock = false, category = null }) {
 }
 
 /**
- * Consulta lotes de reactivos que están próximos a vencer.
+ * Consulta lotes de reactivos que estÃ¡n prÃ³ximos a vencer.
  */
 async function checkExpiringLots({ daysUntilExpiration = 30 }) {
   try {
@@ -88,13 +88,13 @@ async function checkExpiringLots({ daysUntilExpiration = 30 }) {
 }
 
 /**
- * Consulta las compras más recientes, con opción de filtrar por proveedor.
+ * Consulta las compras mÃ¡s recientes, con opciÃ³n de filtrar por proveedor.
  */
 async function checkRecentPurchases({ limit = 5, proveedorName = null }) {
   try {
     let whereClause = {};
 
-    // Si la IA envía un nombre de proveedor, buscamos su ID primero
+    // Si la IA envÃ­a un nombre de proveedor, buscamos su ID primero
     if (proveedorName) {
       const proveedor = await prisma.proveedores.findFirst({
         where: { nombre: { contains: proveedorName } }
@@ -103,7 +103,7 @@ async function checkRecentPurchases({ limit = 5, proveedorName = null }) {
       if (proveedor) {
         whereClause.proveedor_id = proveedor.id;
       } else {
-        return { error: `No se encontró ningún proveedor que coincida con "${proveedorName}".` };
+        return { error: `No se encontrÃ³ ningÃºn proveedor que coincida con "${proveedorName}".` };
       }
     }
 
@@ -155,21 +155,21 @@ async function checkRecentPurchases({ limit = 5, proveedorName = null }) {
 }
 
 /**
- * Calcula el ritmo de consumo diario y los días de autonomía proyectados.
+ * Calcula el ritmo de consumo diario y los dÃ­as de autonomÃ­a proyectados.
  */
 async function checkConsumptionRate({ category = null, days = 30 }) {
   try {
     const pastDate = new Date();
     pastDate.setDate(pastDate.getDate() - days);
 
-    // 1. Obtener todos los movimientos de los últimos 'days' días
+    // 1. Obtener todos los movimientos de los Ãºltimos 'days' dÃ­as
     const movimientos = await prisma.movimientoInventario.findMany({
       where: {
         fecha_movimiento: { gte: pastDate }
       }
     });
 
-    // 2. Sumar el consumo (todo movimiento donde el stock disminuyó)
+    // 2. Sumar el consumo (todo movimiento donde el stock disminuyÃ³)
     const consumoTotal = {};
     for (const mov of movimientos) {
       const decrement = Number(mov.stock_anterior) - Number(mov.stock_nuevo);
@@ -179,7 +179,7 @@ async function checkConsumptionRate({ category = null, days = 30 }) {
       }
     }
 
-    // 3. Obtener el catálogo de ítems (filtrando por categoría si aplica)
+    // 3. Obtener el catÃ¡logo de Ã­tems (filtrando por categorÃ­a si aplica)
     let itemsWhere = { activo: true };
     if (category) {
       itemsWhere.categoria = { contains: category };
@@ -296,7 +296,7 @@ async function getTopConsumptions({ days = 7, limit = 5 }) {
 }
 
 /**
- * Pregunta 7: Detectar sobrecompra (stock > máximo)
+ * Pregunta 7: Detectar sobrecompra (stock > mÃ¡ximo)
  */
 async function checkOverstock() {
   try {
@@ -325,7 +325,7 @@ async function checkOverstock() {
 }
 
 /**
- * Pregunta 8: Proporciones de inventario por categoría
+ * Pregunta 8: Proporciones de inventario por categorÃ­a
  */
 async function checkInventoryProportions() {
   try {
@@ -358,7 +358,7 @@ async function checkInventoryProportions() {
 }
 
 /**
- * Pregunta 9: Discrepancias teóricas vs reales
+ * Pregunta 9: Discrepancias teÃ³ricas vs reales
  */
 async function checkDiscrepancies() {
   try {
@@ -391,7 +391,7 @@ async function checkDiscrepancies() {
 }
 
 /**
- * Preguntas 12 y 14: Pérdida financiera por lotes vencidos o por vencer
+ * Preguntas 12 y 14: PÃ©rdida financiera por lotes vencidos o por vencer
  */
 async function checkExpiringFinancialLoss({ daysUntilExpiration = 30 }) {
   try {
@@ -463,7 +463,7 @@ async function checkExpiredActiveLots() {
 }
 
 /**
- * Pregunta 18: Motivos de mermas (daño vs vencimiento)
+ * Pregunta 18: Motivos de mermas (daÃ±o vs vencimiento)
  */
 async function checkShrinkageCauses({ days = 90 }) {
   try {
@@ -480,7 +480,7 @@ async function checkShrinkageCauses({ days = 90 }) {
     movimientos.forEach(m => {
       // Filtrar solo salidas que no sean consumo normal
       const tipo = (m.tipo_movimiento || '').toUpperCase();
-      if (tipo === 'MERMA' || tipo === 'DESCARGO' || tipo === 'DAÑO' || tipo === 'VENCIMIENTO') {
+      if (tipo === 'MERMA' || tipo === 'DESCARGO' || tipo === 'DAÃ‘O' || tipo === 'VENCIMIENTO') {
         const motivo = m.motivo || tipo;
         const cantidad = Number(m.stock_anterior) - Number(m.stock_nuevo);
         if (cantidad > 0) {
@@ -501,7 +501,7 @@ async function checkShrinkageCauses({ days = 90 }) {
 }
 
 /**
- * Pregunta 19: Promedio de días en almacén
+ * Pregunta 19: Promedio de dÃ­as en almacÃ©n
  */
 async function checkAverageStorageDays() {
   try {
@@ -532,7 +532,7 @@ async function checkAverageStorageDays() {
 }
 
 /**
- * Preguntas 23 y 28: Variación e inflación de precios
+ * Preguntas 23 y 28: VariaciÃ³n e inflaciÃ³n de precios
  */
 async function checkPriceVariation({ itemId = null }) {
   try {
@@ -744,7 +744,112 @@ async function getRecentMovements({ filterType = 'ALL', days = 30, targetMonth =
   }
 }
 
+
+/**
+ * Obtiene el reporte detallado de los ingresos de productos y recepciones de mercancÃ­a con todos los campos.
+ */
+async function getReceptionsReport({ limit = 50, search = null } = {}) {
+  try {
+    const { executeQuery } = require('../../../../config/db');
+    let query = `
+      SELECT 
+        i.id as item_id,
+        i.codigo as item_codigo,
+        i.nombre as item_nombre,
+        i.referencia as item_referencia,
+        i.categoria as item_categoria,
+        i.precio_costo,
+        i.stock_actual as item_stock_total,
+        i.presentacion as item_presentacion,
+        i.fecha_creacion as item_fecha_creacion,
+        m.id as movimiento_id,
+        ISNULL(m.cantidad, i.stock_actual) as cantidad_cajas,
+        ISNULL(m.fecha_movimiento, i.fecha_creacion) as fecha_ingreso,
+        m.nro_factura,
+        m.nota_entrega,
+        m.codigo_barra,
+        m.presentacion_empaque,
+        m.referencia as referencia_documento,
+        a.id as almacen_id,
+        ISNULL(a.nombre, 'AlmacÃ©n Central') as almacen_nombre,
+        p.id as proveedor_id,
+        ISNULL(p.nombre, 'CatÃ¡logo Inicial') as proveedor_nombre,
+        ISNULL(l.NumeroLote, 'LOTE-INICIAL') as lote_numero,
+        l.FechaFabricacion as fecha_fabricacion,
+        l.FechaVencimiento as fecha_vencimiento,
+        ISNULL(l.PrecioRecepcionUSD, i.precio_costo) as precio_recepcion_usd
+      FROM items_inventario i
+      LEFT JOIN (
+        SELECT item_id, MAX(id) as max_mov_id
+        FROM movimientos_inventario
+        WHERE tipo_movimiento = 'ENTRADA'
+        GROUP BY item_id
+      ) latest_mov ON i.id = latest_mov.item_id
+      LEFT JOIN movimientos_inventario m ON latest_mov.max_mov_id = m.id
+      LEFT JOIN almacenes a ON ISNULL(m.almacen_id, 1) = a.id
+      LEFT JOIN proveedores p ON m.proveedor_id = p.id
+      LEFT JOIN LotesReactivos l ON (i.id = l.InventarioId AND l.Estado = 'Activo')
+      WHERE i.activo = 1
+    `;
+
+    const params = {};
+    if (search && search.trim()) {
+      query += ` AND (LOWER(i.nombre) LIKE LOWER(@searchStr) OR LOWER(i.codigo) LIKE LOWER(@searchStr) OR LOWER(ISNULL(m.nro_factura, '')) LIKE LOWER(@searchStr) OR LOWER(ISNULL(p.nombre, '')) LIKE LOWER(@searchStr))`;
+      params.searchStr = `%${search.trim()}%`;
+    }
+
+    query += ` ORDER BY ISNULL(m.fecha_movimiento, i.fecha_creacion) DESC, i.nombre ASC`;
+
+    const rows = await executeQuery(query, params);
+
+    let totalIngresadoUSD = 0;
+    let totalCajas = 0;
+
+    const recepciones = rows.slice(0, limit).map(r => {
+      const cajas = Number(r.cantidad_cajas) || Number(r.item_stock_total) || 0;
+      const precioUSD = Number(r.precio_recepcion_usd) || Number(r.precio_costo) || 0;
+      const totalUSD = cajas * precioUSD;
+
+      totalCajas += cajas;
+      totalIngresadoUSD += totalUSD;
+
+      return {
+        id: r.movimiento_id || (`ITEM-` + r.item_id),
+        fechaIngreso: r.fecha_ingreso,
+        codigo: r.item_codigo || '-',
+        nombre: r.item_nombre,
+        referencia: r.item_referencia || 'N/A',
+        categoria: r.item_categoria || 'Reactivo',
+        lote: r.lote_numero || 'LOTE-INICIAL',
+        fechaFabricacion: r.fecha_fabricacion ? new Date(r.fecha_fabricacion).toLocaleDateString('es-VE') : 'N/A',
+        fechaVencimiento: r.fecha_vencimiento ? new Date(r.fecha_vencimiento).toLocaleDateString('es-VE') : 'Indefinido',
+        cantidad: cajas,
+        presentacion: r.presentacion_empaque || r.item_presentacion || 'Cajas',
+        proveedor: r.proveedor_nombre || 'CatÃ¡logo Inicial',
+        nroFactura: r.nro_factura || 'N/A',
+        notaEntrega: r.nota_entrega || 'N/A',
+        guiaOC: r.referencia_documento || 'REC-DIRECTA',
+        almacen: r.almacen_nombre || 'AlmacÃ©n Central',
+        codigoBarra: r.codigo_barra || 'Sin Escaneo',
+        precioUnitarioUSD: parseFloat(precioUSD.toFixed(2)),
+        totalUSD: parseFloat(totalUSD.toFixed(2))
+      };
+    });
+
+    return {
+      totalRecepciones: rows.length,
+      totalCajas,
+      totalIngresadoUSD: parseFloat(totalIngresadoUSD.toFixed(2)),
+      recepciones
+    };
+  } catch (error) {
+    console.error("Error en getReceptionsReport:", error);
+    return { error: error.message };
+  }
+}
+
 module.exports = {
+  getReceptionsReport,
   checkInventory,
   checkExpiringLots,
   checkRecentPurchases,
@@ -763,3 +868,4 @@ module.exports = {
   checkPendingPurchases,
   getRecentMovements
 };
+

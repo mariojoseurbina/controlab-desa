@@ -1,21 +1,21 @@
-const express = require('express');
+﻿const express = require('express');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
-const { executeQuery } = require('./config/database');
+const { executeQuery } = require('./config/db');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// LOGIN PRODUCCIÓN
+// LOGIN PRODUCCIÃ“N
 app.post('/api/auth/login', async (req, res) => {
   try {
-    const { usuario, contraseña } = req.body;
+    const { usuario, contraseÃ±a } = req.body;
     
-    console.log('🔐 Login producción:', usuario);
+    console.log('ðŸ” Login producciÃ³n:', usuario);
 
     const users = await executeQuery(
-      'SELECT id, usuario, correo, contraseña, rol, nombre_completo, activo FROM usuarios WHERE usuario = @usuario AND activo = 1',
+      'SELECT id, usuario, correo, contraseÃ±a, rol, nombre_completo, activo FROM usuarios WHERE usuario = @usuario AND activo = 1',
       { usuario }
     );
 
@@ -25,9 +25,9 @@ app.post('/api/auth/login', async (req, res) => {
 
     const user = users[0];
 
-    // Verificación directa
-    if (user.contraseña !== contraseña) {
-      return res.status(401).json({ error: 'Contraseña incorrecta' });
+    // VerificaciÃ³n directa
+    if (user.contraseÃ±a !== contraseÃ±a) {
+      return res.status(401).json({ error: 'ContraseÃ±a incorrecta' });
     }
 
     const token = jwt.sign(
@@ -36,9 +36,9 @@ app.post('/api/auth/login', async (req, res) => {
       { expiresIn: '24h' }
     );
 
-    const { contraseña: _, ...userResponse } = user;
+    const { contraseÃ±a: _, ...userResponse } = user;
 
-    console.log('✅ Login exitoso producción:', user.usuario);
+    console.log('âœ… Login exitoso producciÃ³n:', user.usuario);
 
     res.json({
       message: 'Login exitoso',
@@ -47,7 +47,7 @@ app.post('/api/auth/login', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('❌ Error login producción:', error);
+    console.error('âŒ Error login producciÃ³n:', error);
     res.status(500).json({ error: 'Error interno del servidor' });
   }
 });
@@ -69,16 +69,16 @@ app.get('/api/auth/verify', async (req, res) => {
     );
 
     if (users.length === 0) {
-      return res.status(401).json({ error: 'Usuario no válido' });
+      return res.status(401).json({ error: 'Usuario no vÃ¡lido' });
     }
 
     res.json(users[0]);
   } catch (error) {
-    res.status(403).json({ error: 'Token inválido' });
+    res.status(403).json({ error: 'Token invÃ¡lido' });
   }
 });
 
-// DASHBOARD PRODUCCIÓN
+// DASHBOARD PRODUCCIÃ“N
 app.get('/api/dashboard/metrics', async (req, res) => {
   try {
     const metrics = await executeQuery(`
@@ -120,11 +120,11 @@ app.get('/api/dashboard/metrics', async (req, res) => {
 
   } catch (error) {
     console.error('Error dashboard:', error);
-    res.status(500).json({ error: 'Error obteniendo métricas' });
+    res.status(500).json({ error: 'Error obteniendo mÃ©tricas' });
   }
 });
 
-// INVENTARIO PRODUCCIÓN
+// INVENTARIO PRODUCCIÃ“N
 app.get('/api/inventory', async (req, res) => {
   try {
     const items = await executeQuery('SELECT * FROM items_inventario WHERE activo = 1 ORDER BY fecha_actualizacion DESC');
@@ -171,17 +171,17 @@ app.post('/api/inventory', async (req, res) => {
 app.get('/api/health', (req, res) => {
   res.json({ 
     status: 'OK', 
-    message: 'Controlab IA - Sistema en Producción',
+    message: 'Controlab IA - Sistema en ProducciÃ³n',
     timestamp: new Date().toISOString()
   });
 });
 
 app.listen(5000, () => {
-  console.log('🚀 CONTROLAB IA - SERVIDOR PRODUCCIÓN');
-  console.log('✅ Puerto: 5000');
-  console.log('✅ Base de datos: Conectada');
-  console.log('✅ Login: Funcional');
-  console.log('✅ Dashboard: Activo');
-  console.log('✅ Inventario: Operativo');
-  console.log('📊 URL: http://localhost:3000');
+  console.log('ðŸš€ CONTROLAB IA - SERVIDOR PRODUCCIÃ“N');
+  console.log('âœ… Puerto: 5000');
+  console.log('âœ… Base de datos: Conectada');
+  console.log('âœ… Login: Funcional');
+  console.log('âœ… Dashboard: Activo');
+  console.log('âœ… Inventario: Operativo');
+  console.log('ðŸ“Š URL: http://localhost:3000');
 });

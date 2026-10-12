@@ -1,20 +1,26 @@
 const express = require('express');
-const { authenticateToken } = require('../middleware/authMiddleware');
+const { authenticateToken, optionalAuth } = require('../middleware/authMiddleware');
 const {
   getAllMovements,
   createMovement,
   transferStock,
   downloadTransferPdf,
-  cargaMasivaInicial
+  downloadMovementPdf,
+  downloadReceptionPdf,
+  cargaMasivaInicial,
+  getLotesDisponibles
 } = require('../controllers/movementsController');
 
 const router = express.Router();
 
-router.get('/', authenticateToken, getAllMovements);
+router.get('/', optionalAuth, getAllMovements);
+router.get('/lotes-disponibles', optionalAuth, getLotesDisponibles);
 router.post('/', authenticateToken, createMovement);
 router.post('/transfer', authenticateToken, transferStock);
 router.post('/carga-inicial-masiva', authenticateToken, cargaMasivaInicial);
-// Ruta pública/directa para descarga cómoda del comprobante PDF en navegador
+// Ruta publica/directa para descarga comoda del comprobante PDF en navegador
 router.get('/transfer/pdf', downloadTransferPdf);
+router.get('/movement/pdf', downloadMovementPdf);
+router.get('/reception/pdf', downloadReceptionPdf);
 
-module.exports = router;
+module.exports = router;

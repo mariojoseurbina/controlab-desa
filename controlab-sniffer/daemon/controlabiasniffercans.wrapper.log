@@ -1,0 +1,6 @@
+2026-07-06 12:39:15 - Starting C:\Program Files\nodejs\node.exe  --harmony C:\controlab-ia\controlab-sniffer\node_modules\node-windows\lib\wrapper.js --file C:\controlab-ia\controlab-sniffer\server.js --scriptoptions= --log "Controlab IA Sniffer (CANS) wrapper" --grow 0.25 --wait 1 --maxrestarts 3 --abortonerror n --stopparentfirst undefined
+2026-07-06 12:39:15 - Started 12516
+2026-07-06 12:41:04 - Starting C:\Program Files\nodejs\node.exe  --harmony C:\controlab-ia\controlab-sniffer\node_modules\node-windows\lib\wrapper.js --file C:\controlab-ia\controlab-sniffer\server.js --scriptoptions= --log "Controlab IA Sniffer (CANS) wrapper" --grow 0.25 --wait 1 --maxrestarts 3 --abortonerror n --stopparentfirst undefined
+2026-07-06 12:41:04 - Started 20576
+2026-07-06 14:05:04 - Starting C:\Program Files\nodejs\node.exe  --harmony C:\controlab-ia\controlab-sniffer\node_modules\node-windows\lib\wrapper.js --file C:\controlab-ia\controlab-sniffer\server.js --scriptoptions= --log "Controlab IA Sniffer (CANS) wrapper" --grow 0.25 --wait 1 --maxrestarts 3 --abortonerror n --stopparentfirst undefined
+2026-07-06 14:05:04 - Started 25064

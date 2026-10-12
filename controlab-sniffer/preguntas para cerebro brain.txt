@@ -1,0 +1,23 @@
+"Calcula los márgenes de ganancia y costos por prueba" (Impresionante desglose financiero)
+"Calcula el punto de equilibrio"
+"Calcula la pérdida financiera por desperdicios"
+"Simula el impacto en precio de los tubos"
+"Compara el costo de mantenimiento de equipos"
+Del Módulo 3 (Compras y Proveedores):
+
+"Analiza la inflación y variaciones de precio"
+"Muestra las compras recientes"
+"¿Cuáles compras siguen en estado pendiente?"
+"Evalúa el retraso de los proveedores"
+Del Módulo 1 y 4 (Consumo e Inventario):
+
+"¿Cuáles son los ítems que más rápido se agotan?"
+"Calcula el ritmo de consumo y autonomía"
+"Muestra el valor financiero inmovilizado"
+"Reporte de sobrecompra o stock máximo"
+Dame todos los movimientos de salida del inventario
+Dame los ultimos movimientos de entrada y salida del ultimo mes y quien los realizo
+Dame los ultimos movimientos de entrada y salida de Mayo y quien los realizo
+Dame los ultimos movimientos de entrada y salida de Junio y quien los realizo
+Muestra las compras de hoy o Muestra las ultimas compras
+Dame todos los movimientos de salida del inventario de Julio

@@ -1,7 +1,7 @@
-const { sql, getPool } = require('../config/database');
+﻿const { sql, getPool } = require('../config/db');
 
 /**
- * Servicio centralizado para el registro de auditoría (Trazabilidad)
+ * Servicio centralizado para el registro de auditorÃ­a (Trazabilidad)
  */
 class AuditService {
   async logEvent(usuarioId, accion, entidad, entidadId = null, detalles = null, direccionIp = null) {
@@ -67,7 +67,7 @@ class AuditService {
       }
       if (fecha_fin) {
         query += ` AND r.fecha_registro <= @fecha_fin`;
-        // Para incluir todo el día en fecha de fin, le sumamos 1 día o lo definimos manual:
+        // Para incluir todo el dÃ­a en fecha de fin, le sumamos 1 dÃ­a o lo definimos manual:
         let fin = new Date(fecha_fin);
         fin.setHours(23, 59, 59, 999);
         request.input('fecha_fin', sql.DateTime, fin);
@@ -101,3 +101,4 @@ class AuditService {
 }
 
 module.exports = new AuditService();
+

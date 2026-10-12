@@ -1,7 +1,7 @@
-const express = require('express');
+﻿const express = require('express');
 const multer = require('multer');
 const XLSX = require('xlsx');
-const { sql, getPool } = require('../config/database');
+const { sql, getPool } = require('../config/db');
 const { authenticateToken } = require('../middleware/authMiddleware');
 
 const router = express.Router();
@@ -11,14 +11,14 @@ const upload = multer({ dest: 'uploads/' });
 // router.use(authenticateToken);
 
 // ============================================================================
-// 1. ARCHIVOS EXCEL: PARSEO Y TRANSFORMACIÓN
+// 1. ARCHIVOS EXCEL: PARSEO Y TRANSFORMACIÃ“N
 // ============================================================================
 
 // POST /api/transformar-reporte-diario
 router.post('/transformar-reporte-diario', upload.single('archivo'), async (req, res) => {
   try {
     if (!req.file) {
-      return res.status(400).json({ error: 'No se envió archivo Excel' });
+      return res.status(400).json({ error: 'No se enviÃ³ archivo Excel' });
     }
     const workbook = XLSX.readFile(req.file.path);
     const sheetName = workbook.SheetNames[0];
@@ -66,16 +66,16 @@ router.post('/transformar-reporte-diario', upload.single('archivo'), async (req,
     res.send(buffer);
 
   } catch (error) {
-    console.error('❌ Error en transformar-reporte-diario:', error);
+    console.error('âŒ Error en transformar-reporte-diario:', error);
     res.status(500).json({ error: error.message });
   }
 });
 
-// DESCUENTO AUTOMÁTICO DESDE EXCEL
+// DESCUENTO AUTOMÃTICO DESDE EXCEL
 const handleDescuentoAutomatico = async (req, res) => {
   try {
     if (!req.file) {
-      return res.status(400).json({ success: false, message: 'No se envió archivo Excel' });
+      return res.status(400).json({ success: false, message: 'No se enviÃ³ archivo Excel' });
     }
     const workbook = XLSX.readFile(req.file.path);
     const sheetName = workbook.SheetNames[0];
@@ -83,7 +83,7 @@ const handleDescuentoAutomatico = async (req, res) => {
     const datos = XLSX.utils.sheet_to_json(worksheet);
 
     if (!datos || datos.length === 0) {
-      return res.status(400).json({ success: false, message: 'El archivo Excel está vacío' });
+      return res.status(400).json({ success: false, message: 'El archivo Excel estÃ¡ vacÃ­o' });
     }
 
     const pool = await getPool();
@@ -96,7 +96,7 @@ const handleDescuentoAutomatico = async (req, res) => {
         const cantidad = parseInt(fila.Cantidad || fila.cantidad);
 
         if (!prueba || isNaN(cantidad) || cantidad <= 0) {
-          errores.push(`Fila ${index + 1}: Datos inválidos`);
+          errores.push(`Fila ${index + 1}: Datos invÃ¡lidos`);
           continue;
         }
 
@@ -110,7 +110,7 @@ const handleDescuentoAutomatico = async (req, res) => {
           `);
 
         if (mapeoResult.recordset.length === 0) {
-          errores.push(`No hay configuración de mapeo para: ${prueba}`);
+          errores.push(`No hay configuraciÃ³n de mapeo para: ${prueba}`);
           continue;
         }
 
@@ -155,7 +155,7 @@ const handleDescuentoAutomatico = async (req, res) => {
             
             INSERT INTO movimientos_inventario 
             (item_id, tipo_movimiento, cantidad, stock_anterior, stock_nuevo, motivo, referencia, fecha_movimiento, creado_por)
-            VALUES (@reactivoId, 'CONSUMO', @consumo, 0, 0, 'Descuento automático - ' + @pruebaNombre, 'Lote: ' + (SELECT NumeroLote FROM LotesReactivos WHERE Id = @loteId), GETDATE(), 1);
+            VALUES (@reactivoId, 'CONSUMO', @consumo, 0, 0, 'Descuento automÃ¡tico - ' + @pruebaNombre, 'Lote: ' + (SELECT NumeroLote FROM LotesReactivos WHERE Id = @loteId), GETDATE(), 1);
             
             COMMIT TRANSACTION;
           `);
@@ -166,7 +166,7 @@ const handleDescuentoAutomatico = async (req, res) => {
           lote: lote.NumeroLote,
           reactivo: mapeo.reactivo_nombre,
           consumo_reactivo: consumoTotal,
-          status: '✅ DESCONTADO'
+          status: 'âœ… DESCONTADO'
         });
 
       } catch (err) {
@@ -182,7 +182,7 @@ const handleDescuentoAutomatico = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('❌ Error en descuento automático:', error);
+    console.error('âŒ Error en descuento automÃ¡tico:', error);
     res.status(500).json({ success: false, message: error.message });
   }
 };
@@ -192,7 +192,7 @@ router.post('/descuento-masivo-automatico', upload.single('archivo'), handleDesc
 
 
 // ============================================================================
-// 2. SISTEMA DE MAPEO EXÁMENES -> REACTIVOS
+// 2. SISTEMA DE MAPEO EXÃMENES -> REACTIVOS
 // ============================================================================
 
 // GET /api/mapeo/pendientes
@@ -304,7 +304,7 @@ router.post('/mapeo/masivo', async (req, res) => {
   try {
     const { asignaciones } = req.body;
     if (!asignaciones || !Array.isArray(asignaciones)) {
-      return res.status(400).json({ success: false, message: 'Asignaciones inválidas' });
+      return res.status(400).json({ success: false, message: 'Asignaciones invÃ¡lidas' });
     }
     const pool = await getPool();
     let exitosos = 0;
@@ -399,7 +399,7 @@ router.get('/mapeo/masivo', async (req, res) => {
       mapeados: examenes.filter(e => e.ya_mapeado).length
     });
   } catch (error) {
-    console.error('❌ Error en GET /mapeo/masivo:', error);
+    console.error('âŒ Error en GET /mapeo/masivo:', error);
     res.json({ success: false, examenes: [], total: 0 });
   }
 });
@@ -470,7 +470,7 @@ router.post('/mapeo/sugerir-lote', async (req, res) => {
     });
     
   } catch (error) {
-    console.error('❌ Error en sugerir-lote:', error);
+    console.error('âŒ Error en sugerir-lote:', error);
     res.status(500).json({ success: false, error: error.message });
   }
 });
@@ -480,7 +480,7 @@ router.post('/mapeo/guardar-masivo', async (req, res) => {
   try {
     const { mapeos } = req.body;
     if (!mapeos || !Array.isArray(mapeos) || mapeos.length === 0) {
-      return res.status(400).json({ success: false, message: 'No hay mapeos válidos' });
+      return res.status(400).json({ success: false, message: 'No hay mapeos vÃ¡lidos' });
     }
     const pool = await getPool();
     let guardados = 0;
@@ -512,18 +512,18 @@ router.post('/mapeo/guardar-masivo', async (req, res) => {
     
     res.json({
       success: true,
-      message: `Mapeo guardado exitosamente: ${guardados} exámenes mapeados`,
+      message: `Mapeo guardado exitosamente: ${guardados} exÃ¡menes mapeados`,
       registros: guardados
     });
   } catch (error) {
-    console.error('❌ Error guardando mapeo:', error);
+    console.error('âŒ Error guardando mapeo:', error);
     res.status(500).json({ success: false, error: error.message });
   }
 });
 
 
 // ============================================================================
-// 3. PROCESAMIENTO DE DESCUENTOS DIARIOS (CÁLCULO E IMPORTACIÓN)
+// 3. PROCESAMIENTO DE DESCUENTOS DIARIOS (CÃLCULO E IMPORTACIÃ“N)
 // ============================================================================
 
 // POST /api/descuentos/importar
@@ -542,7 +542,7 @@ router.post('/descuentos/importar', async (req, res) => {
     res.json({
       success: true,
       data: {
-        estado: data.estado || 'Importación exitosa',
+        estado: data.estado || 'ImportaciÃ³n exitosa',
         fecha: fecha,
         examenes_importados: data.examenes_importados || 0,
         total_pruebas: data.total_pruebas || 0,
@@ -550,7 +550,7 @@ router.post('/descuentos/importar', async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('❌ Error importando pruebas:', error);
+    console.error('âŒ Error importando pruebas:', error);
     res.status(500).json({ success: false, message: error.message });
   }
 });
@@ -576,7 +576,7 @@ router.get('/descuentos/pruebas-dia', async (req, res) => {
     const totalExamenes = examenes.length;
     const totalPruebas = examenes.reduce((sum, item) => sum + (item.cantidad || 0), 0);
     
-    // Calcular cuántos exámenes tienen mapeo
+    // Calcular cuÃ¡ntos exÃ¡menes tienen mapeo
     const mappingsResult = await pool.request().query(`
       SELECT DISTINCT nombre_prueba FROM mapeo_pruebas_reactivos WHERE activo = 1
     `);
@@ -603,7 +603,7 @@ router.get('/descuentos/pruebas-dia', async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('❌ Error en pruebas-dia:', error);
+    console.error('âŒ Error en pruebas-dia:', error);
     res.json({
       success: true,
       data: [],
@@ -621,7 +621,7 @@ router.get('/descuentos/calcular-dia', async (req, res) => {
   try {
     const pool = await getPool();
     
-    // Obtener exámenes
+    // Obtener exÃ¡menes
     const examenesResult = await pool.request()
       .input('fecha', sql.Date, fecha)
       .query(`
@@ -752,7 +752,7 @@ router.get('/descuentos/calcular-dia', async (req, res) => {
     });
     
   } catch (error) {
-    console.error('❌ Error en calcular-dia:', error);
+    console.error('âŒ Error en calcular-dia:', error);
     res.status(500).json({ success: false, message: error.message });
   }
 });
@@ -826,7 +826,7 @@ router.get('/descuentos/estadisticas', async (req, res) => {
 
 // POST /api/descuento-simple
 router.post('/descuento-simple', async (req, res) => {
-  console.log('🎯 DESCUENTO SIMPLE - Fecha:', req.body.fecha);
+  console.log('ðŸŽ¯ DESCUENTO SIMPLE - Fecha:', req.body.fecha);
 
   const { fecha } = req.body;
   if (!fecha) {
@@ -967,14 +967,14 @@ router.post('/descuento-simple', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('❌ Error en descuento-simple:', error);
+    console.error('âŒ Error en descuento-simple:', error);
     res.status(500).json({ success: false, error: error.message });
   }
 });
 
 // POST /api/descuento-directo
 router.post('/descuento-directo', async (req, res) => {
-  console.log('🎯 DESCUENTO DIRECTO - Fecha:', req.body.fecha);
+  console.log('ðŸŽ¯ DESCUENTO DIRECTO - Fecha:', req.body.fecha);
 
   const { fecha } = req.body;
   if (!fecha) {
@@ -1115,9 +1115,10 @@ router.post('/descuento-directo', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('❌ Error en descuento-directo:', error);
+    console.error('âŒ Error en descuento-directo:', error);
     res.status(500).json({ success: false, error: error.message });
   }
 });
 
 module.exports = router;
+

@@ -1,0 +1,33 @@
+<service>
+	<id>controlabiasniffercans.exe</id>
+	<name>Controlab IA Sniffer (CANS)</name>
+	<description>Microservicio TCP Proxy para la interceptación y auditoría de tráfico HL7/ASTM de analizadores médicos.</description>
+	<executable>C:\Program Files\nodejs\node.exe</executable>
+	<argument>--harmony</argument>
+	<argument>C:\controlab-ia\controlab-sniffer\node_modules\node-windows\lib\wrapper.js</argument>
+	<argument>--file</argument>
+	<argument>C:\controlab-ia\controlab-sniffer\server.js</argument>
+	<argument>--scriptoptions=</argument>
+	<argument>--log</argument>
+	<argument>Controlab IA Sniffer (CANS) wrapper</argument>
+	<argument>--grow</argument>
+	<argument>0.25</argument>
+	<argument>--wait</argument>
+	<argument>1</argument>
+	<argument>--maxrestarts</argument>
+	<argument>3</argument>
+	<argument>--abortonerror</argument>
+	<argument>n</argument>
+	<argument>--stopparentfirst</argument>
+	<argument>undefined</argument>
+	<logmode>rotate</logmode>
+	<stoptimeout>30sec</stoptimeout>
+	<env name="INGRESS_PORT" value="6001"/>
+	<env name="EGRESS_PORT" value="5001"/>
+	<serviceaccount>
+		<domain>CONTROLAB-IA</domain>
+		<user>LocalSystem</user>
+		<password></password>
+	</serviceaccount>
+	<workingdirectory>C:\controlab-ia\controlab-sniffer</workingdirectory>
+</service>

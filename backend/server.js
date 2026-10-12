@@ -1,4 +1,4 @@
-const express = require('express');
+﻿const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const dotenv = require('dotenv');
@@ -9,6 +9,18 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+// ==========================================
+// BLINDAJE DE PRODUCCIÓN: Manejo de Errores Globales
+// ==========================================
+process.on('uncaughtException', (err) => {
+  console.error('🔥 [CRÍTICO] Excepción no capturada:', err);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('⚠️ [ADVERTENCIA] Promesa rechazada no manejada:', reason);
+});
+// ==========================================
 
 app.use(helmet());
 app.use(cors());
@@ -42,6 +54,7 @@ const almacenesRoutes = require('./src/modules/almacenes/almacenes.routes');
 const cajasRoutes = require('./src/modules/cajas/cajas.routes');
 const auditRoutes = require('./routes/auditRoutes');
 const receptionRoutes = require('./routes/receptionRoutes');
+const mapeoRoutes = require('./routes/mapeoRoutes');
 
 // Usar rutas
 app.use('/api/auth', authRoutes);
@@ -61,6 +74,7 @@ app.use('/api/descuentos', descuentosRoutes);
 app.use('/api/compras', purchasesRoutes);
 app.use('/api/costos', costosRoutes);
 app.use('/api/reception', receptionRoutes);
+app.use('/api/mapeo', mapeoRoutes);
 app.use('/api/agent', agentRoutes);
 app.use('/api/audit', auditRoutes);
 app.use('/api/sniffer', snifferRoutes);
@@ -101,3 +115,4 @@ app.listen(PORT, () => {
   console.log(`🚀 Servidor Controlab - IA ejecutándose en puerto ${PORT}`);
   console.log(`📊 Entorno: ${process.env.NODE_ENV || 'development'}`);
 });
+

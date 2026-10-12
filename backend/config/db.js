@@ -1,5 +1,6 @@
-const sql = require('mssql');
-require('dotenv').config();
+﻿const sql = require('mssql');
+const path = require('path');
+require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 
 const parseDatabaseUrl = (url) => {
   if (!url) return null;
@@ -38,7 +39,7 @@ const parseDatabaseUrl = (url) => {
 
 const parsedConfig = parseDatabaseUrl(process.env.DATABASE_URL);
 
-// Configuración centralizada de la base de datos
+// Configuracion centralizada de la base de datos
 const dbConfig = {
   server: parsedConfig?.server || process.env.DB_SERVER || 'localhost',
   database: parsedConfig?.database || process.env.DB_DATABASE || 'ControlabIA',
@@ -51,9 +52,10 @@ const dbConfig = {
     enableArithAbort: true
   },
   pool: {
-    max: 20,
-    min: 0,
-    idleTimeoutMillis: 30000
+    max: 50,
+    min: 5,
+    idleTimeoutMillis: 30000,
+    acquireTimeoutMillis: 5000
   }
 };
 
@@ -62,15 +64,15 @@ let poolPromise = null;
 
 const getPool = () => {
   if (!poolPromise) {
-    console.log('🔄 Inicializando Pool de Base de Datos...');
+    console.log('Inicializando Pool de Base de Datos...');
     poolPromise = new sql.ConnectionPool(dbConfig)
       .connect()
       .then(pool => {
-        console.log('✅ Pool de base de datos conectado y listo.');
+        console.log('Pool de base de datos conectado y listo.');
         return pool;
       })
       .catch(err => {
-        console.error('❌ Error creando el pool de BD:', err);
+        console.error('Error creando el pool de BD:', err);
         poolPromise = null; // Reiniciar en caso de error para reintentar
         throw err;
       });
@@ -78,7 +80,26 @@ const getPool = () => {
   return poolPromise;
 };
 
-// Función auxiliar para transacciones
+const getConnection = getPool;
+
+const executeQuery = async (query, params = {}) => {
+  try {
+    const pool = await getPool();
+    const request = pool.request();
+    
+    Object.keys(params).forEach(key => {
+      request.input(key, params[key]);
+    });
+    
+    const result = await request.query(query);
+    return result.recordset;
+  } catch (error) {
+    console.error('Error en consulta SQL:', error.message);
+    throw error;
+  }
+};
+
+// Funcion auxiliar para transacciones
 const executeTransaction = async (transactionCallback) => {
   const pool = await getPool();
   const transaction = new sql.Transaction(pool);
@@ -96,6 +117,8 @@ const executeTransaction = async (transactionCallback) => {
 module.exports = {
   sql,
   getPool,
+  getConnection,
+  executeQuery,
   executeTransaction,
   dbConfig
 };

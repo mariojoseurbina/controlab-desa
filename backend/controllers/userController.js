@@ -1,4 +1,4 @@
-const sql = require('mssql');
+﻿const sql = require('mssql');
 const { dbConfig } = require('../config/db');
 const auditService = require('../services/auditService');
 
@@ -7,7 +7,7 @@ const getAllUsers = async (req, res) => {
   try {
     const pool = await sql.connect(dbConfig);
     const result = await pool.request()
-      .query('SELECT id, usuario, correo, rol, nombre_completo, activo FROM usuarios');
+      .query('SELECT id, usuario, correo, rol, nombre_completo, activo, fecha_creacion FROM usuarios');
     
     await pool.close();
     res.json({ success: true, usuarios: result.recordset });
@@ -20,13 +20,13 @@ const getAllUsers = async (req, res) => {
 // Crear nuevo usuario
 const createUser = async (req, res) => {
   try {
-    const { usuario, correo, contraseña, rol, nombre_completo } = req.body;
+    const { usuario, correo, contrasena, rol, nombre_completo } = req.body;
     const pool = await sql.connect(dbConfig);
 
     const result = await pool.request()
       .input('usuario', sql.VarChar, usuario)
       .input('correo', sql.VarChar, correo)
-      .input('contraseña', sql.VarChar, contraseña)
+      .input('contraseña', sql.VarChar, contrasena)
       .input('rol', sql.VarChar, rol)
       .input('nombre_completo', sql.VarChar, nombre_completo)
       .query(`
@@ -54,24 +54,31 @@ const createUser = async (req, res) => {
 const updateUser = async (req, res) => {
   try {
     const { id } = req.params;
-    const { correo, rol, nombre_completo, activo } = req.body;
+    const { correo, rol, nombre_completo, activo, contrasena } = req.body;
     const pool = await sql.connect(dbConfig);
 
-    await pool.request()
-      .input('id', sql.Int, id)
-      .input('correo', sql.VarChar, correo)
-      .input('rol', sql.VarChar, rol)
-      .input('nombre_completo', sql.VarChar, nombre_completo)
-      .input('activo', sql.Bit, activo)
-      .query(`
-        UPDATE usuarios 
-        SET correo = @correo, rol = @rol, nombre_completo = @nombre_completo, activo = @activo
-        WHERE id = @id
-      `);
+    if (contrasena && contrasena.trim() !== '') {
+      await pool.request()
+        .input('id', sql.Int, id)
+        .input('correo', sql.VarChar, correo)
+        .input('rol', sql.VarChar, rol)
+        .input('nombre_completo', sql.VarChar, nombre_completo)
+        .input('activo', sql.Bit, activo)
+        .input('contrasena', sql.VarChar, contrasena)
+        .query(`\n          UPDATE usuarios \n          SET correo = @correo, rol = @rol, nombre_completo = @nombre_completo, activo = @activo, contraseña = @contrasena\n          WHERE id = @id\n        `);
+    } else {
+      await pool.request()
+        .input('id', sql.Int, id)
+        .input('correo', sql.VarChar, correo)
+        .input('rol', sql.VarChar, rol)
+        .input('nombre_completo', sql.VarChar, nombre_completo)
+        .input('activo', sql.Bit, activo)
+        .query(`\n          UPDATE usuarios \n          SET correo = @correo, rol = @rol, nombre_completo = @nombre_completo, activo = @activo\n          WHERE id = @id\n        `);
+    }
 
     // Trazabilidad
     await auditService.logEvent(req.user?.id || 1, 'EDITAR_USUARIO', 'USUARIO', id, {
-      correo, rol, nombre_completo, activo
+      correo, rol, nombre_completo, activo, password_changed: !!contrasena
     });
 
     await pool.close();
@@ -81,6 +88,7 @@ const updateUser = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
 
 // Eliminar usuario
 const deleteUser = async (req, res) => {
@@ -117,3 +125,7 @@ module.exports = {
   deleteUser,
   verifyToken
 };
+
+
+
+

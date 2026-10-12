@@ -1,4 +1,4 @@
-const { sql, getPool } = require('./config/database');
+﻿const { sql, getPool } = require('./config/db');
 
 async function testDB() {
   try {
@@ -16,3 +16,4 @@ async function testDB() {
 }
 
 testDB();
+

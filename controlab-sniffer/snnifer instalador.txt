@@ -1,0 +1,1 @@
+sc create "Controlab Sniffer" binPath= "C:\Controlab\Sniffer\Controlab-Sniffer-Binario.exe" start= auto

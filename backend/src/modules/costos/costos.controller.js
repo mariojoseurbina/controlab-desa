@@ -19,7 +19,19 @@ class CostosController {
       res.status(201).json({ success: true, message: 'Prueba genérica creada exitosamente.', prueba });
     } catch (error) {
       console.error('❌ Error creando prueba genérica:', error.message);
-      res.status(500).json({ success: false, error: error.message });
+      res.status(400).json({ success: false, error: error.message });
+    }
+  }
+
+  async deletePrueba(req, res) {
+    try {
+      const { id } = req.params;
+      console.log('🗑️ Eliminando prueba genérica ID:', id);
+      await costosService.deletePrueba(id);
+      res.json({ success: true, message: 'Prueba genérica eliminada exitosamente.' });
+    } catch (error) {
+      console.error('❌ Error eliminando prueba genérica:', error.message);
+      res.status(400).json({ success: false, error: error.message });
     }
   }
 

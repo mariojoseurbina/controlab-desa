@@ -4,6 +4,7 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { CssBaseline } from '@mui/material';
 import { SnackbarProvider } from 'notistack';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { hasAccess } from './utils/rbac';
 import Layout from './components/Layout/Layout';
 import Login from './pages/Auth/Login';
 import Dashboard from './pages/Dashboard/Dashboard';
@@ -19,6 +20,7 @@ import DescuentoAutomatico from './pages/Reagents/DescuentoAutomatico';
 import Movements from './pages/Movements/Movements';
 import Reports from './pages/Reports/Reports';
 import Users from './pages/Users/Users';
+import ReporteLotes from './pages/Traceability/ReporteLotes';
 
 // Importaciones del módulo Compras
 import ListaCompras from './pages/Compras/ListaCompras';
@@ -64,14 +66,22 @@ const theme = createTheme({
   }
 });
 
-const ProtectedRoute = ({ children }) => {
+const ProtectedRoute = ({ children, requiredPath }) => {
   const { user, loading } = useAuth();
   
   if (loading) {
     return <div>Cargando...</div>;
   }
   
-  return user ? children : <Navigate to="/login" />;
+  if (!user) {
+    return <Navigate to="/login" />;
+  }
+
+  if (requiredPath && !hasAccess(user, requiredPath)) {
+    return <Navigate to="/dashboard" />;
+  }
+
+  return children;
 };
 
 const PublicRoute = ({ children }) => {
@@ -107,32 +117,33 @@ function App() {
                       <Route path="/brain-agent" element={<AgentChat />} />
 
                       {/* Rutas de Inventario e IA */}
-                      <Route path="/inventory" element={<Inventory />} />
-                      <Route path="/reagents" element={<Reagents />} />
+                      <Route path="/inventory" element={<ProtectedRoute requiredPath="/inventory"><Inventory /></ProtectedRoute>} />
+                      <Route path="/reagents" element={<ProtectedRoute requiredPath="/reagents"><Reagents /></ProtectedRoute>} />
                       <Route path="/reagents/massive-import" element={<ImportacionMasivaPruebas />} />
-                      <Route path="/reagents/reception" element={<ProductReception />} />
+                      <Route path="/reagents/reception" element={<ProtectedRoute requiredPath="/reagents/reception"><ProductReception /></ProtectedRoute>} />
                       <Route path="/reagents/test-kits" element={<ProductReception />} />
                       <Route path="/reagents/transform-daily" element={<TransformarReporteDiario />} />
                       <Route path="/reagents/auto-discount" element={<DescuentoAutomatico />} />
                       
                       {/* Nuevo Módulo Almacén / Depósito */}
-                      <Route path="/warehouses" element={<WarehousesHub />} />
+                      <Route path="/warehouses" element={<ProtectedRoute requiredPath="/warehouses"><WarehousesHub /></ProtectedRoute>} />
                       <Route path="/warehouses/conteo-inicial" element={<InitialCount />} />
                       <Route path="/cajas-frascos" element={<GestionCajasFrascos />} />
                       <Route path="/movements" element={<WarehousesHub />} />
                       
-                      <Route path="/compras" element={<ListaCompras />} />
+                      <Route path="/compras" element={<ProtectedRoute requiredPath="/compras"><ListaCompras /></ProtectedRoute>} />
                       <Route path="/compras/nueva" element={<FormularioCompra />} />
                       <Route path="/compras/editar/:id" element={<FormularioCompra />} />
                       <Route path="/compras/:id" element={<DetalleCompra />} />
                       <Route path="/descuentos" element={<DescuentosPorPruebas />} />
-                      <Route path="/costos" element={<Costos />} />
+                      <Route path="/costos" element={<ProtectedRoute requiredPath="/costos"><Costos /></ProtectedRoute>} />
                       <Route path="/sniffer" element={<SnifferDashboard />} />
                       <Route path="/live-reagents" element={<LiveReagentsMonitor />} />
                       <Route path="/audit-log" element={<TraceabilityView />} />
                       
                       {/* Otras rutas */}
                       <Route path="/reports" element={<Reports />} />
+                      <Route path="/lotes/auditoria" element={<ReporteLotes />} />
                       <Route path="/users" element={<Users />} />
                       <Route path="/" element={<Navigate to="/dashboard" />} />
                     </Routes>
@@ -148,3 +159,6 @@ function App() {
 }
 
 export default App;
+
+
+

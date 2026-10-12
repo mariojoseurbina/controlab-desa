@@ -1,11 +1,11 @@
-const { sql, getPool } = require('../config/database');
+﻿const { sql, getPool } = require('../config/db');
 const auditService = require('../services/auditService');
 
 // Database auto-migration for FechaApertura, UsuarioApertura, and Trazabilidad
 (async () => {
   try {
     const pool = await getPool();
-    console.log('🔄 [Auto-Migration] Checking columns for LotesReactivos and Trazabilidad table...');
+    console.log('ðŸ”„ [Auto-Migration] Checking columns for LotesReactivos and Trazabilidad table...');
     
     // 1. Create registro_trazabilidad
     await pool.request().query(`
@@ -27,7 +27,7 @@ const auditService = require('../services/auditService');
           CREATE INDEX IX_Trazabilidad_Entidad ON registro_trazabilidad(entidad, entidad_id);
           CREATE INDEX IX_Trazabilidad_Fecha ON registro_trazabilidad(fecha_registro);
           
-          PRINT '✅ [Auto-Migration] Tabla registro_trazabilidad creada con éxito.';
+          PRINT 'âœ… [Auto-Migration] Tabla registro_trazabilidad creada con Ã©xito.';
       END
     `);
 
@@ -43,17 +43,17 @@ const auditService = require('../services/auditService');
       await pool.request().query(`
         ALTER TABLE LotesReactivos ADD FechaApertura DATE NULL;
       `);
-      console.log('✅ [Auto-Migration] Added FechaApertura column successfully.');
+      console.log('âœ… [Auto-Migration] Added FechaApertura column successfully.');
     }
     
     if (!existing.includes('UsuarioApertura')) {
       await pool.request().query(`
         ALTER TABLE LotesReactivos ADD UsuarioApertura VARCHAR(100) NULL;
       `);
-      console.log('✅ [Auto-Migration] Added UsuarioApertura column successfully.');
+      console.log('âœ… [Auto-Migration] Added UsuarioApertura column successfully.');
     }
   } catch (error) {
-    console.error('❌ [Auto-Migration] Error running database migration:', error.message);
+    console.error('âŒ [Auto-Migration] Error running database migration:', error.message);
   }
 })();
 
@@ -106,7 +106,7 @@ const getLoteById = async (req, res) => {
   }
 };
 
-// Crear un nuevo lote - VERSIÓN FINAL CORREGIDA
+// Crear un nuevo lote - VERSIÃ“N FINAL CORREGIDA
 const createLote = async (req, res) => {
   try {
     const {
@@ -120,7 +120,7 @@ const createLote = async (req, res) => {
 
     const pool = await getPool();
 
-    // Cálculos automáticos
+    // CÃ¡lculos automÃ¡ticos
     const VolumenTrabajoTeorico = CantidadInicial / ConsumoPorPrueba;
     const Rendimiento = VolumenTrabajoPractico > 0 
       ? (VolumenTrabajoPractico / VolumenTrabajoTeorico) * 100 
@@ -137,8 +137,8 @@ const createLote = async (req, res) => {
     const ReactivoPorPrueba = ConsumoPorPrueba || 0;
 
     // NOTA: Rendimiento y VolumenTrabajoTeorico son columnas calculadas (COMPUTED COLUMNS)
-    // en SQL Server — no se pueden escribir directamente con INSERT/UPDATE.
-    // El motor de base de datos las recalcula automáticamente.
+    // en SQL Server â€” no se pueden escribir directamente con INSERT/UPDATE.
+    // El motor de base de datos las recalcula automÃ¡ticamente.
     const query = `
       INSERT INTO LotesReactivos (
         InventarioId, 
@@ -297,7 +297,7 @@ const updateLote = async (req, res) => {
     const ReactivoPorPrueba = ConsumoPorPrueba || 0;
 
     // NOTA: Rendimiento y VolumenTrabajoTeorico son columnas calculadas (COMPUTED COLUMNS)
-    // en SQL Server — no se pueden escribir directamente con INSERT/UPDATE.
+    // en SQL Server â€” no se pueden escribir directamente con INSERT/UPDATE.
     const query = `
       UPDATE LotesReactivos SET
         InventarioId = @InventarioId,
@@ -356,7 +356,7 @@ const updateLote = async (req, res) => {
     // 1. Detectar APERTURA_LOTE
     if (!oldLot.FechaApertura && FechaApertura) {
       await auditService.logEvent(currentUserId, 'APERTURA_LOTE', 'LOTE', id, {
-        mensaje: 'Se aperturó el lote de reactivo',
+        mensaje: 'Se aperturÃ³ el lote de reactivo',
         FechaApertura,
         UsuarioApertura
       });
@@ -368,7 +368,7 @@ const updateLote = async (req, res) => {
       (oldLot.PruebasTeoricas !== PruebasTeoricas)
     ) {
       await auditService.logEvent(currentUserId, 'MODIFICAR_INSERTO', 'LOTE', id, {
-        mensaje: 'Se alteró el rendimiento o consumo teórico del reactivo',
+        mensaje: 'Se alterÃ³ el rendimiento o consumo teÃ³rico del reactivo',
         ConsumoPorPruebaAnterior: oldLot.ConsumoPorPrueba,
         ConsumoPorPruebaNuevo: ConsumoPorPrueba,
         PruebasTeoricasAnterior: oldLot.PruebasTeoricas,
@@ -376,7 +376,7 @@ const updateLote = async (req, res) => {
       });
     }
 
-    // 3. Registrar trazabilidad estándar general de la edición
+    // 3. Registrar trazabilidad estÃ¡ndar general de la ediciÃ³n
     await auditService.logEvent(currentUserId, 'EDITAR', 'LOTE', id, { ...req.body });
 
     res.json({ 
@@ -405,7 +405,7 @@ const deleteLote = async (req, res) => {
       'ELIMINAR',
       'LOTE',
       id,
-      { accion: 'Eliminación permanente' }
+      { accion: 'EliminaciÃ³n permanente' }
     );
 
     res.json({ success: true, message: 'Lote eliminado correctamente' });

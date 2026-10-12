@@ -1,4 +1,6 @@
 import React from 'react';
+import { hasAccess, BIOANALISTA_HIDDEN_MENU_PATHS, ROLES } from '../../utils/rbac';
+
 import {
   Drawer,
   List,
@@ -21,7 +23,6 @@ import {
   Biotech as KitsPruebaIcon,
   ExpandLess,
   ExpandMore,
-  LocalOffer as DescuentoIcon,
   MonetizationOn as CostosIcon,
   SmartToy as SmartToyIcon,
   Radar as RadarIcon,
@@ -29,7 +30,10 @@ import {
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
 
+import { useAuth } from '../../contexts/AuthContext';
+
 const Sidebar = ({ open, onClose }) => {
+  const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [openSubmenu, setOpenSubmenu] = React.useState(false);
@@ -97,11 +101,6 @@ const Sidebar = ({ open, onClose }) => {
       path: '/costos' 
     },
     { 
-      text: 'Descuentos por Pruebas', 
-      icon: <DescuentoIcon />, 
-      path: '/descuentos' 
-    },
-    { 
       text: 'Reportes', 
       icon: <ReportIcon />, 
       path: '/reports' 
@@ -122,6 +121,18 @@ const Sidebar = ({ open, onClose }) => {
       path: '/audit-log' 
     },
   ];
+
+    const filteredMenuItems = menuItems.filter(item => {
+    if (!user) return true;
+    const userRole = (user.rol || user.role || '').toLowerCase();
+    if (userRole === ROLES.ADMIN) return true;
+    if (userRole === ROLES.BIOANALISTA) {
+      // Ocultar si la ruta coincide o empieza con alguna de las ocultas
+      const isHidden = BIOANALISTA_HIDDEN_MENU_PATHS.some(hiddenPath => item.path === hiddenPath || item.path.startsWith(hiddenPath + '/'));
+      return !isHidden;
+    }
+    return true;
+  });
 
   return (
     <Drawer
@@ -144,7 +155,7 @@ const Sidebar = ({ open, onClose }) => {
       <Toolbar />
       <Box sx={{ overflow: 'auto', mt: 2 }}>
         <List>
-          {menuItems.map((item) => (
+          {filteredMenuItems.map((item) => (
             <ListItem key={item.text} disablePadding>
               <ListItemButton
                 selected={location.pathname === item.path}
@@ -187,3 +198,4 @@ const Sidebar = ({ open, onClose }) => {
 };
 
 export default Sidebar;
+

@@ -32,6 +32,63 @@ async function handleOfflinePrompt(prompt) {
   }
 
   try {
+    
+    // ---------------------------------------------------------
+    // MÓDULO INGRESO DE PRODUCTOS Y RECEPCIÓN DE MERCANCÍA
+    // ---------------------------------------------------------
+    if (cleanPrompt.includes('ingreso') || cleanPrompt.includes('recepcion') || cleanPrompt.includes('recepciones') || cleanPrompt.includes('mercancia')) {
+      const data = await inventoryTools.getReceptionsReport({ limit: 30 });
+      let res = `### 🚚 Reporte Oficial de Ingreso de Productos y Recepción de Mercancía (LIMS CONTROLAB IA)\n\n`;
+      if (data.error) return { respuesta: res + data.error, fuente: 'Controlab Brain' };
+      if (!data.recepciones || data.recepciones.length === 0) {
+        return { respuesta: res + `❌ No se han encontrado registros de ingresos o recepciones en la base de datos.`, fuente: 'Controlab Brain' };
+      }
+
+      res += `**Resumen Ejecutivo:**\n`;
+      res += `- **Total Recepciones Registradas:** ${data.totalRecepciones}\n`;
+      res += `- **Total Cajas/Unidades Ingresadas:** ${data.totalCajas} Unidades\n`;
+      res += `- **Monto Total Ingresado:** **${data.totalIngresadoUSD.toFixed(2)} USD**\n\n`;
+      res += `#### 📋 Registro Detallado de Ingresos de Productos (Todos los Campos):\n\n`;
+
+      data.recepciones.forEach((r, idx) => {
+        res += `**${idx + 1}. ${r.nombre}**\n`;
+        res += `  - 🆔 **Código / REF**: [${r.codigo}] | REF: ${r.referencia}\n`;
+        res += `  - 🏷️ **Lote**: \`${r.lote}\` | 📅 **Fab**: ${r.fechaFabricacion} | ⏳ **Venc**: ${r.fechaVencimiento}\n`;
+        res += `  - 📦 **Cantidad & Presentación Comercial**: ${r.cantidad} | ${r.presentacion}\n`;
+        res += `  - 🚚 **Proveedor**: ${r.proveedor}\n`;
+        res += `  - 📄 **Documentos**: Factura: **${r.nroFactura}** | N.E.: **${r.notaEntrega}** | Guía/OC: **${r.guiaOC}**\n`;
+        res += `  - 🏥 **Almacén Destino**: ${r.almacen}\n`;
+        res += `  - 📊 **Código de Barras**: ${r.codigoBarra}\n`;
+        res += `  - 💵 **Precio Unitario**: ${r.precioUnitarioUSD.toFixed(2)} USD | 💰 **Total Línea**: **${r.totalUSD.toFixed(2)} USD**\n\n`;
+      });
+
+      if (data.totalRecepciones > 30) {
+        res += `*(Se muestran los 30 ingresos más recientes de un total de ${data.totalRecepciones})*\n`;
+      }
+
+      return { respuesta: res, fuente: 'Controlab Brain' };
+    }
+
+    // ---------------------------------------------------------
+    // MÓDULO REPORTE COMPLETO DE REACTIVO POR CAJA/LOTE (Urea, Colesterol, Calcio, etc.)
+    // ---------------------------------------------------------
+    if (cleanPrompt.includes('urea') || cleanPrompt.includes('colesterol') || cleanPrompt.includes('calcio') || cleanPrompt.includes('glicemia') || cleanPrompt.includes('tsh') || ((cleanPrompt.includes('reporte') || cleanPrompt.includes('balance') || cleanPrompt.includes('estado')) && !cleanPrompt.includes('sniffer') && !cleanPrompt.includes('auditoria') && !cleanPrompt.includes('red'))) {
+      let reactivoBuscado = 'urea';
+      if (cleanPrompt.includes('colest') || cleanPrompt.includes('chol')) reactivoBuscado = 'colesterol';
+      else if (cleanPrompt.includes('calcio') || cleanPrompt.includes('ca')) reactivoBuscado = 'calcio';
+      else if (cleanPrompt.includes('glicem') || cleanPrompt.includes('gluc')) reactivoBuscado = 'glicemia';
+      else if (cleanPrompt.includes('tsh')) reactivoBuscado = 'tsh';
+      else if (cleanPrompt.includes('urea')) reactivoBuscado = 'urea';
+      else {
+        const match = prompt.match(/(?:reporte|balance|estado|consumo)\s+(?:de\s+)?([a-zA-Z0-9\s]+)/i);
+        if (match && match[1]) reactivoBuscado = match[1].trim();
+      }
+
+      console.log(`[Agent Offline] Intención detectada: Reporte completo del reactivo "${reactivoBuscado}"`);
+      const reporteMarkdown = await snifferTools.snifferToolsFunctions.obtenerReporteCompletoReactivo({ nombreReactivo: reactivoBuscado });
+      return { respuesta: reporteMarkdown, fuente: 'Controlab Brain' };
+    }
+
     // ---------------------------------------------------------
     // MÓDULO 6: AUDITORÍA (SNIFFER)
     // ---------------------------------------------------------

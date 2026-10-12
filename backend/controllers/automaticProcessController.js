@@ -1,7 +1,7 @@
-const { executeStoredProcedure, executeQuery } = require('../config/database');
+﻿const { executeStoredProcedure, executeQuery } = require('../config/db');
 
 class AutomaticProcessController {
-    // Ejecutar proceso automático
+    // Ejecutar proceso automÃ¡tico
     async ejecutarProceso(req, res) {
         try {
             const { fecha } = req.body;
@@ -37,7 +37,7 @@ class AutomaticProcessController {
         }
     }
 
-    // Guardar vinculación
+    // Guardar vinculaciÃ³n
     async saveVinculacion(req, res) {
         try {
             const { examen_nombre, kit_codigo, usuario } = req.body;
@@ -56,7 +56,7 @@ class AutomaticProcessController {
                 { name: 'usuario', value: usuario }
             ]);
 
-            res.json({ success: true, message: 'Vinculación guardada' });
+            res.json({ success: true, message: 'VinculaciÃ³n guardada' });
         } catch (error) {
             res.status(500).json({ error: error.message });
         }
@@ -77,3 +77,4 @@ class AutomaticProcessController {
 }
 
 module.exports = new AutomaticProcessController();
+

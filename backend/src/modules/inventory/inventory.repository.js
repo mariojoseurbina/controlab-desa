@@ -1,5 +1,5 @@
-const prisma = require('../../core/prisma');
-const { executeQuery } = require('../../../config/database');
+﻿const prisma = require('../../core/prisma');
+const { executeQuery } = require('../../../config/db');
 
 let columnsVerified = false;
 
@@ -342,3 +342,4 @@ class InventoryRepository {
 }
 
 module.exports = new InventoryRepository();
+

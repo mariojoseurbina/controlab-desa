@@ -1,8 +1,8 @@
-// routes/consumoRealRoutes.js
+﻿// routes/consumoRealRoutes.js
 const express = require('express');
 const router = express.Router();
 const SistemaConsumoReal = require('../controllers/consumoController');
-const { getPool } = require('../config/database');
+const { getPool } = require('../config/db');
 
 router.post('/procesar-examenes-pendientes', async (req, res) => {
     try {
@@ -29,7 +29,7 @@ router.post('/procesar-examenes-pendientes', async (req, res) => {
             });
         }
         
-        // Procesar exámenes
+        // Procesar exÃ¡menes
         const resultado = await sistema.procesarTodosExamenesPendientes();
         
         res.json({
@@ -83,7 +83,7 @@ router.get('/estado-lotes/:reactivoId?', async (req, res) => {
                 (lr.CantidadActual / NULLIF(lr.ConsumoPorPrueba, 0)) as pruebas_posibles,
                 CASE 
                     WHEN lr.CantidadActual <= 0 THEN 'AGOTADO'
-                    WHEN lr.CantidadActual <= (lr.ConsumoPorPrueba * 5) THEN 'CRÍTICO'
+                    WHEN lr.CantidadActual <= (lr.ConsumoPorPrueba * 5) THEN 'CRÃTICO'
                     WHEN lr.CantidadActual <= (lr.ConsumoPorPrueba * 15) THEN 'BAJO'
                     WHEN DATEDIFF(day, GETDATE(), lr.FechaVencimiento) <= 30 THEN 'POR VENCER'
                     ELSE 'NORMAL'

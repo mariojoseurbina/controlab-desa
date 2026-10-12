@@ -1,7 +1,7 @@
-const { executeQuery } = require('./config/database');
+﻿const { executeQuery } = require('./config/db');
 
 async function migrateBlueColumns() {
-  console.log('🔄 Verificando y agregando columnas faltantes en items_inventario (ControlabIA_Desa)...');
+  console.log('ðŸ”„ Verificando y agregando columnas faltantes en items_inventario (ControlabIA_Desa)...');
 
   const columnsToAdd = [
     { name: 'codigo_barra', type: 'NVARCHAR(100) NULL' },
@@ -32,24 +32,25 @@ async function migrateBlueColumns() {
     `);
 
     const existingCols = existingColsRes.map(c => c.COLUMN_NAME.toLowerCase());
-    console.log(`📋 Columnas actuales en items_inventario: ${existingCols.length}`);
+    console.log(`ðŸ“‹ Columnas actuales en items_inventario: ${existingCols.length}`);
 
     for (const col of columnsToAdd) {
       if (!existingCols.includes(col.name.toLowerCase())) {
-        console.log(`➕ Agregando columna faltante: ${col.name}...`);
+        console.log(`âž• Agregando columna faltante: ${col.name}...`);
         await executeQuery(`ALTER TABLE items_inventario ADD ${col.name} ${col.type};`);
-        console.log(`✅ Columna ${col.name} agregada exitosamente.`);
+        console.log(`âœ… Columna ${col.name} agregada exitosamente.`);
       } else {
-        console.log(`ℹ️ Columna ${col.name} ya está en la tabla.`);
+        console.log(`â„¹ï¸ Columna ${col.name} ya estÃ¡ en la tabla.`);
       }
     }
 
-    console.log('🎉 Migración completada con éxito en SQL Server!');
+    console.log('ðŸŽ‰ MigraciÃ³n completada con Ã©xito en SQL Server!');
     process.exit(0);
   } catch (err) {
-    console.error('❌ Error migrando columnas:', err.message);
+    console.error('âŒ Error migrando columnas:', err.message);
     process.exit(1);
   }
 }
 
 migrateBlueColumns();
+

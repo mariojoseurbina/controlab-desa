@@ -1,4 +1,4 @@
-const { executeQuery } = require('./config/database');
+﻿const { executeQuery } = require('./config/db');
 
 async function checkInfolab() {
     try {
@@ -42,3 +42,4 @@ async function checkInfolab() {
 }
 
 checkInfolab();
+

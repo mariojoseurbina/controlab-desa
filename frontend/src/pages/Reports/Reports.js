@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import {
   Box, Paper, Typography, Button, Grid, Table, TableBody, TableCell, 
   TableContainer, TableHead, TableRow, Chip, CircularProgress, Card, CardActionArea,
@@ -13,14 +13,20 @@ import {
   TableChart as ExcelIcon,
   AttachMoney as MoneyIcon,
   TrendingUp as TrendingIcon,
-  ShowChart as MarginIcon
+  ShowChart as MarginIcon,
+  Science as ScienceIcon,
+  Warehouse as WarehouseIcon
 } from '@mui/icons-material';
 import { useSnackbar } from 'notistack';
+import { useAuth } from '../../contexts/AuthContext';
+import { ROLES } from '../../utils/rbac';
 import * as XLSX from 'xlsx';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
 const REPORTS_CONFIG = [
+  { id: 'stock-cajas-almacenes', title: 'Stock Cajas por Almacén', icon: <WarehouseIcon fontSize="large" />, color: '#0284c7', endpoint: '/reports/quick/stock-cajas-almacenes' },
+  { id: 'rendimiento-cajas', title: 'Rendimiento Cajas & Reactivos', icon: <ScienceIcon fontSize="large" />, color: '#059669', endpoint: '/reports/quick/rendimiento-cajas' },
   { id: 'stock-critico', title: 'Stock Crítico', icon: <WarnIcon fontSize="large" />, color: '#ef4444', endpoint: '/reports/quick/stock-critico' },
   { id: 'vencimientos', title: 'Próximos a Vencer', icon: <StockIcon fontSize="large" />, color: '#f59e0b', endpoint: '/reports/quick/vencimientos' },
   { id: 'movimientos', title: 'Kárdex Mensual', icon: <MovementIcon fontSize="large" />, color: '#3b82f6', endpoint: '/reports/quick/movimientos' },
@@ -29,10 +35,13 @@ const REPORTS_CONFIG = [
   { id: 'valor-financiero', title: 'Valor Financiero', icon: <MoneyIcon fontSize="large" />, color: '#8b5cf6', endpoint: '/reports/quick/valor-financiero' },
   { id: 'top-consumos', title: 'Top Consumos', icon: <TrendingIcon fontSize="large" />, color: '#ec4899', endpoint: '/reports/quick/top-consumos' },
   { id: 'rentabilidad', title: 'Márgenes de Pruebas', icon: <MarginIcon fontSize="large" />, color: '#14b8a6', endpoint: '/reports/quick/rentabilidad' },
-  { id: 'descuentos-hoy', title: 'Consumo y Stock de Reactivos', icon: <StockIcon fontSize="large" />, color: '#8b5cf6', endpoint: '/reports/quick/descuentos-hoy' }
+  { id: 'descuentos-hoy', title: 'Consumo y Stock de Reactivos', icon: <StockIcon fontSize="large" />, color: '#8b5cf6', endpoint: '/reports/quick/descuentos-hoy' },
+  { id: 'auditoria-lotes', title: 'Auditoría Global de Lotes', icon: <ScienceIcon fontSize="large" />, color: '#f43f5e', endpoint: '/audit/lotes-global' }
+  , { id: 'proyeccion-vencimientos', title: 'Proyección Gerencial de Vencimientos', icon: <MoneyIcon fontSize="large" />, color: '#f43f5e', endpoint: '/reports/quick/proyeccion-vencimientos' }
 ];
 
 const Reports = () => {
+  const { user } = useAuth();
   const [activeReport, setActiveReport] = useState(null);
   const [reportData, setReportData] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -123,6 +132,16 @@ const Reports = () => {
     ));
   };
 
+  const filteredReports = REPORTS_CONFIG.filter(report => {
+    if (!user) return true;
+    const userRole = (user.rol || user.role || '').toLowerCase();
+    if (userRole === ROLES.ADMIN) return true;
+    if (userRole === ROLES.BIOANALISTA) {
+      return report.id === 'stock-cajas-almacenes' || report.id === 'vencimientos';
+    }
+    return true;
+  });
+
   return (
     <Box sx={{ p: { xs: 2, md: 4 }, backgroundColor: '#f8fafc', minHeight: 'calc(100vh - 64px)' }}>
       {/* ENCABEZADO */}
@@ -166,7 +185,7 @@ const Reports = () => {
 
       {/* TARJETAS DE SELECCIÓN */}
       <Grid container spacing={3} sx={{ mb: 5 }}>
-        {REPORTS_CONFIG.map((rep) => (
+        {filteredReports.map((rep) => (
           <Grid item xs={12} sm={6} md={4} lg={2.4} key={rep.id}>
             <Card 
               elevation={activeReport?.id === rep.id ? 8 : 1}
@@ -202,7 +221,7 @@ const Reports = () => {
           </Box>
         ) : reportData.length === 0 ? (
           <Box sx={{ p: 10, textAlign: 'center' }}>
-            <Typography variant="h6" color="text.secondary">✅ No se encontraron registros para este reporte.</Typography>
+            <Typography variant="h6" color="text.secondary">🔍 No se encontraron registros para este reporte.</Typography>
           </Box>
         ) : (
           <>
