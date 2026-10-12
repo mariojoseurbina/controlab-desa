@@ -6,7 +6,7 @@ echo   CONTROLAB IA - DESCARGAR ACTUALIZACION EN EL CLIENTE
 echo ========================================================
 cd /d "%~dp0"
 
-:: Usar el motor Git integrado
+:: Usar el motor Git integrado o del sistema
 set "GIT_CMD=%~dp0git\cmd\git.exe"
 if not exist "%GIT_CMD%" set "GIT_CMD=git"
 
@@ -14,14 +14,20 @@ echo 1. Descargando las ultimas modificaciones desde GitHub...
 "%GIT_CMD%" pull origin main
 
 echo.
-echo 2. Actualizando esquema de base de datos...
-if exist "backend\run_prisma_raw_migration.js" (
-  cd backend
-  node run_prisma_raw_migration.js
+echo 2. Compilando nueva version del Frontend (React)...
+if exist "frontend\package.json" (
+  cd frontend
+  call npm run build
   cd ..
 )
 
+echo.
+echo 3. Reiniciando servicio de backend...
+if exist "Reiniciar_Controlab.bat" (
+  call Reiniciar_Controlab.bat
+)
+
 echo ========================================================
-echo   Â¡EL SISTEMA HA SIDO ACTUALIZADO EN EL CLIENTE!
+echo   ¡EL SISTEMA HA SIDO ACTUALIZADO EN EL CLIENTE!
 echo ========================================================
 pause
