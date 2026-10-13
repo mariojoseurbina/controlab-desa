@@ -43,4 +43,10 @@ SET i.stock_actual = ISNULL((SELECT SUM(s.stock_actual) FROM stock_por_almacen s
 FROM items_inventario i;
 PRINT 'Sincronizacion de stock global items_inventario ejecutada correctamente.';
 
+-- 5. Correccion de Marca TINSENC -> TISENC para autoanalizador WONDFO ACCRE
+UPDATE items_inventario
+SET marca = 'TISENC'
+WHERE equipo_asociado = 'WONDFO ACCRE' AND marca = 'TINSENC';
+PRINT 'Correccion de marca TISENC para WONDFO ACCRE ejecutada correctamente.';
+
 PRINT 'Actualizacion de esquema y paridad completada con exito.';

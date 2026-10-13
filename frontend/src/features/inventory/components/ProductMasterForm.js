@@ -171,7 +171,7 @@ const ProductMasterForm = ({ initialData, onSubmit, onCancel, isSubmitting }) =>
     return `Identificador único del producto`;
   };
 
-  const marcasPredefinidas = ['MINDRAY', 'WIENER LAB', 'WIENER LAB / MINDRAY', 'TINSENC', 'CROMATEST', 'ROCHE', 'SYSMEX', 'OTRO / GENÉRICO'];
+  const marcasPredefinidas = ['MINDRAY', 'WIENER LAB', 'WIENER LAB / MINDRAY', 'TISENC', 'CROMATEST', 'ROCHE', 'SYSMEX', 'OTRO / GENÉRICO'];
   const marcaOptions = Array.from(new Set([...marcasPredefinidas, ...customMarcas.map(m => m.trim().toUpperCase()), ...(formData.marca ? [formData.marca.trim().toUpperCase()] : [])]));
 
   const unidadesNegocioPredefinidas = [
