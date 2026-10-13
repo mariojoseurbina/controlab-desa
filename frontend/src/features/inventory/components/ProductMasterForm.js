@@ -27,6 +27,24 @@ const getInitialFormData = (data) => {
     return '';
   };
 
+  const getCleanVol = (val) => {
+    if (val === undefined || val === null) return '';
+    const s = String(val).trim();
+    if (s === '' || s === '0' || s === '0.00' || s === '0.0000') return '';
+    return s;
+  };
+
+  const getNormalizedCategoria = (cat) => {
+    if (!cat) return 'Reactivo';
+    const c = String(cat).trim().toUpperCase();
+    if (c.includes('CONSUMIBLE')) return 'Consumible';
+    if (c.includes('CALIBRADOR')) return 'Calibrador';
+    if (c.includes('CONTROL')) return 'Control';
+    if (c.includes('SOLUCION')) return 'Solucion';
+    if (c.includes('INSUMO')) return 'Insumo General';
+    return 'Reactivo';
+  };
+
   if (!data) {
     return {
       id: null,
@@ -38,7 +56,7 @@ const getInitialFormData = (data) => {
       nombre: '',
       descripcion: '',
       marca: 'WIENER LAB',
-      categoria: 'REACTIVO',
+      categoria: 'Reactivo',
       unidad_negocio: 'LABORATORIO CLINICO',
       equipo_asociado: '(NINGUNO)',
       grupo: '',
@@ -62,8 +80,8 @@ const getInitialFormData = (data) => {
     };
   }
 
-  const volFrasco = gv(data.volumen_por_frasco, data.volumen_por_frasco_ml);
-  const volMuerto = gv(data.volumen_muerto_residual, data.volumen_muerto_frasco_ml);
+  const volFrasco = getCleanVol(data.volumen_por_frasco) || getCleanVol(data.volumen_por_frasco_ml);
+  const volMuerto = getCleanVol(data.volumen_muerto_residual) || getCleanVol(data.volumen_muerto_frasco_ml);
   const consumoInd = gv(data.consumo_indicado);
   const frascosCaja = gv(data.frascos_por_caja, '1');
 
@@ -83,6 +101,8 @@ const getInitialFormData = (data) => {
   }
   if ((!volCaja || volCaja === '0') && numVol > 0) {
     volCaja = String((numVol * numFrascos).toFixed(2));
+  } else if (!numVol || numVol <= 0) {
+    volCaja = '';
   }
 
   return {
@@ -95,7 +115,7 @@ const getInitialFormData = (data) => {
     nombre: gv(data.nombre),
     descripcion: gv(data.descripcion),
     marca: gv(data.marca, 'WIENER LAB').toUpperCase(),
-    categoria: gv(data.categoria, 'REACTIVO').toUpperCase(),
+    categoria: getNormalizedCategoria(data.categoria),
     unidad_negocio: gv(data.unidad_negocio, 'LABORATORIO CLINICO'),
     equipo_asociado: gv(data.equipo_asociado, '(NINGUNO)').toUpperCase(),
     grupo: gv(data.grupo),
@@ -229,35 +249,38 @@ const ProductMasterForm = ({ initialData, onSubmit, onCancel, isSubmitting }) =>
     const consumoPrueba = parseLocalFloat(formData.consumo_indicado);
     const frascosCaja = parseLocalFloat(formData.frascos_por_caja) || 1;
 
-    let calcPruebasFrasco = formData.pruebas_teoricas_frasco;
-    let calcPruebasCaja = formData.pruebas_teoricas_caja;
-    let calcVolCaja = formData.volumen_total_caja;
-
-    if (volFrasco > 0 && consumoPrueba > 0) {
-      calcPruebasFrasco = String(Math.floor(volFrasco / consumoPrueba));
-      calcPruebasCaja = String(Math.floor((volFrasco / consumoPrueba) * frascosCaja));
-    }
+    let calcPruebasFrasco = '';
+    let calcPruebasCaja = '';
+    let calcVolCaja = '';
 
     if (volFrasco > 0) {
       calcVolCaja = String((volFrasco * frascosCaja).toFixed(2));
+      if (consumoPrueba > 0) {
+        calcPruebasFrasco = String(Math.floor(volFrasco / consumoPrueba));
+        calcPruebasCaja = String(Math.floor((volFrasco / consumoPrueba) * frascosCaja));
+      } else {
+        calcPruebasFrasco = formData.pruebas_teoricas_frasco || '';
+        calcPruebasCaja = formData.pruebas_teoricas_caja || '';
+      }
+    } else {
+      calcVolCaja = '';
+      calcPruebasFrasco = formData.pruebas_teoricas_frasco || '';
+      calcPruebasCaja = formData.pruebas_teoricas_caja || '';
     }
 
-    if (volFrasco > 0 && consumoPrueba > 0) {
-      setFormData(prev => {
-        if (
-          prev.pruebas_teoricas_frasco === calcPruebasFrasco &&
-          prev.pruebas_teoricas_caja === calcPruebasCaja &&
-          prev.volumen_total_caja === calcVolCaja
-        ) {
-          return prev;
-        }
-        return {
-          ...prev,
-          pruebas_teoricas_frasco: calcPruebasFrasco,
-          pruebas_teoricas_caja: calcPruebasCaja,
-          volumen_total_caja: calcVolCaja
-        };
-      });
+    if (
+      formData.volumen_total_caja !== calcVolCaja ||
+      (consumoPrueba > 0 && volFrasco > 0 && (
+        formData.pruebas_teoricas_frasco !== calcPruebasFrasco ||
+        formData.pruebas_teoricas_caja !== calcPruebasCaja
+      ))
+    ) {
+      setFormData(prev => ({
+        ...prev,
+        pruebas_teoricas_frasco: calcPruebasFrasco,
+        pruebas_teoricas_caja: calcPruebasCaja,
+        volumen_total_caja: calcVolCaja
+      }));
     }
   }, [formData.volumen_por_frasco, formData.consumo_indicado, formData.frascos_por_caja]);
 

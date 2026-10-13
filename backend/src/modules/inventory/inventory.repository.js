@@ -116,7 +116,7 @@ class InventoryRepository {
     const isIva = aplica_iva === true || aplica_iva === 'true' || aplica_iva === 'SI' ? 1 : 0;
 
     const valFrascosCaja = safeFloat(frascos_por_caja, 1);
-    const valVolFrasco = safeFloat(volumen_por_frasco || volumen_por_frasco_ml, null);
+    const valVolFrasco = safeFloat(volumen_por_frasco, null);
     const valVolMuerto = safeFloat(volumen_muerto_residual || volumen_muerto_frasco_ml, null);
     const valConsumoInd = safeFloat(consumo_indicado, null);
 
@@ -139,7 +139,7 @@ class InventoryRepository {
         unidad_manejo, cantidad_unidades, unidad_test, costo_unitario_manejo, aplica_iva, porcentaje_utilidad,
         stock_promedio, stock_maximo, unidad_negocio, equipo_asociado,
         consumo_indicado, consumo_real, desviacion_consumo,
-        frascos_por_caja, volumen_por_frasco, volumen_muerto_residual, pruebas_teoricas_frasco, pruebas_teoricas_caja, volumen_total_caja
+        frascos_por_caja, volumen_por_frasco, volumen_por_frasco_ml, volumen_muerto_residual, volumen_muerto_frasco_ml, pruebas_teoricas_frasco, pruebas_teoricas_caja, volumen_total_caja
       ) 
       OUTPUT INSERTED.*
       VALUES (
@@ -150,7 +150,7 @@ class InventoryRepository {
         @unidad_manejo, @qtyUnidades, @valUnidadTest, @costo_unitario_manejo, @isIva, @porcentaje_utilidad,
         @stock_promedio, @stock_maximo, @unidad_negocio, @equipo_asociado,
         @consumo_indicado, @consumo_real, @desviacion_consumo,
-        @valFrascosCaja, @valVolFrasco, @valVolMuerto, @valPruebasFrasco, @valPruebasCaja, @valVolTotalCaja
+        @valFrascosCaja, @valVolFrasco, @valVolFrasco, @valVolMuerto, @valVolMuerto, @valPruebasFrasco, @valPruebasCaja, @valVolTotalCaja
       )
     `;
 
@@ -221,7 +221,7 @@ class InventoryRepository {
     const valUnidadTest = safeFloat(unidad_test, 180);
 
     const valFrascosCaja = safeFloat(frascos_por_caja, 1);
-    const valVolFrasco = safeFloat(volumen_por_frasco || volumen_por_frasco_ml, null);
+    const valVolFrasco = safeFloat(volumen_por_frasco, null);
     const valVolMuerto = safeFloat(volumen_muerto_residual || volumen_muerto_frasco_ml, null);
     const valConsumoInd = safeFloat(consumo_indicado, null);
 
