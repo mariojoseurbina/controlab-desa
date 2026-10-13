@@ -332,7 +332,45 @@ class CajasService {
       fecha_apertura_frasco_1: new Date().toISOString()
     };
 
-    const updated = await prisma.$transaction(async (tx) => {
+   const updated = await prisma.$transaction(async (tx) => {
+      // 0. REGLA ESTRICTA CONTROLAB: SUSTITUCION Y EXCLUSIVIDAD DE CANAL POR ANALIZADOR
+      // Si existia una caja previa activa del mismo reactivo en este analizador,
+      // se cierra automaticamente (marcando como 'Agotado') para evitar cajas fantasmas.
+      const lotesPreviosActivos = await tx.lotesReactivos.findMany({
+        where: {
+          InventarioId: lote.InventarioId,
+          Estado: 'Activo',
+          FechaApertura: { not: null },
+          Id: { not: lote.Id }
+        }
+      });
+
+      for (const lotePrevio of lotesPreviosActivos) {
+        let metaPrev = {};
+        try { metaPrev = JSON.parse(lotePrevio.CondicionesEspeciales || '{}'); } catch (_) {}
+        const eqPrevio = metaPrev.equipo_asociado || defaultEquipo;
+
+        if (eqPrevio.toLowerCase().trim() === equipoFinal.toLowerCase().trim()) {
+          await tx.lotesReactivos.update({
+            where: { Id: lotePrevio.Id },
+            data: { Estado: 'Agotado' }
+          });
+
+          await tx.movimientoInventario.create({
+            data: {
+              item_id: lotePrevio.InventarioId,
+              tipo_movimiento: 'SUSTITUCION_LOTE',
+              cantidad: 0,
+              stock_anterior: Number(lotePrevio.CantidadActual || 0),
+              stock_nuevo: 0,
+              motivo: normalizarTextoMayusculas('CIERRE POR SUSTITUCION: APERTURA DE NUEVO LOTE ' + lote.NumeroLote + ' EN ' + equipoFinal),
+              referencia: normalizarTextoMayusculas('LOTE ANTERIOR: ' + lotePrevio.NumeroLote + ' CERRADO POR ' + usuarioFinal),
+              creado_por: 1
+            }
+          });
+        }
+      }
+
       // 1. Activar lote y registrar apertura de la caja con volumen total en mL y pruebas teÃ³ricas completas
       const loteActualizado = await tx.lotesReactivos.update({
         where: { Id: lote.Id },

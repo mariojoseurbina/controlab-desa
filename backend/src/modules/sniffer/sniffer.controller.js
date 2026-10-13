@@ -285,7 +285,7 @@ exports.webhookSniffer = async (req, res) => {
                     // CantidadActual removido para permitir excedente,
                     CondicionesEspeciales: { contains: dev_name }
                 },
-                orderBy: { FechaVencimiento: 'asc' }
+                orderBy: [{ FechaApertura: 'desc' }, { Id: 'desc' }]
             });
 
             // 2. Si no hay lote específico por equipo, buscar cualquier lote abierto por el bioanalista (FEFO)
@@ -297,7 +297,7 @@ exports.webhookSniffer = async (req, res) => {
                         FechaApertura: { not: null },
                         // CantidadActual removido para permitir excedente
                     },
-                    orderBy: { FechaVencimiento: 'asc' }
+                    orderBy: [{ FechaApertura: 'desc' }, { Id: 'desc' }]
                 });
             }
 
