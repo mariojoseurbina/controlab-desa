@@ -647,27 +647,46 @@ const TransferModalForm = memo(({ open, onClose, products, stockSummary, onProdu
     cantidad: '',
     almacen_origen_id: 1,
     almacen_destino_id: 2,
-    motivo: 'Suministro operativo a laboratorio',
+    motivo: 'SUMINISTRO OPERATIVO A LABORATORIO',
     referencia: `TRANS-${Date.now().toString().slice(-6)}`
   });
 
+  // LOTES DISPONIBLES EN ALMACEN CENTRAL
+  const [availableLots, setAvailableLots] = useState([]);
+  const [loadingLots, setLoadingLots] = useState(false);
+  const [selectedLots, setSelectedLots] = useState({});
+
   useEffect(() => {
     if (open) {
+      const initRef = `TRANS-${Date.now().toString().slice(-6)}`;
+      setSelectedLots({});
       if (onProductSelect) {
-        const found = (products || []).find(p => p.id === onProductSelect.id || p.codigo === onProductSelect.codigo) || onProductSelect;
-        const presentacionFinal = found.presentacion || onProductSelect.presentacion || onProductSelect.item_presentacion || '';
+        const targetId = onProductSelect.id || onProductSelect.item_id;
+        const found = (products || []).find(p => Number(p.id) === Number(targetId) || p.codigo === onProductSelect.codigo) || onProductSelect;
+        const summary = (stockSummary || []).find(s => Number(s.item_id) === Number(targetId));
+        const presentacionFinal = found.presentacion || onProductSelect.presentacion || onProductSelect.item_presentacion || summary?.item_presentacion || '';
+        const equipoFinal = found.equipo_asociado || onProductSelect.equipo_asociado || summary?.item_equipo || '';
+        const categoriaFinal = found.categoria || onProductSelect.item_categoria || onProductSelect.categoria || summary?.item_categoria || '';
+        const unidadFinal = onProductSelect.unidad || onProductSelect.unidad_manejo || summary?.unidad_manejo || 'Cajas';
+
         setSelectedProduct({
           ...found,
+          id: targetId,
+          item_id: targetId,
           presentacion: presentacionFinal,
-          equipo_asociado: found.equipo_asociado || onProductSelect.equipo_asociado
+          equipo_asociado: equipoFinal,
+          item_categoria: categoriaFinal,
+          categoria: categoriaFinal,
+          unidad: unidadFinal,
+          unidad_manejo: unidadFinal
         });
         setTransferData({
-          item_id: found.id || found.item_id,
+          item_id: targetId,
           cantidad: '',
           almacen_origen_id: 1,
           almacen_destino_id: 2,
-          motivo: 'Suministro operativo a laboratorio',
-          referencia: `TRANS-${Date.now().toString().slice(-6)}`
+          motivo: 'SUMINISTRO OPERATIVO A LABORATORIO',
+          referencia: initRef
         });
       } else {
         setSelectedProduct(null);
@@ -676,17 +695,12 @@ const TransferModalForm = memo(({ open, onClose, products, stockSummary, onProdu
           cantidad: '',
           almacen_origen_id: 1,
           almacen_destino_id: 2,
-          motivo: 'Suministro operativo a laboratorio',
-          referencia: `TRANS-${Date.now().toString().slice(-6)}`
+          motivo: 'SUMINISTRO OPERATIVO A LABORATORIO',
+          referencia: initRef
         });
       }
     }
-  }, [open, onProductSelect, products]);
-
-  // LOTES DISPONIBLES EN ALMACEN CENTRAL
-  const [availableLots, setAvailableLots] = useState([]);
-  const [loadingLots, setLoadingLots] = useState(false);
-  const [selectedLots, setSelectedLots] = useState({});
+  }, [open, onProductSelect, products, stockSummary]);
 
   useEffect(() => {
     const targetId = selectedProduct ? (selectedProduct.id || selectedProduct.item_id) : transferData.item_id;
@@ -761,7 +775,7 @@ const TransferModalForm = memo(({ open, onClose, products, stockSummary, onProdu
   const availableStockOrigen = useMemo(() => {
     if (!selectedProduct) return null;
     const targetId = selectedProduct.id || selectedProduct.item_id;
-    const summaryItem = (stockSummary || []).find(s => s.item_id === targetId);
+    const summaryItem = (stockSummary || []).find(s => Number(s.item_id) === Number(targetId));
     if (!summaryItem) return 0;
     const origenId = parseInt(transferData.almacen_origen_id, 10);
     if (origenId === 1) {
@@ -772,13 +786,16 @@ const TransferModalForm = memo(({ open, onClose, products, stockSummary, onProdu
     return 0;
   }, [selectedProduct, transferData.almacen_origen_id, stockSummary]);
 
-  // BIFURCACION LOGICA EN FRONTEND
+  // BIFURCACION LOGICA EN FRONTEND (ROBUSTA E INSENSIBLE A MAYÚSCULAS)
   const esFamiliaA = useMemo(() => {
-    if (!selectedProduct) return false;
-    const cat = selectedProduct.item_categoria || selectedProduct.categoria || '';
-    const unidad = selectedProduct.unidad || selectedProduct.unidad_manejo || '';
-    return ['Reactivo', 'Calibrador', 'Control', 'Reactivos', 'Calibradores', 'Controles'].includes(cat) || unidad === 'Cajas';
-  }, [selectedProduct]);
+    if (!selectedProduct) return true;
+    const cat = normalizarTextoMayusculas(selectedProduct.item_categoria || selectedProduct.categoria || '');
+    const unidad = normalizarTextoMayusculas(selectedProduct.unidad || selectedProduct.unidad_manejo || '');
+    const isCatReactivo = cat.includes('REACTIV') || cat.includes('CALIBRAD') || cat.includes('CONTROL') || cat.includes('INSUMO') || cat.includes('QUIMICA');
+    const isUnidadCaja = unidad.includes('CAJA');
+    const hasLots = availableLots && availableLots.length > 0;
+    return isCatReactivo || isUnidadCaja || hasLots || (!cat && !unidad);
+  }, [selectedProduct, availableLots]);
 
   const unidadDisplay = obtenerUnidadManejo(selectedProduct);
 
@@ -786,6 +803,36 @@ const TransferModalForm = memo(({ open, onClose, products, stockSummary, onProdu
   const isZeroStock = selectedProduct !== null && availableStockOrigen !== null && availableStockOrigen <= 0;
   const isExceeded = selectedProduct !== null && availableStockOrigen !== null && cantidadNum > availableStockOrigen;
   const origenNombre = parseInt(transferData.almacen_origen_id, 10) === 1 ? 'Almacén Central' : 'Almacén Laboratorio';
+
+  const handleProductSelectChange = (val) => {
+    if (val) {
+      const targetId = val.id || val.item_id;
+      const summary = (stockSummary || []).find(s => Number(s.item_id) === Number(targetId));
+      const presentacionFinal = val.presentacion || val.item_presentacion || summary?.item_presentacion || '';
+      const equipoFinal = val.equipo_asociado || val.item_equipo || summary?.item_equipo || '';
+      const categoriaFinal = val.categoria || val.item_categoria || summary?.item_categoria || '';
+      const unidadFinal = val.unidad || val.unidad_manejo || summary?.unidad_manejo || 'Cajas';
+
+      setSelectedProduct({
+        ...val,
+        id: targetId,
+        item_id: targetId,
+        presentacion: presentacionFinal,
+        equipo_asociado: equipoFinal,
+        item_categoria: categoriaFinal,
+        categoria: categoriaFinal,
+        unidad: unidadFinal,
+        unidad_manejo: unidadFinal
+      });
+      setTransferData(prev => ({ ...prev, item_id: targetId, cantidad: '' }));
+      setSelectedLots({});
+    } else {
+      setSelectedProduct(null);
+      setTransferData(prev => ({ ...prev, item_id: '', cantidad: '' }));
+      setSelectedLots({});
+      setAvailableLots([]);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -825,7 +872,7 @@ const TransferModalForm = memo(({ open, onClose, products, stockSummary, onProdu
         cantidad: parseFloat(transferData.cantidad),
         almacen_origen_id: parseInt(transferData.almacen_origen_id, 10),
         almacen_destino_id: parseInt(transferData.almacen_destino_id, 10),
-        motivo: transferData.motivo || 'Transferencia entre depósitos',
+        motivo: transferData.motivo || 'SUMINISTRO OPERATIVO A LABORATORIO',
         referencia: transferData.referencia || `TRANS-${Date.now().toString().slice(-6)}`,
         lotes_transferir: lotesPayload.length > 0 ? lotesPayload : undefined
       };
@@ -885,10 +932,7 @@ const TransferModalForm = memo(({ open, onClose, products, stockSummary, onProdu
                 isOptionEqualToValue={(option, val) => !val || option.id === val.id || option.codigo === val.codigo}
                 getOptionLabel={(option) => `[${option.codigo}] ${option.nombre} ${option.presentacion ? ' • (' + option.presentacion + ')' : (option.referencia_abreviada ? ' (REF: ' + option.referencia_abreviada + ')' : '')}`}
                 value={selectedProduct}
-                onChange={(e, val) => {
-                  setSelectedProduct(val);
-                  if (val) setTransferData(prev => ({ ...prev, item_id: val.id }));
-                }}
+                onChange={(e, val) => handleProductSelectChange(val)}
                 renderInput={(params) => (
                   <TextField
                     {...params}
@@ -989,7 +1033,7 @@ const TransferModalForm = memo(({ open, onClose, products, stockSummary, onProdu
             )}
 
             {/* SELECCIÓN Y ASIGNACIÓN DE LOTES (CUANDO ORIGEN ES ALMACÉN CENTRAL) */}
-            {esFamiliaA && parseInt(transferData.almacen_origen_id, 10) === 1 && selectedProduct && (
+            {parseInt(transferData.almacen_origen_id, 10) === 1 && (
               <Grid item xs={12}>
                 <Paper
                   elevation={0}
@@ -1000,7 +1044,7 @@ const TransferModalForm = memo(({ open, onClose, products, stockSummary, onProdu
                     borderRadius: 3
                   }}
                 >
-                  <Box display="flex" alignItems="center" justifyContent="space-between" mb={1.5}>
+                  <Box display="flex" alignItems="center" justifyContent="space-between" mb={selectedProduct ? 1.5 : 0}>
                     <Box display="flex" alignItems="center" gap={1}>
                       <InventoryIcon sx={{ color: '#0284c7', fontSize: 22 }} />
                       <Typography variant="subtitle2" fontWeight={800} color="#0f172a">
@@ -1010,13 +1054,17 @@ const TransferModalForm = memo(({ open, onClose, products, stockSummary, onProdu
                     {loadingLots && <CircularProgress size={18} />}
                   </Box>
 
-                  {loadingLots ? (
-                    <Typography variant="caption" color="text.secondary">
+                  {!selectedProduct ? (
+                    <Alert severity="info" sx={{ mt: 1.5, py: 1, borderRadius: 2, bgcolor: '#f0f9ff', color: '#0369a1', border: '1px solid #bae6fd' }}>
+                      🔍 Selecciona un producto en el buscador superior para visualizar y asignar sus lotes disponibles para traslado.
+                    </Alert>
+                  ) : loadingLots ? (
+                    <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>
                       Consultando lotes disponibles en Almacén Central...
                     </Typography>
                   ) : availableLots.length === 0 ? (
-                    <Alert severity="warning" sx={{ py: 0.5, borderRadius: 2 }}>
-                      No se encontraron registros de lotes específicos para este producto en Central. Puede ingresar la cantidad manualmente a continuación.
+                    <Alert severity="warning" sx={{ mt: 1, py: 0.8, borderRadius: 2 }}>
+                      No se encontraron registros de lotes específicos con stock activo para este producto en Central. Puede ingresar la cantidad manualmente a continuación.
                     </Alert>
                   ) : (
                     <>
@@ -1132,20 +1180,18 @@ const TransferModalForm = memo(({ open, onClose, products, stockSummary, onProdu
             </Grid>
 
             {/* BANNER DINÁMICO DE BIFURCACIÓN DE RUTAS */}
-            {selectedProduct && (
-              <Grid item xs={12} sm={6}>
-                <Paper elevation={0} sx={{ height: '100%', p: 1.5, bgcolor: esFamiliaA ? '#fef3c7' : '#f0fdfa', border: `1px solid ${esFamiliaA ? '#fde68a' : '#ccfbf1'}`, borderRadius: 2, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                  <Typography variant="caption" sx={{ fontWeight: 800, color: esFamiliaA ? '#92400e' : '#115e59', textTransform: 'uppercase' }}>
-                    Flujo de Transferencia
-                  </Typography>
-                  <Typography variant="body2" sx={{ fontWeight: 600, color: esFamiliaA ? '#b45309' : '#0f766e', mt: 0.5, lineHeight: 1.2 }}>
-                    {esFamiliaA 
-                      ? 'Envío EN TRÁNSITO para Recepción Electrónica (Trazabilidad estricta).'
-                      : 'Transferencia DIRECTA e INMEDIATA a stock de Laboratorio.'}
-                  </Typography>
-                </Paper>
-              </Grid>
-            )}
+            <Grid item xs={12} sm={6}>
+              <Paper elevation={0} sx={{ height: '100%', minHeight: 56, p: 1.5, bgcolor: esFamiliaA ? '#fef3c7' : '#f0fdfa', border: `1px solid ${esFamiliaA ? '#fde68a' : '#ccfbf1'}`, borderRadius: 2, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                <Typography variant="caption" sx={{ fontWeight: 800, color: esFamiliaA ? '#92400e' : '#115e59', textTransform: 'uppercase' }}>
+                  Flujo de Transferencia
+                </Typography>
+                <Typography variant="body2" sx={{ fontWeight: 600, color: esFamiliaA ? '#b45309' : '#0f766e', mt: 0.5, lineHeight: 1.2 }}>
+                  {esFamiliaA 
+                    ? 'Envío EN TRÁNSITO para Recepción Electrónica (Trazabilidad estricta).'
+                    : 'Transferencia DIRECTA e INMEDIATA a stock de Laboratorio.'}
+                </Typography>
+              </Paper>
+            </Grid>
 
             {/* BANNER DE DESGLOSE OPERATIVO */}
             {esFamiliaA && selectedProduct && transferData.cantidad && parseFloat(transferData.cantidad) > 0 && String(transferData.almacen_destino_id) === '2' && !isExceeded && !isZeroStock && (
@@ -1173,13 +1219,13 @@ const TransferModalForm = memo(({ open, onClose, products, stockSummary, onProdu
               />
             </Grid>
 
-            <Grid item xs={12}>
+            <Grid item xs={12} sm={6}>
               <Typography variant="subtitle2" fontWeight={800} color="#1e293b" mb={1}>
                 MOTIVO DEL TRASLADO
               </Typography>
               <TextField
                 fullWidth
-                placeholder="Ej. Suministro semanal a laboratorio operativo"
+                placeholder="Ej. SUMINISTRO OPERATIVO A LABORATORIO"
                 value={transferData.motivo}
                 onChange={(e) => setTransferData({ ...transferData, motivo: e.target.value.toUpperCase() })}
                 inputProps={{ style: { textTransform: 'uppercase' } }}
@@ -1366,11 +1412,15 @@ const WarehousesHub = () => {
     if (productItem) {
       setSelectedProductForAction({
         id: productItem.item_id,
+        item_id: productItem.item_id,
         codigo: productItem.item_codigo,
         nombre: productItem.item_nombre,
         referencia_abreviada: productItem.item_referencia,
         presentacion: productItem.item_presentacion || productItem.presentacion,
-        equipo_asociado: productItem.item_equipo || productItem.equipo_asociado
+        equipo_asociado: productItem.item_equipo || productItem.equipo_asociado,
+        item_categoria: productItem.item_categoria || productItem.categoria,
+        unidad: productItem.unidad_manejo || 'Cajas',
+        unidad_manejo: productItem.unidad_manejo || 'Cajas'
       });
     } else {
       setSelectedProductForAction(null);

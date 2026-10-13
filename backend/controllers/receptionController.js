@@ -76,6 +76,7 @@ async function getReceptions(req, res) {
         ISNULL(m.cantidad, i.stock_actual) as cantidad_cajas,
         ISNULL(m.fecha_movimiento, i.fecha_creacion) as fecha_ingreso,
         m.nro_factura,
+        m.nro_control,
         m.nota_entrega,
         m.codigo_barra,
         m.presentacion_empaque,
@@ -272,26 +273,27 @@ async function createReception(req, res) {
             PrecioRecepcionUSD = CASE WHEN @precioUSD > 0 THEN @precioUSD ELSE PrecioRecepcionUSD END,
             ProveedorId = ISNULL(@proveedorIdNum, ProveedorId),
             NroFactura = ISNULL(@facturaStr, NroFactura),
+              NroControl = ISNULL(@controlStr, NroControl),
             NotaEntrega = ISNULL(@notaEntregaStr, NotaEntrega),
             CodigoBarra = ISNULL(@barcodeStr, CodigoBarra),
             PresentacionEmpaque = ISNULL(@presentacionStr, PresentacionEmpaque),
             Estado = 'Activo'
         WHERE Id = @lotId`,
-        { newLotQty: currentLotQty + qtyCajas, fabDate: fabDateParsed, vencDate: vencDateParsed, precioUSD, proveedorIdNum, facturaStr, notaEntregaStr, barcodeStr, presentacionStr, lotId }
+        { newLotQty: currentLotQty + qtyCajas, fabDate: fabDateParsed, vencDate: vencDateParsed, precioUSD, proveedorIdNum, facturaStr, controlStr, notaEntregaStr, barcodeStr, presentacionStr, lotId }
       );
     } else {
       await tQuery(
         `INSERT INTO LotesReactivos (
           InventarioId, NumeroLote, CantidadInicial, CantidadActual, Estado, estado_transferencia, 
           FechaRegistro, FechaFabricacion, FechaVencimiento, PrecioRecepcionUSD, AlmacenId,
-          ProveedorId, NroFactura, NotaEntrega, CodigoBarra, PresentacionEmpaque
+          ProveedorId, NroFactura, NroControl, NotaEntrega, CodigoBarra, PresentacionEmpaque
         )
         VALUES (
           @itemId, @loteClean, @qtyCajas, @qtyCajas, 'CERRADO', 'ALMACEN_CENTRAL',
           GETDATE(), @fabDate, @vencDate, @precioUSD, @almacenId,
-          @proveedorIdNum, @facturaStr, @notaEntregaStr, @barcodeStr, @presentacionStr
+          @proveedorIdNum, @facturaStr, @controlStr, @notaEntregaStr, @barcodeStr, @presentacionStr
         )`,
-        { itemId: itemIdNum, loteClean, qtyCajas, fabDate: fabDateParsed, vencDate: vencDateParsed, precioUSD, almacenId: almacenIdNum, proveedorIdNum, facturaStr, notaEntregaStr, barcodeStr, presentacionStr }
+        { itemId: itemIdNum, loteClean, qtyCajas, fabDate: fabDateParsed, vencDate: vencDateParsed, precioUSD, almacenId: almacenIdNum, proveedorIdNum, facturaStr, controlStr, notaEntregaStr, barcodeStr, presentacionStr }
       );
     }
 
@@ -303,14 +305,14 @@ async function createReception(req, res) {
       `INSERT INTO movimientos_inventario (
         item_id, tipo_movimiento, cantidad, stock_anterior, stock_nuevo, 
         motivo, referencia, fecha_movimiento, almacen_id, creado_por,
-        proveedor_id, nro_factura, nota_entrega, codigo_barra, presentacion_empaque
+        proveedor_id, nro_factura, nro_control, nota_entrega, codigo_barra, presentacion_empaque
       )
       VALUES (
         @itemId, 'ENTRADA', @qtyCajas, @currentStock, @newStock,
         @motivoStr, @docRef, GETDATE(), @almacenId, 1,
-        @proveedorIdNum, @facturaStr, @notaEntregaStr, @barcodeStr, @presentacionStr
+        @proveedorIdNum, @facturaStr, @controlStr, @notaEntregaStr, @barcodeStr, @presentacionStr
       )`,
-      { itemId: itemIdNum, qtyCajas, currentStock, newStock, motivoStr, docRef, almacenId: almacenIdNum, proveedorIdNum, facturaStr, notaEntregaStr, barcodeStr, presentacionStr }
+      { itemId: itemIdNum, qtyCajas, currentStock, newStock, motivoStr, docRef, almacenId: almacenIdNum, proveedorIdNum, facturaStr, controlStr, notaEntregaStr, barcodeStr, presentacionStr }
     );
 
     res.status(201).json({

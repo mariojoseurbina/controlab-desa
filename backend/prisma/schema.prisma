@@ -74,7 +74,7 @@ model ItemInventario {
 model MovimientoInventario {
   id               Int       @id(map: "PK__movimien__3213E83F39FAF8EC") @default(autoincrement())
   item_id          Int
-  tipo_movimiento  String    @db.VarChar(20)
+  tipo_movimiento  String    @db.VarChar(50)
   cantidad         Decimal   @db.Decimal(10, 2)
   stock_anterior   Decimal   @db.Decimal(10, 2)
   stock_nuevo      Decimal   @db.Decimal(10, 2)

@@ -151,7 +151,7 @@ const DateInputDDMMYYYY = ({ label, value, onChange, placeholder = "dd/mm/aaaa" 
 
 // Función generadora de Comprobante PDF de Recepción Certificado
 const generarPDFRecepcion = (recepcionData) => {
-  const { referencia, proveedor_nombre, nro_factura, nota_entrega, referencia_documento, almacen_nombre, items, totals } = recepcionData;
+  const { referencia, proveedor_nombre, nro_factura, nro_control, nota_entrega, referencia_documento, almacen_nombre, items, totals } = recepcionData;
   
   const printWindow = window.open('', '_blank');
   if (!printWindow) return;
@@ -233,6 +233,10 @@ const generarPDFRecepcion = (recepcionData) => {
           <span>${nro_factura || 'N/A'}</span>
         </div>
         <div class="info-box">
+          <label>Nro. Control Fiscal</label>
+          <span>${nro_control || 'N/A'}</span>
+        </div>
+        <div class="info-box">
           <label>Nota de Entrega</label>
           <span>${nota_entrega || 'N/A'}</span>
         </div>
@@ -240,7 +244,7 @@ const generarPDFRecepcion = (recepcionData) => {
           <label>Almacén Destino</label>
           <span>${almacen_nombre || 'Almacén Central'}</span>
         </div>
-        <div class="info-box" style="grid-column: span 2;">
+        <div class="info-box" style="grid-column: span 1;">
           <label>Guía / Orden de Compra</label>
           <span>${referencia_documento || 'OC-DIRECTA'}</span>
         </div>
@@ -321,6 +325,7 @@ const ReceptionModalForm = memo(({ open, onClose, products, suppliers, onAddSupp
   const [headerData, setHeaderData] = useState({
     proveedor_id: '',
     nro_factura: '',
+    nro_control: '',
     nota_entrega: '',
     referencia_documento: '',
     almacen_id: 1
@@ -348,6 +353,7 @@ const ReceptionModalForm = memo(({ open, onClose, products, suppliers, onAddSupp
       setHeaderData({
         proveedor_id: '',
         nro_factura: '',
+        nro_control: '',
         nota_entrega: '',
         referencia_documento: '',
         almacen_id: 1
@@ -498,6 +504,7 @@ const ReceptionModalForm = memo(({ open, onClose, products, suppliers, onAddSupp
       const payload = {
         proveedor_id: headerData.proveedor_id ? parseInt(headerData.proveedor_id, 10) : null,
         nro_factura: headerData.nro_factura.trim(),
+        nro_control: headerData.nro_control.trim(),
         nota_entrega: headerData.nota_entrega.trim(),
         referencia_documento: headerData.referencia_documento.trim(),
         almacen_id: headerData.almacen_id,
@@ -535,6 +542,7 @@ const ReceptionModalForm = memo(({ open, onClose, products, suppliers, onAddSupp
           referencia: result.referencia || `REC-${Date.now()}`,
           proveedor_nombre: provNombre,
           nro_factura: headerData.nro_factura,
+          nro_control: headerData.nro_control,
           nota_entrega: headerData.nota_entrega,
           referencia_documento: headerData.referencia_documento,
           almacen_nombre: almNombre,
@@ -614,6 +622,18 @@ const ReceptionModalForm = memo(({ open, onClose, products, suppliers, onAddSupp
                 <TextField
                   fullWidth
                   size="small"
+                  label="NRO DE CONTROL (CONTABILIDAD)"
+                  placeholder="Ej. 00-019284"
+                  value={headerData.nro_control}
+                  onChange={(e) => setHeaderData({ ...headerData, nro_control: e.target.value })}
+                  helperText="Para entrega y registro fiscal en contabilidad"
+                />
+              </Grid>
+
+              <Grid item xs={12} sm={4}>
+                <TextField
+                  fullWidth
+                  size="small"
                   label="NRO NOTA DE ENTREGA"
                   placeholder="Ej. NE-2026-441"
                   value={headerData.nota_entrega}
@@ -621,7 +641,7 @@ const ReceptionModalForm = memo(({ open, onClose, products, suppliers, onAddSupp
                 />
               </Grid>
 
-              <Grid item xs={12} sm={6}>
+              <Grid item xs={12} sm={4}>
                 <TextField
                   fullWidth
                   size="small"
@@ -632,7 +652,7 @@ const ReceptionModalForm = memo(({ open, onClose, products, suppliers, onAddSupp
                 />
               </Grid>
 
-              <Grid item xs={12} sm={6}>
+              <Grid item xs={12} sm={4}>
                 <TextField
                   select
                   fullWidth
@@ -1236,7 +1256,7 @@ const ProductReception = () => {
               <TableCell sx={{ color: 'white', fontWeight: 800 }}>Producto</TableCell>
               <TableCell sx={{ color: 'white', fontWeight: 800 }}>Lote / Vencimiento</TableCell>
               <TableCell sx={{ color: 'white', fontWeight: 800 }}>Proveedor</TableCell>
-              <TableCell sx={{ color: 'white', fontWeight: 800 }}>Factura / N.E.</TableCell>
+              <TableCell sx={{ color: 'white', fontWeight: 800 }}>Factura / Control / N.E.</TableCell>
               <TableCell align="center" sx={{ color: 'white', fontWeight: 800 }}>Almacén</TableCell>
               <TableCell align="right" sx={{ color: 'white', fontWeight: 800 }}>Cantidad</TableCell>
               <TableCell align="right" sx={{ color: 'white', fontWeight: 800 }}>Precio Unit.</TableCell>
@@ -1316,12 +1336,17 @@ const ProductReception = () => {
                         Fact: {row.nro_factura}
                       </Typography>
                     )}
+                    {row.nro_control && (
+                      <Typography variant="caption" sx={{ display: 'block', fontWeight: 700, color: '#7c3aed' }}>
+                        Ctrl: {row.nro_control}
+                      </Typography>
+                    )}
                     {row.nota_entrega && (
                       <Typography variant="caption" sx={{ display: 'block', fontWeight: 700, color: '#2563eb' }}>
                         N.E.: {row.nota_entrega}
                       </Typography>
                     )}
-                    {!row.nro_factura && !row.nota_entrega && (
+                    {!row.nro_factura && !row.nro_control && !row.nota_entrega && (
                       <Typography variant="caption" color="textSecondary">-</Typography>
                     )}
                   </TableCell>
