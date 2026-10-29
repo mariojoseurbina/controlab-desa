@@ -7,6 +7,17 @@ const path = require('path');
 
 dotenv.config();
 
+// ==========================================
+// 🛡️ BLINDAJE INMUTABLE: Verificación de Reglas de Negocio
+// ==========================================
+const { verificarReglasNegocio } = require('./tests/validar-reglas-negocio');
+if (!verificarReglasNegocio()) {
+  console.error('⛔ BLOQUEO CRÍTICO: El servidor no puede arrancar porque una regla de negocio fue alterada.');
+  console.error('👉 Ejecute "npm run restaurar-reglas" para restablecer la versión autorizada por el dueño.');
+  process.exit(1);
+}
+// ==========================================
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -55,6 +66,7 @@ const cajasRoutes = require('./src/modules/cajas/cajas.routes');
 const auditRoutes = require('./routes/auditRoutes');
 const receptionRoutes = require('./routes/receptionRoutes');
 const mapeoRoutes = require('./routes/mapeoRoutes');
+const solicitudesRoutes = require('./routes/solicitudesRoutes');
 
 // Usar rutas
 app.use('/api/auth', authRoutes);
@@ -75,6 +87,7 @@ app.use('/api/compras', purchasesRoutes);
 app.use('/api/costos', costosRoutes);
 app.use('/api/reception', receptionRoutes);
 app.use('/api/mapeo', mapeoRoutes);
+app.use('/api/solicitudes', solicitudesRoutes);
 app.use('/api/agent', agentRoutes);
 app.use('/api/audit', auditRoutes);
 app.use('/api/sniffer', snifferRoutes);

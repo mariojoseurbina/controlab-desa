@@ -7,9 +7,9 @@ const prisma = new PrismaClient();
 router.get('/', async (req, res) => {
     try {
         const mapeos = await prisma.mapeo_pruebas_reactivos.findMany();
-        // Obtener nombres de reactivos para enriquecer
+        // Obtener nombres de reactivos para enriquecer con equipo, control y calibradores
         const items = await prisma.itemInventario.findMany({
-            select: { id: true, nombre: true, codigo: true }
+            select: { id: true, nombre: true, codigo: true, equipo_asociado: true, control_asociado: true, calibradores_asociados: true }
         });
         
         const data = mapeos.map(m => {
@@ -17,7 +17,10 @@ router.get('/', async (req, res) => {
             return {
                 ...m,
                 reactivo_nombre: item ? item.nombre : 'Desconocido',
-                reactivo_codigo: item ? item.codigo : 'N/A'
+                reactivo_codigo: item ? item.codigo : 'N/A',
+                equipo_asociado: item ? (item.equipo_asociado || 'Sin equipo') : 'N/A',
+                control_asociado: item ? (item.control_asociado || 'N/A') : 'N/A',
+                calibradores_asociados: item ? (item.calibradores_asociados || 'N/A') : 'N/A'
             };
         });
         

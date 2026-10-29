@@ -12,19 +12,21 @@ export const BIOANALISTA_ALLOWED_ROUTES = [
   '/audit-log',
   '/cajas-frascos',
   '/brain-agent',
+  '/solicitudes',
 ];
 
-// Opciones de menú a ocultar para Bioanalista
+// Opciones de menï¿½ a ocultar para Bioanalista
 export const BIOANALISTA_HIDDEN_MENU_PATHS = [
   '/inventory',
   '/reagents',
   '/reagents/reception',
   '/warehouses',
   '/compras',
-  '/costos'
+  '/costos',
+  '/users'
 ];
 
-// Función Helper para validar permisos
+// Funciï¿½n Helper para validar permisos
 export const hasAccess = (user, path) => {
   if (!user) return false;
   const userRole = (user.rol || user.role || '').toLowerCase();

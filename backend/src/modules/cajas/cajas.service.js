@@ -37,6 +37,7 @@ class CajasService {
             nombre: true,
             codigo: true,
             marca: true,
+            equipo_asociado: true,
             presentacion: true,
             frascos_por_caja: true,
             volumen_por_frasco: true,
@@ -171,8 +172,21 @@ class CajasService {
         }).catch(() => {});
       }
 
-      const defaultEq = (lote.items_inventario?.marca || '').toLowerCase().includes('mindray') ? 'Mindray BS-230' : 'CM 260i';
-      const equipoAsociado = meta.equipo_asociado || defaultEq;
+      const eqItem = (lote.items_inventario?.equipo_asociado || '').toUpperCase();
+      const nomItem = (lote.items_inventario?.nombre || '').toUpperCase();
+      let equipoAsociado = 'CM 260i';
+
+      if (eqItem.includes('5380') || eqItem.includes('BC') || nomItem.includes('M-53') || nomItem.includes('LEO')) {
+        equipoAsociado = 'Mindray BC 5380';
+      } else if (eqItem.includes('900') || eqItem.includes('CLIA') || nomItem.includes('(CLIA)') || nomItem.includes('CLIA')) {
+        equipoAsociado = 'Mindray CL-900i';
+      } else if (eqItem.includes('230') || (eqItem.includes('MINDRAY') && !eqItem.includes('900') && !eqItem.includes('5380'))) {
+        equipoAsociado = 'Mindray BS-230';
+      } else if (eqItem.includes('260') || eqItem.includes('WIENER')) {
+        equipoAsociado = 'CM 260i';
+      } else if ((lote.items_inventario?.marca || '').toUpperCase().includes('MINDRAY')) {
+        equipoAsociado = nomItem.includes('CLIA') ? 'Mindray CL-900i' : 'Mindray BS-230';
+      }
 
       // Descuento exacto por frasco en uso a travÃ©s de los dÃ­as:
       const consumoPorPrueba = Number(meta.consumo_indicado || lote.items_inventario?.consumo_indicado) || 0.25;
@@ -302,13 +316,40 @@ class CajasService {
       include: { items_inventario: true }
     });
 
-    if (!lote) {
+        if (!lote) {
       throw new Error('Caja o lote no encontrado.');
     }
 
-    const defaultEquipo = (lote.items_inventario?.marca || '').toLowerCase().includes('mindray') ? 'Mindray BS-230' : 'CM 260i';
-    const equipoFinal = equipo || defaultEquipo;
-    const usuarioFinal = usuarioNombre || 'Bioanalista';
+    // REGLA DE NEGOCIO ESTRICTA: SOLO SE PUEDEN ABRIR CAJAS EN ALMACEN LABORATORIO
+    const transf = (lote.estado_transferencia || '').toUpperCase().trim();
+    const almId = Number(lote.almacen_destino_id);
+    const estaEnLaboratorio = transf === 'RECIBIDO_LABORATORIO' || transf === 'LABORATORIO' || almId === 2;
+
+    if (!estaEnLaboratorio) {
+      if (transf === 'EN_TRANSITO') {
+        throw new Error('Acción bloqueada: Esta caja se encuentra EN TRÁNSITO hacia el Laboratorio. Primero debe ser aceptada y recibida en el Almacén de Laboratorio antes de que un Bioanalista pueda abrirla.');
+      }
+      throw new Error('Acción bloqueada: Esta caja se encuentra en el ALMACÉN CENTRAL. Es obligatorio realizar la transferencia y confirmación de recepción en el Almacén de Laboratorio antes de que un Bioanalista pueda abrirla.');
+    }
+
+    const eqItem = lote.items_inventario?.equipo_asociado;
+    let defaultEquipo = 'CM 260i';
+    if (eqItem) {
+      defaultEquipo = eqItem;
+    } else if ((lote.items_inventario?.marca || '').toLowerCase().includes('mindray')) {
+      defaultEquipo = 'Mindray BS-230';
+    }
+    let equipoFinal = equipo || defaultEquipo;
+    if (equipoFinal.toUpperCase().includes('CL-900') || equipoFinal.toUpperCase().includes('CL 900') || equipoFinal.toUpperCase().includes('CLIA')) {
+      equipoFinal = 'Mindray CL-900i';
+    } else if (equipoFinal.toUpperCase().includes('5380')) {
+      equipoFinal = 'Mindray BC 5380';
+    } else if (equipoFinal.toUpperCase().includes('BS-230') || equipoFinal.toUpperCase().includes('BS 230')) {
+      equipoFinal = 'Mindray BS-230';
+    } else if (equipoFinal.toUpperCase().includes('CM 260')) {
+      equipoFinal = 'CM 260i';
+    }
+    const usuarioFinal = usuarioNombre || 'Sistema';
 
     // Regla estricta desde la Ficha de Producto:
     const totalFrascos = Number(lote.items_inventario?.frascos_por_caja) || 1;
@@ -333,9 +374,11 @@ class CajasService {
     };
 
    const updated = await prisma.$transaction(async (tx) => {
-      // 0. REGLA ESTRICTA CONTROLAB: SUSTITUCION Y EXCLUSIVIDAD DE CANAL POR ANALIZADOR
-      // Si existia una caja previa activa del mismo reactivo en este analizador,
-      // se cierra automaticamente (marcando como 'Agotado') para evitar cajas fantasmas.
+      // REGLA DE NEGOCIO OFICIAL CONTROLAB: EXCLUSIVIDAD DE CANAL POR ANALIZADOR Y SUSTITUCION DE CAJA
+      // En el rotor/carrusel del analizador solo puede existir UN lote/caja activa por reactivo y equipo.
+      // Al abrir una nueva caja (sea del mismo lote o un lote nuevo por sustitución),
+      // las cajas previas activas de ese mismo reactivo y equipo se cierran automáticamente como 'Agotado',
+      // registrando el movimiento de sustitución en Kárdex y preservando todo su historial físico y excedentes.
       const lotesPreviosActivos = await tx.lotesReactivos.findMany({
         where: {
           InventarioId: lote.InventarioId,
@@ -376,6 +419,8 @@ class CajasService {
         where: { Id: lote.Id },
         data: {
           Estado: 'Activo',
+          estado_transferencia: 'RECIBIDO_LABORATORIO',
+          almacen_destino_id: 2,
           CantidadActual: volTotalCaja,
           CantidadInicial: volTotalCaja,
           ConsumoPorPrueba: consumoPorPrueba,
@@ -388,17 +433,43 @@ class CajasService {
         }
       });
 
-      // 2. Asentar movimiento en el KÃ¡rdex
+      // 2. REGLA DE NEGOCIO OBLIGATORIA: Debitar 1 caja fÃ­sica del AlmacÃ©n de Laboratorio (almacen_id = 2)
+      const stockLab = await tx.stockPorAlmacen.findFirst({
+        where: { item_id: lote.InventarioId, almacen_id: 2 }
+      });
+      const stockLabAnterior = stockLab ? Number(stockLab.stock_actual) : 0;
+      const stockLabNuevo = Math.max(0, stockLabAnterior - 1);
+      if (stockLab) {
+        await tx.stockPorAlmacen.update({
+          where: { id: stockLab.id },
+          data: { stock_actual: stockLabNuevo }
+        });
+      }
+
+      // Actualizar el stock fÃ­sico de cajas cerradas en items_inventario
+      const itemMaster = await tx.itemInventario.findUnique({
+        where: { id: lote.InventarioId }
+      });
+      if (itemMaster && Number(itemMaster.stock_actual) > 0) {
+        await tx.itemInventario.update({
+          where: { id: lote.InventarioId },
+          data: { stock_actual: Math.max(0, Number(itemMaster.stock_actual) - 1) }
+        });
+      }
+
+      // 3. Asentar movimiento en el KÃ¡rdex con trazabilidad forense completa
       await tx.movimientoInventario.create({
         data: {
           item_id: lote.InventarioId,
           tipo_movimiento: 'APERTURA_CAJA',
-          cantidad: 0,
-          stock_anterior: Number(lote.CantidadActual),
-          stock_nuevo: Number(lote.CantidadActual),
-          motivo: normalizarTextoMayusculas(`APERTURA DE CAJA (FRASCO 1 EN USO) EN ${equipoFinal}`),
-          referencia: normalizarTextoMayusculas(`LOTE: ${lote.NumeroLote} - APERTURA POR ${usuarioFinal}`),
-          creado_por: 1
+          cantidad: 1,
+          stock_anterior: stockLabAnterior,
+          stock_nuevo: stockLabNuevo,
+          motivo: normalizarTextoMayusculas(`APERTURA DE CAJA Y RETIRO DE ALMACEN LABORATORIO HACIA ${equipoFinal}`),
+          referencia: normalizarTextoMayusculas(`LOTE: ${lote.NumeroLote} - PUESTA EN SERVICIO POR ${usuarioFinal}`),
+          creado_por: 1,
+          almacen_id: 2,
+          almacen_destino_id: 2
         }
       });
 
@@ -513,21 +584,87 @@ class CajasService {
       ]
     });
 
+    // REGLA DE NEGOCIO OBLIGATORIA (Vigente a partir de 27/10/2026):
+    // Consultar stock real por almacén para validar existencia física en laboratorio
+    const itemIds = Array.from(new Set(candidatos.map(c => c.InventarioId).filter(Boolean)));
+    const stockMap = new Map();
+    if (itemIds.length > 0) {
+      try {
+        const stockRows = await prisma.$queryRawUnsafe(
+          'SELECT item_id, almacen_id, stock_actual FROM stock_por_almacen WHERE item_id IN (' + itemIds.join(',') + ')'
+        );
+        stockRows.forEach(s => {
+          if (!stockMap.has(s.item_id)) stockMap.set(s.item_id, { lab: 0, central: 0 });
+          const cur = stockMap.get(s.item_id);
+          if (s.almacen_id === 2) cur.lab = Number(s.stock_actual) || 0;
+          if (s.almacen_id === 1) cur.central = Number(s.stock_actual) || 0;
+        });
+      } catch (stockErr) {
+        console.error('[cajasService] Error consultando stock_por_almacen:', stockErr.message);
+      }
+    }
+
+    // Filtrar candidatos según regla de negocio:
+    // Si la caja ya fue abierta (FechaApertura != null o Estado == 'Activo' o 'Abierto')
+    // y no queda stock en el almacén de laboratorio (stock_lab <= 0):
+    // NO DEBE APARECER en la búsqueda de cajas para abrir/transferir para evitar confusión.
+    const candidatosValidos = candidatos.filter(c => {
+      const yaAbierta = c.FechaApertura !== null || c.Estado === 'Activo' || c.Estado === 'Abierto';
+      const itemStock = stockMap.get(c.InventarioId) || { lab: 0, central: 0 };
+      if (yaAbierta && itemStock.lab <= 0) {
+        return false;
+      }
+      return true;
+    });
+
     return {
       success: true,
       raw,
-      candidatos: candidatos.map(c => ({
-        id: c.Id,
-        lote: c.NumeroLote,
-        producto: c.items_inventario?.nombre,
-        marca: c.items_inventario?.marca,
-        equipoAsociado: c.items_inventario?.equipo_asociado,
-        fechaVencimiento: c.FechaVencimiento,
-        estado: c.Estado,
-        estadoTransferencia: c.estado_transferencia,
-        frascosCaja: c.items_inventario?.frascos_por_caja,
-        fechaApertura: c.FechaApertura
-      }))
+      candidatos: candidatosValidos.map(c => {
+        const transf = (c.estado_transferencia || '').toUpperCase().trim();
+        const almId = Number(c.almacen_destino_id);
+        const itemStock = stockMap.get(c.InventarioId) || { lab: 0, central: 0 };
+        const estaEnLab = transf === 'RECIBIDO_LABORATORIO' || transf === 'LABORATORIO' || almId === 2;
+        const esTransito = transf === 'EN_TRANSITO';
+        const esCerrada = !c.FechaApertura && (c.Estado === 'Cerrado' || c.Estado === 'CERRADO');
+        
+        let ubicacionTexto = 'Almacén Central';
+        let ubicacionColor = '#ef4444';
+        let puedeAbrir = false;
+        let accionSugerida = 'Requiere Transferencia';
+
+        if (estaEnLab) {
+          ubicacionTexto = 'Almacén Laboratorio';
+          ubicacionColor = '#10b981';
+          // Solo puede abrirse si es una caja cerrada y hay stock físico en el almacén de laboratorio
+          puedeAbrir = esCerrada && itemStock.lab > 0;
+          accionSugerida = puedeAbrir ? 'Abrir Caja' : (c.FechaApertura ? 'Caja en Uso' : 'Sin Stock en Lab');
+        } else if (esTransito) {
+          ubicacionTexto = 'En Tránsito';
+          ubicacionColor = '#f59e0b';
+          puedeAbrir = false;
+          accionSugerida = 'Recibir en Lab';
+        }
+
+        return {
+          id: c.Id,
+          lote: c.NumeroLote,
+          producto: c.items_inventario?.nombre,
+          marca: c.items_inventario?.marca,
+          equipoAsociado: c.items_inventario?.equipo_asociado,
+          fechaVencimiento: c.FechaVencimiento,
+          estado: c.Estado,
+          estadoTransferencia: c.estado_transferencia,
+          almacenId: c.almacen_destino_id || 1,
+          frascosCaja: c.items_inventario?.frascos_por_caja,
+          fechaApertura: c.FechaApertura,
+          estaEnLab,
+          ubicacionTexto,
+          ubicacionColor,
+          puedeAbrir,
+          accionSugerida
+        };
+      })
     };
   }
 
@@ -542,7 +679,7 @@ class CajasService {
     if (lote.estado_transferencia === 'EN_TRANSITO') {
       await this.confirmarRecepcionElectronica({
         loteId: lote.Id,
-        usuarioRecepcion: usuarioNombre || 'Bioanalista (Recepcion)'
+        usuarioRecepcion: usuarioNombre || 'Sistema'
       });
 
       return {
@@ -560,7 +697,7 @@ class CajasService {
       const equipoDestino = equipo || ((lote.items_inventario?.marca || '').toLowerCase().includes('mindray') ? 'Mindray BS-230' : 'CM 260i');
       await this.abrirCaja({
         loteId: lote.Id,
-        usuarioNombre: usuarioNombre || 'Bioanalista (Validacion)',
+        usuarioNombre: usuarioNombre || 'Sistema',
         equipo: equipoDestino
       });
 
@@ -730,7 +867,7 @@ class CajasService {
       throw new Error('Caja o lote no encontrado.');
     }
 
-    const usuario = usuarioNombre || 'Bioanalista';
+    const usuario = usuarioNombre || 'Sistema';
     let meta = {};
     try {
       if (lote.CondicionesEspeciales) meta = JSON.parse(lote.CondicionesEspeciales);
@@ -770,7 +907,8 @@ class CajasService {
         where: {
           InventarioId: lote.InventarioId,
           FechaApertura: null,
-          Id: { not: lote.Id }
+          Id: { not: lote.Id },
+          estado_transferencia: { in: ['RECIBIDO_LABORATORIO', 'LABORATORIO'] }
         },
         orderBy: { FechaVencimiento: 'asc' }
       });
@@ -878,7 +1016,7 @@ class CajasService {
     }
 
     // Ejecutar la transiciÃ³n de agotamiento y activaciÃ³n de la siguiente caja
-    return await this.finalizarCajaYActivarSiguiente({ loteId, usuarioNombre: usuarioNombre || 'Bioanalista Validador' });
+    return await this.finalizarCajaYActivarSiguiente({ loteId, usuarioNombre: usuarioNombre || 'Sistema' });
   }
 
   /**
@@ -967,7 +1105,7 @@ class CajasService {
    */
   async confirmarRecepcionElectronica({ barcode, loteId, usuarioRecepcion }) {
     let lote = null;
-    const usuario = usuarioRecepcion || 'Bioanalista Receptores';
+    const usuario = usuarioRecepcion || 'Sistema';
 
     if (loteId) {
       lote = await prisma.lotesReactivos.findUnique({
@@ -1011,7 +1149,7 @@ class CajasService {
       if (existsStock) {
         await tx.stockPorAlmacen.update({
           where: { item_id_almacen_id: { item_id: lote.InventarioId, almacen_id: 2 } },
-          data: { stock_actual: { increment: Number(lote.CantidadActual) || 1 } }
+          data: { stock_actual: { increment: 1 } }
         });
       } else {
         await tx.stockPorAlmacen.create({
@@ -1064,7 +1202,7 @@ class CajasService {
 
     if (!lote) throw new Error('Caja o lote no encontrado.');
 
-    const usuario = usuarioNombre || 'Bioanalista';
+    const usuario = usuarioNombre || 'Sistema';
     const razon = motivo || 'DevoluciÃ³n desde RecepciÃ³n de Laboratorio';
 
     const updated = await prisma.$transaction(async (tx) => {

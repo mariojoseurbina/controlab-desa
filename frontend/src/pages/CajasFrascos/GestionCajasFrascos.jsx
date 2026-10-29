@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import api from '../../services/api';
+import { useAuth } from '../../contexts/AuthContext';
 import {
   Box,
   Container,
@@ -85,6 +86,7 @@ const formatDate = (dateValue) => {
 };
 
 const GestionCajasFrascos = () => {
+  const { user } = useAuth();
   const [cajasData, setCajasData] = useState({
     cajasCerradas: [],
     cajasEnUso: [],
@@ -268,11 +270,15 @@ const GestionCajasFrascos = () => {
     }
   }, [selectedTab]);
 
-  // Al abrir el modal, preseleccionar el equipo según la marca del reactivo
+  // Al abrir el modal, preseleccionar el equipo según el equipoAsociado del reactivo
   const handleOpenModal = (caja) => {
     setSelectedCaja(caja);
-    const marca = (caja.marca || '').toLowerCase();
-    if (marca.includes('mindray')) {
+    const eq = (caja.equipoAsociado || '').toUpperCase();
+    if (eq.includes('CL-900') || eq.includes('CL 900') || eq.includes('CLIA')) {
+      setEquipoSeleccionado('Mindray CL-900i');
+    } else if (eq.includes('5380')) {
+      setEquipoSeleccionado('Mindray BC 5380');
+    } else if (eq.includes('BS-230') || eq.includes('BS 230') || (caja.marca || '').toLowerCase().includes('mindray')) {
       setEquipoSeleccionado('Mindray BS-230');
     } else {
       setEquipoSeleccionado('CM 260i');
@@ -316,6 +322,15 @@ const GestionCajasFrascos = () => {
   };
 
   const handleProcesarLote = async (loteId, equipoAsociado) => {
+    const cand = candidatosScan.find(c => c.id === loteId);
+    if (cand && !cand.estaEnLab && cand.estadoTransferencia !== 'EN_TRANSITO') {
+      setScanMessage({
+        type: 'error',
+        text: '⛔ Acción bloqueada: Esta caja se encuentra en Almacén Central. El Bioanalista solo puede abrir cajas transferidas y recibidas en el Almacén de Laboratorio.'
+      });
+      setCandidatosModalOpen(false);
+      return;
+    }
     setCandidatosModalOpen(false);
     setScanning(true);
     setScanMessage(null);
@@ -352,7 +367,8 @@ const GestionCajasFrascos = () => {
     try {
       const response = await api.post('/cajas/abrir', {
         loteId: selectedCaja.id,
-        equipo: equipoSeleccionado
+        equipo: equipoSeleccionado,
+        usuarioNombre: user?.nombre_completo || user?.usuario || 'Bioanalista'
       });
 
       if (response.data && response.data.success) {
@@ -403,14 +419,22 @@ const GestionCajasFrascos = () => {
   const filtrarPorEquipo = (lista) => {
     if (equipoFiltro === 'TODOS') return lista;
     return lista.filter((c) => {
-      const eq = c.equipoAsociado || '';
+      const eq = (c.equipoAsociado || '').toUpperCase();
       const marca = (c.marca || '').toLowerCase();
-      if (equipoFiltro === 'Mindray BS-230') {
-        return eq.includes('Mindray') || eq.includes('BS-230') || marca.includes('mindray');
+      if (equipoFiltro === 'Mindray CL-900i' || equipoFiltro === 'CL-900i') {
+        return eq.includes('CL-900') || eq.includes('CL 900') || eq.includes('CLIA');
       }
-      if (equipoFiltro === 'Mindray CL-900i') return eq.includes('CL-900i');
-        if (equipoFiltro === 'WONDFO ACCRE') return eq.includes('WONDFO ACCRE');
-        return eq.includes('CM 260i') || marca.includes('wiener');
+      if (equipoFiltro === 'Mindray BC-5380' || equipoFiltro === 'BC-5380') {
+        return eq.includes('5380') || eq.includes('BC-5380');
+      }
+      if (equipoFiltro === 'Mindray BS-230') {
+        return (eq.includes('BS-230') || eq.includes('BS 230')) ||
+               (marca.includes('mindray') && !eq.includes('CL-900') && !eq.includes('CL 900') && !eq.includes('CLIA') && !eq.includes('5380'));
+      }
+      if (equipoFiltro === 'CM 260i') {
+        return eq.includes('CM 260') || marca.includes('wiener');
+      }
+      return true;
     });
   };
 
@@ -951,6 +975,24 @@ const GestionCajasFrascos = () => {
               onClick={() => setEquipoFiltro('Mindray BS-230')}
               sx={{ fontWeight: 600 }}
             />
+            <Chip
+              size="small"
+              label="Mindray CL-900i"
+              clickable
+              color={equipoFiltro === 'Mindray CL-900i' ? 'warning' : 'default'}
+              variant={equipoFiltro === 'Mindray CL-900i' ? 'filled' : 'outlined'}
+              onClick={() => setEquipoFiltro('Mindray CL-900i')}
+              sx={{ fontWeight: 600 }}
+            />
+            <Chip
+              size="small"
+              label="Mindray BC-5380"
+              clickable
+              color={equipoFiltro === 'Mindray BC-5380' ? 'success' : 'default'}
+              variant={equipoFiltro === 'Mindray BC-5380' ? 'filled' : 'outlined'}
+              onClick={() => setEquipoFiltro('Mindray BC-5380')}
+              sx={{ fontWeight: 600 }}
+            />
           </Box>
         </Box>
 
@@ -979,7 +1021,7 @@ const GestionCajasFrascos = () => {
                     <Grid container spacing={2.5}>
                       {cerradasFiltradas.map((caja) => {
                         const esMindray = (caja.marca || '').toLowerCase().includes('mindray');
-                        const sugerenciaEquipo = esMindray ? 'Mindray BS-230' : 'CM 260i';
+                        const sugerenciaEquipo = caja.equipoAsociado || (esMindray ? 'Mindray BS-230' : 'CM 260i');
                         return (
                           <Grid item xs={12} sm={6} lg={4} key={caja.id}>
                             <Card
@@ -1232,7 +1274,7 @@ const GestionCajasFrascos = () => {
                               </Box>
 
                               <Typography variant="caption" color="text.secondary" display="block">
-                                Abierto por: <strong>{caja.usuarioApertura || 'Bioanalista'}</strong> en <strong>{caja.equipoAsociado || 'CM 260i'}</strong> el {formatDate(caja.fechaApertura)}
+                                {caja.usuarioApertura ? <>Abierto por: <strong>{caja.usuarioApertura}</strong> </> : ''} en <strong>{caja.equipoAsociado || 'CM 260i'}</strong> el {formatDate(caja.fechaApertura)}
                               </Typography>
                             </CardContent>
 
@@ -1324,34 +1366,74 @@ const GestionCajasFrascos = () => {
                   <TableCell><b>Lote</b></TableCell>
                   <TableCell><b>Vencimiento (FEFO)</b></TableCell>
                   <TableCell><b>Estado actual</b></TableCell>
+                  <TableCell><b>Ubicación</b></TableCell>
                   <TableCell><b>Equipo</b></TableCell>
                   <TableCell align="center"><b>Accion</b></TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {candidatosScan.map((c) => (
-                  <TableRow key={c.id}>
-                    <TableCell>{c.producto}</TableCell>
-                    <TableCell>{c.lote}</TableCell>
+                  <TableRow key={c.id} sx={{ backgroundColor: c.estaEnLab ? '#f0fdf4' : 'inherit' }}>
+                    <TableCell sx={{ fontWeight: 600 }}>{c.producto}</TableCell>
+                    <TableCell><Chip size="small" label={c.lote} sx={{ fontWeight: 700 }} /></TableCell>
                     <TableCell sx={{ color: '#d97706', fontWeight: 600 }}>
                       {c.fechaVencimiento ? new Date(c.fechaVencimiento).toLocaleDateString() : 'N/A'}
                     </TableCell>
                     <TableCell>
                       {c.estadoTransferencia === 'EN_TRANSITO' 
-                        ? <Chip size="small" label="En Transito" color="warning" />
-                        : <Chip size="small" label={c.estado || 'Cerrado'} color="primary" variant="outlined"/>
+                        ? <Chip size="small" label="En Tránsito" color="warning" />
+                        : <Chip size="small" label={c.estado || 'Cerrado'} color={c.estado === 'Activo' ? 'success' : 'primary'} variant="outlined"/>
                       }
+                    </TableCell>
+                    <TableCell>
+                      <Chip 
+                        size="small" 
+                        label={c.ubicacionTexto || (c.estaEnLab ? 'Almacén Laboratorio' : (c.estadoTransferencia === 'EN_TRANSITO' ? 'En Tránsito' : 'Almacén Central'))} 
+                        sx={{ 
+                          fontWeight: 700, 
+                          backgroundColor: c.estaEnLab ? '#dcfce7' : (c.estadoTransferencia === 'EN_TRANSITO' ? '#fef3c7' : '#fee2e2'),
+                          color: c.estaEnLab ? '#15803d' : (c.estadoTransferencia === 'EN_TRANSITO' ? '#b45309' : '#b91c1c'),
+                          border: `1px solid ${c.estaEnLab ? '#86efac' : (c.estadoTransferencia === 'EN_TRANSITO' ? '#fde68a' : '#fca5a5')}`
+                        }}
+                      />
                     </TableCell>
                     <TableCell>{c.equipoAsociado}</TableCell>
                     <TableCell align="center">
-                      <Button 
-                        variant="contained" 
-                        color="success" 
-                        size="small"
-                        onClick={() => handleProcesarLote(c.id, c.equipoAsociado)}
-                      >
-                        Confirmar
-                      </Button>
+                      {c.estaEnLab ? (
+                        <Button 
+                          variant="contained" 
+                          color="success" 
+                          size="small"
+                          sx={{ fontWeight: 700 }}
+                          onClick={() => handleProcesarLote(c.id, c.equipoAsociado)}
+                        >
+                          Abrir en Lab
+                        </Button>
+                      ) : c.estadoTransferencia === 'EN_TRANSITO' ? (
+                        <Button 
+                          variant="contained" 
+                          color="warning" 
+                          size="small"
+                          sx={{ fontWeight: 700 }}
+                          onClick={() => handleProcesarLote(c.id, c.equipoAsociado)}
+                        >
+                          Recibir en Lab
+                        </Button>
+                      ) : (
+                        <Tooltip title="Bloqueado: La caja está en Almacén Central. Primero debe transferirse y recibirse en Laboratorio.">
+                          <span>
+                            <Button 
+                              variant="outlined" 
+                              color="error" 
+                              size="small"
+                              disabled
+                              sx={{ fontWeight: 700, opacity: 0.6 }}
+                            >
+                              En Almacén Central
+                            </Button>
+                          </span>
+                        </Tooltip>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))}
@@ -1379,6 +1461,9 @@ const GestionCajasFrascos = () => {
         <DialogContent dividers>
           {selectedCaja && (
             <Box>
+              <Alert severity="success" sx={{ mb: 2, fontWeight: 600 }}>
+                📍 Caja verificada en Almacén de Laboratorio. Apertura y colocación de frasco autorizada exclusivamente para Bioanalistas.
+              </Alert>
               <Typography variant="body1" fontWeight={600} gutterBottom>
                 ¿Desea abrir la caja y colocar el primer frasco en el analizador clínico?
               </Typography>
@@ -1417,6 +1502,16 @@ const GestionCajasFrascos = () => {
                       value="Mindray BS-230"
                       control={<Radio size="small" color="primary" />}
                       label={<Typography variant="body2" fontWeight={600}>Mindray BS-230 (192.168.30.148)</Typography>}
+                    />
+                    <FormControlLabel
+                      value="Mindray CL-900i"
+                      control={<Radio size="small" color="warning" />}
+                      label={<Typography variant="body2" fontWeight={600}>Mindray CL-900i (192.168.30.211)</Typography>}
+                    />
+                    <FormControlLabel
+                      value="Mindray BC 5380"
+                      control={<Radio size="small" color="success" />}
+                      label={<Typography variant="body2" fontWeight={600}>Mindray BC 5380 (192.168.10.62)</Typography>}
                     />
                   </RadioGroup>
                 </FormControl>

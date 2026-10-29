@@ -647,46 +647,27 @@ const TransferModalForm = memo(({ open, onClose, products, stockSummary, onProdu
     cantidad: '',
     almacen_origen_id: 1,
     almacen_destino_id: 2,
-    motivo: 'SUMINISTRO OPERATIVO A LABORATORIO',
+    motivo: 'Suministro operativo a laboratorio',
     referencia: `TRANS-${Date.now().toString().slice(-6)}`
   });
 
-  // LOTES DISPONIBLES EN ALMACEN CENTRAL
-  const [availableLots, setAvailableLots] = useState([]);
-  const [loadingLots, setLoadingLots] = useState(false);
-  const [selectedLots, setSelectedLots] = useState({});
-
   useEffect(() => {
     if (open) {
-      const initRef = `TRANS-${Date.now().toString().slice(-6)}`;
-      setSelectedLots({});
       if (onProductSelect) {
-        const targetId = onProductSelect.id || onProductSelect.item_id;
-        const found = (products || []).find(p => Number(p.id) === Number(targetId) || p.codigo === onProductSelect.codigo) || onProductSelect;
-        const summary = (stockSummary || []).find(s => Number(s.item_id) === Number(targetId));
-        const presentacionFinal = found.presentacion || onProductSelect.presentacion || onProductSelect.item_presentacion || summary?.item_presentacion || '';
-        const equipoFinal = found.equipo_asociado || onProductSelect.equipo_asociado || summary?.item_equipo || '';
-        const categoriaFinal = found.categoria || onProductSelect.item_categoria || onProductSelect.categoria || summary?.item_categoria || '';
-        const unidadFinal = onProductSelect.unidad || onProductSelect.unidad_manejo || summary?.unidad_manejo || 'Cajas';
-
+        const found = (products || []).find(p => p.id === onProductSelect.id || p.codigo === onProductSelect.codigo) || onProductSelect;
+        const presentacionFinal = found.presentacion || onProductSelect.presentacion || onProductSelect.item_presentacion || '';
         setSelectedProduct({
           ...found,
-          id: targetId,
-          item_id: targetId,
           presentacion: presentacionFinal,
-          equipo_asociado: equipoFinal,
-          item_categoria: categoriaFinal,
-          categoria: categoriaFinal,
-          unidad: unidadFinal,
-          unidad_manejo: unidadFinal
+          equipo_asociado: found.equipo_asociado || onProductSelect.equipo_asociado
         });
         setTransferData({
-          item_id: targetId,
+          item_id: found.id || found.item_id,
           cantidad: '',
           almacen_origen_id: 1,
           almacen_destino_id: 2,
-          motivo: 'SUMINISTRO OPERATIVO A LABORATORIO',
-          referencia: initRef
+          motivo: 'Suministro operativo a laboratorio',
+          referencia: `TRANS-${Date.now().toString().slice(-6)}`
         });
       } else {
         setSelectedProduct(null);
@@ -695,12 +676,17 @@ const TransferModalForm = memo(({ open, onClose, products, stockSummary, onProdu
           cantidad: '',
           almacen_origen_id: 1,
           almacen_destino_id: 2,
-          motivo: 'SUMINISTRO OPERATIVO A LABORATORIO',
-          referencia: initRef
+          motivo: 'Suministro operativo a laboratorio',
+          referencia: `TRANS-${Date.now().toString().slice(-6)}`
         });
       }
     }
-  }, [open, onProductSelect, products, stockSummary]);
+  }, [open, onProductSelect, products]);
+
+  // LOTES DISPONIBLES EN ALMACEN CENTRAL
+  const [availableLots, setAvailableLots] = useState([]);
+  const [loadingLots, setLoadingLots] = useState(false);
+  const [selectedLots, setSelectedLots] = useState({});
 
   useEffect(() => {
     const targetId = selectedProduct ? (selectedProduct.id || selectedProduct.item_id) : transferData.item_id;
@@ -775,7 +761,7 @@ const TransferModalForm = memo(({ open, onClose, products, stockSummary, onProdu
   const availableStockOrigen = useMemo(() => {
     if (!selectedProduct) return null;
     const targetId = selectedProduct.id || selectedProduct.item_id;
-    const summaryItem = (stockSummary || []).find(s => Number(s.item_id) === Number(targetId));
+    const summaryItem = (stockSummary || []).find(s => s.item_id === targetId);
     if (!summaryItem) return 0;
     const origenId = parseInt(transferData.almacen_origen_id, 10);
     if (origenId === 1) {
@@ -786,16 +772,13 @@ const TransferModalForm = memo(({ open, onClose, products, stockSummary, onProdu
     return 0;
   }, [selectedProduct, transferData.almacen_origen_id, stockSummary]);
 
-  // BIFURCACION LOGICA EN FRONTEND (ROBUSTA E INSENSIBLE A MAYÚSCULAS)
+  // BIFURCACION LOGICA EN FRONTEND
   const esFamiliaA = useMemo(() => {
-    if (!selectedProduct) return true;
-    const cat = normalizarTextoMayusculas(selectedProduct.item_categoria || selectedProduct.categoria || '');
-    const unidad = normalizarTextoMayusculas(selectedProduct.unidad || selectedProduct.unidad_manejo || '');
-    const isCatReactivo = cat.includes('REACTIV') || cat.includes('CALIBRAD') || cat.includes('CONTROL') || cat.includes('INSUMO') || cat.includes('QUIMICA');
-    const isUnidadCaja = unidad.includes('CAJA');
-    const hasLots = availableLots && availableLots.length > 0;
-    return isCatReactivo || isUnidadCaja || hasLots || (!cat && !unidad);
-  }, [selectedProduct, availableLots]);
+    if (!selectedProduct) return false;
+    const cat = selectedProduct.item_categoria || selectedProduct.categoria || '';
+    const unidad = selectedProduct.unidad || selectedProduct.unidad_manejo || '';
+    return ['Reactivo', 'Calibrador', 'Control', 'Reactivos', 'Calibradores', 'Controles'].includes(cat) || unidad === 'Cajas';
+  }, [selectedProduct]);
 
   const unidadDisplay = obtenerUnidadManejo(selectedProduct);
 
@@ -803,36 +786,6 @@ const TransferModalForm = memo(({ open, onClose, products, stockSummary, onProdu
   const isZeroStock = selectedProduct !== null && availableStockOrigen !== null && availableStockOrigen <= 0;
   const isExceeded = selectedProduct !== null && availableStockOrigen !== null && cantidadNum > availableStockOrigen;
   const origenNombre = parseInt(transferData.almacen_origen_id, 10) === 1 ? 'Almacén Central' : 'Almacén Laboratorio';
-
-  const handleProductSelectChange = (val) => {
-    if (val) {
-      const targetId = val.id || val.item_id;
-      const summary = (stockSummary || []).find(s => Number(s.item_id) === Number(targetId));
-      const presentacionFinal = val.presentacion || val.item_presentacion || summary?.item_presentacion || '';
-      const equipoFinal = val.equipo_asociado || val.item_equipo || summary?.item_equipo || '';
-      const categoriaFinal = val.categoria || val.item_categoria || summary?.item_categoria || '';
-      const unidadFinal = val.unidad || val.unidad_manejo || summary?.unidad_manejo || 'Cajas';
-
-      setSelectedProduct({
-        ...val,
-        id: targetId,
-        item_id: targetId,
-        presentacion: presentacionFinal,
-        equipo_asociado: equipoFinal,
-        item_categoria: categoriaFinal,
-        categoria: categoriaFinal,
-        unidad: unidadFinal,
-        unidad_manejo: unidadFinal
-      });
-      setTransferData(prev => ({ ...prev, item_id: targetId, cantidad: '' }));
-      setSelectedLots({});
-    } else {
-      setSelectedProduct(null);
-      setTransferData(prev => ({ ...prev, item_id: '', cantidad: '' }));
-      setSelectedLots({});
-      setAvailableLots([]);
-    }
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -872,7 +825,7 @@ const TransferModalForm = memo(({ open, onClose, products, stockSummary, onProdu
         cantidad: parseFloat(transferData.cantidad),
         almacen_origen_id: parseInt(transferData.almacen_origen_id, 10),
         almacen_destino_id: parseInt(transferData.almacen_destino_id, 10),
-        motivo: transferData.motivo || 'SUMINISTRO OPERATIVO A LABORATORIO',
+        motivo: transferData.motivo || 'Transferencia entre depósitos',
         referencia: transferData.referencia || `TRANS-${Date.now().toString().slice(-6)}`,
         lotes_transferir: lotesPayload.length > 0 ? lotesPayload : undefined
       };
@@ -932,7 +885,10 @@ const TransferModalForm = memo(({ open, onClose, products, stockSummary, onProdu
                 isOptionEqualToValue={(option, val) => !val || option.id === val.id || option.codigo === val.codigo}
                 getOptionLabel={(option) => `[${option.codigo}] ${option.nombre} ${option.presentacion ? ' • (' + option.presentacion + ')' : (option.referencia_abreviada ? ' (REF: ' + option.referencia_abreviada + ')' : '')}`}
                 value={selectedProduct}
-                onChange={(e, val) => handleProductSelectChange(val)}
+                onChange={(e, val) => {
+                  setSelectedProduct(val);
+                  if (val) setTransferData(prev => ({ ...prev, item_id: val.id }));
+                }}
                 renderInput={(params) => (
                   <TextField
                     {...params}
@@ -1033,7 +989,7 @@ const TransferModalForm = memo(({ open, onClose, products, stockSummary, onProdu
             )}
 
             {/* SELECCIÓN Y ASIGNACIÓN DE LOTES (CUANDO ORIGEN ES ALMACÉN CENTRAL) */}
-            {parseInt(transferData.almacen_origen_id, 10) === 1 && (
+            {esFamiliaA && parseInt(transferData.almacen_origen_id, 10) === 1 && selectedProduct && (
               <Grid item xs={12}>
                 <Paper
                   elevation={0}
@@ -1044,7 +1000,7 @@ const TransferModalForm = memo(({ open, onClose, products, stockSummary, onProdu
                     borderRadius: 3
                   }}
                 >
-                  <Box display="flex" alignItems="center" justifyContent="space-between" mb={selectedProduct ? 1.5 : 0}>
+                  <Box display="flex" alignItems="center" justifyContent="space-between" mb={1.5}>
                     <Box display="flex" alignItems="center" gap={1}>
                       <InventoryIcon sx={{ color: '#0284c7', fontSize: 22 }} />
                       <Typography variant="subtitle2" fontWeight={800} color="#0f172a">
@@ -1054,17 +1010,13 @@ const TransferModalForm = memo(({ open, onClose, products, stockSummary, onProdu
                     {loadingLots && <CircularProgress size={18} />}
                   </Box>
 
-                  {!selectedProduct ? (
-                    <Alert severity="info" sx={{ mt: 1.5, py: 1, borderRadius: 2, bgcolor: '#f0f9ff', color: '#0369a1', border: '1px solid #bae6fd' }}>
-                      🔍 Selecciona un producto en el buscador superior para visualizar y asignar sus lotes disponibles para traslado.
-                    </Alert>
-                  ) : loadingLots ? (
-                    <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>
+                  {loadingLots ? (
+                    <Typography variant="caption" color="text.secondary">
                       Consultando lotes disponibles en Almacén Central...
                     </Typography>
                   ) : availableLots.length === 0 ? (
-                    <Alert severity="warning" sx={{ mt: 1, py: 0.8, borderRadius: 2 }}>
-                      No se encontraron registros de lotes específicos con stock activo para este producto en Central. Puede ingresar la cantidad manualmente a continuación.
+                    <Alert severity="warning" sx={{ py: 0.5, borderRadius: 2 }}>
+                      No se encontraron registros de lotes específicos para este producto en Central. Puede ingresar la cantidad manualmente a continuación.
                     </Alert>
                   ) : (
                     <>
@@ -1180,18 +1132,20 @@ const TransferModalForm = memo(({ open, onClose, products, stockSummary, onProdu
             </Grid>
 
             {/* BANNER DINÁMICO DE BIFURCACIÓN DE RUTAS */}
-            <Grid item xs={12} sm={6}>
-              <Paper elevation={0} sx={{ height: '100%', minHeight: 56, p: 1.5, bgcolor: esFamiliaA ? '#fef3c7' : '#f0fdfa', border: `1px solid ${esFamiliaA ? '#fde68a' : '#ccfbf1'}`, borderRadius: 2, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                <Typography variant="caption" sx={{ fontWeight: 800, color: esFamiliaA ? '#92400e' : '#115e59', textTransform: 'uppercase' }}>
-                  Flujo de Transferencia
-                </Typography>
-                <Typography variant="body2" sx={{ fontWeight: 600, color: esFamiliaA ? '#b45309' : '#0f766e', mt: 0.5, lineHeight: 1.2 }}>
-                  {esFamiliaA 
-                    ? 'Envío EN TRÁNSITO para Recepción Electrónica (Trazabilidad estricta).'
-                    : 'Transferencia DIRECTA e INMEDIATA a stock de Laboratorio.'}
-                </Typography>
-              </Paper>
-            </Grid>
+            {selectedProduct && (
+              <Grid item xs={12} sm={6}>
+                <Paper elevation={0} sx={{ height: '100%', p: 1.5, bgcolor: esFamiliaA ? '#fef3c7' : '#f0fdfa', border: `1px solid ${esFamiliaA ? '#fde68a' : '#ccfbf1'}`, borderRadius: 2, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                  <Typography variant="caption" sx={{ fontWeight: 800, color: esFamiliaA ? '#92400e' : '#115e59', textTransform: 'uppercase' }}>
+                    Flujo de Transferencia
+                  </Typography>
+                  <Typography variant="body2" sx={{ fontWeight: 600, color: esFamiliaA ? '#b45309' : '#0f766e', mt: 0.5, lineHeight: 1.2 }}>
+                    {esFamiliaA 
+                      ? 'Envío EN TRÁNSITO para Recepción Electrónica (Trazabilidad estricta).'
+                      : 'Transferencia DIRECTA e INMEDIATA a stock de Laboratorio.'}
+                  </Typography>
+                </Paper>
+              </Grid>
+            )}
 
             {/* BANNER DE DESGLOSE OPERATIVO */}
             {esFamiliaA && selectedProduct && transferData.cantidad && parseFloat(transferData.cantidad) > 0 && String(transferData.almacen_destino_id) === '2' && !isExceeded && !isZeroStock && (
@@ -1219,13 +1173,13 @@ const TransferModalForm = memo(({ open, onClose, products, stockSummary, onProdu
               />
             </Grid>
 
-            <Grid item xs={12} sm={6}>
+            <Grid item xs={12}>
               <Typography variant="subtitle2" fontWeight={800} color="#1e293b" mb={1}>
                 MOTIVO DEL TRASLADO
               </Typography>
               <TextField
                 fullWidth
-                placeholder="Ej. SUMINISTRO OPERATIVO A LABORATORIO"
+                placeholder="Ej. Suministro semanal a laboratorio operativo"
                 value={transferData.motivo}
                 onChange={(e) => setTransferData({ ...transferData, motivo: e.target.value.toUpperCase() })}
                 inputProps={{ style: { textTransform: 'uppercase' } }}
@@ -1272,6 +1226,32 @@ const TransferModalForm = memo(({ open, onClose, products, stockSummary, onProdu
 });
 
 // COMPONENTE PRINCIPAL HUB ALMACÉN / DEPÓSITO
+
+// Helper: Determina si el ítem pertenece a Familia A (Reactivo, Calibrador o Control)
+// Si es Familia B (Insumos generales, consumibles no analíticos), se obvia y se muestra una rayita '—'
+const esReactivoCalibradorControl = (row) => {
+  if (!row) return false;
+  const cat = (row.item_categoria || '').toLowerCase().trim();
+  const cod = (row.item_codigo || '').toUpperCase().trim();
+  const nom = (row.item_nombre || '').toUpperCase().trim();
+
+  // Excluir explícitamente Insumos y Familia B
+  if (cat.includes('insumo') || cod.startsWith('INS-')) {
+    return false;
+  }
+
+  // Validar si es Reactivo, Calibrador o Control
+  if (cat.includes('reactivo') || cat.includes('calibrador') || cat.includes('control')) {
+    return true;
+  }
+
+  if (cod.startsWith('REA-') || cod.startsWith('CAL-') || cod.startsWith('CTR-') || cod.startsWith('CTL-') || cod.startsWith('WL-') || cod.startsWith('BS2')) {
+    return true;
+  }
+
+  return false;
+};
+
 const WarehousesHub = () => {
   const navigate = useNavigate();
   const [tabValue, setTabValue] = useState(0);
@@ -1412,15 +1392,11 @@ const WarehousesHub = () => {
     if (productItem) {
       setSelectedProductForAction({
         id: productItem.item_id,
-        item_id: productItem.item_id,
         codigo: productItem.item_codigo,
         nombre: productItem.item_nombre,
         referencia_abreviada: productItem.item_referencia,
         presentacion: productItem.item_presentacion || productItem.presentacion,
-        equipo_asociado: productItem.item_equipo || productItem.equipo_asociado,
-        item_categoria: productItem.item_categoria || productItem.categoria,
-        unidad: productItem.unidad_manejo || 'Cajas',
-        unidad_manejo: productItem.unidad_manejo || 'Cajas'
+        equipo_asociado: productItem.item_equipo || productItem.equipo_asociado
       });
     } else {
       setSelectedProductForAction(null);
@@ -1787,6 +1763,7 @@ const WarehousesHub = () => {
                   <TableCell sx={{ color: 'white', fontWeight: 800 }}>Autoanalizador</TableCell>
                   <TableCell sx={{ color: 'white', fontWeight: 800, textAlign: 'center' }}>🏢 Stock Almacén Central</TableCell>
                   <TableCell sx={{ color: 'white', fontWeight: 800, textAlign: 'center' }}>🔬 Stock Almacén Laboratorio</TableCell>
+                  <TableCell sx={{ color: 'white', fontWeight: 800, textAlign: 'center' }}>⚡ En Analizador (En Uso)</TableCell>
                   <TableCell sx={{ color: 'white', fontWeight: 800, textAlign: 'center' }}>Stock Total Global</TableCell>
                   <TableCell sx={{ color: 'white', fontWeight: 800, textAlign: 'center' }}>Acciones Rápidas</TableCell>
                 </TableRow>
@@ -1794,7 +1771,7 @@ const WarehousesHub = () => {
               <TableBody>
                 {loadingStock ? (
                   <TableRow>
-                    <TableCell colSpan={7} align="center" sx={{ py: 6 }}>
+                    <TableCell colSpan={8} align="center" sx={{ py: 6 }}>
                       <CircularProgress size={36} sx={{ color: '#0284c7', mb: 1.5 }} />
                       <Typography variant="body2" color="textSecondary" fontWeight={700}>
                         Cargando inventario consolidado de almacenes...
@@ -1803,7 +1780,7 @@ const WarehousesHub = () => {
                   </TableRow>
                 ) : filteredStock.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={7} align="center" sx={{ py: 6, color: '#64748b' }}>
+                    <TableCell colSpan={8} align="center" sx={{ py: 6, color: '#64748b' }}>
                       <WarehouseIcon sx={{ fontSize: 48, color: '#cbd5e1', mb: 1 }} />
                       <Typography variant="subtitle1" fontWeight={800} color="#1e293b">
                         No se encontraron existencias registradas
@@ -1856,6 +1833,55 @@ const WarehousesHub = () => {
                             border: `1px solid ${row.stock_laboratorio > 0 ? '#bbf7d0' : '#cbd5e1'}`
                           }}
                         />
+                      </TableCell>
+
+                      <TableCell align="center">
+                        {!esReactivoCalibradorControl(row) ? (
+                          <Typography variant="body2" sx={{ color: '#94a3b8', fontWeight: 800, fontSize: 16 }}>
+                            —
+                          </Typography>
+                        ) : row.cajas_en_uso > 0 ? (
+                          <Tooltip
+                            arrow
+                            title={
+                              <Box sx={{ p: 0.8, fontSize: 12 }}>
+                                <Typography variant="caption" sx={{ display: 'block', fontWeight: 800, color: '#38bdf8', mb: 0.5 }}>
+                                  🔬 FRASCO ACTIVO EN CARRUSEL
+                                </Typography>
+                                <strong>Lote:</strong> {row.lote_en_uso}<br />
+                                <strong>Nivel Restante:</strong> {row.ml_restantes_en_uso} mL (~{row.pruebas_restantes_en_uso} determinaciones)<br />
+                                {row.usuario_apertura_en_uso ? <><strong>Abierto por:</strong> {row.usuario_apertura_en_uso}<br /></> : null}
+                                <strong>Autoanalizador:</strong> {row.item_equipo || 'CM 260i'}
+                              </Box>
+                            }
+                          >
+                            <Chip
+                              icon={<span style={{ fontSize: '13px', marginLeft: '6px' }}>🟢</span>}
+                              label={`${row.cajas_en_uso} en Equipo (${row.ml_restantes_en_uso || 0} mL)`}
+                              size="small"
+                              sx={{
+                                fontWeight: 800,
+                                bgcolor: '#ecfdf5',
+                                color: '#065f46',
+                                border: '1px solid #a7f3d0',
+                                cursor: 'help',
+                                boxShadow: '0 1px 3px rgba(16,185,129,0.15)'
+                              }}
+                            />
+                          </Tooltip>
+                        ) : (
+                          <Chip
+                            label="Sin frasco en uso"
+                            size="small"
+                            sx={{
+                              fontWeight: 600,
+                              bgcolor: '#f8fafc',
+                              color: '#94a3b8',
+                              border: '1px dashed #cbd5e1',
+                              fontSize: 11
+                            }}
+                          />
+                        )}
                       </TableCell>
 
                       <TableCell align="center" sx={{ fontWeight: 900, color: '#0f172a', fontSize: 15 }}>

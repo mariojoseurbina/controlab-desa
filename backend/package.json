@@ -7,7 +7,9 @@
     "start": "node server.js",
     "dev": "nodemon server.js",
     "install-deps": "npm install",
-    "prisma:generate": "prisma generate"
+    "prisma:generate": "prisma generate",
+    "test:reglas": "node tests/validar-reglas-negocio.js",
+    "restaurar-reglas": "node scripts/restaurar-reglas.js"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

@@ -26,7 +26,8 @@ import {
   MonetizationOn as CostosIcon,
   SmartToy as SmartToyIcon,
   Radar as RadarIcon,
-  History as HistoryIcon
+  History as HistoryIcon,
+  Assignment as SolicitudesIcon
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -94,6 +95,11 @@ const Sidebar = ({ open, onClose }) => {
       text: 'Compras', 
       icon: <ComprasIcon />, 
       path: '/compras' 
+    },
+    { 
+      text: '📋 Solicitudes Productos', 
+      icon: <SolicitudesIcon style={{ color: '#6366f1' }} />, 
+      path: '/solicitudes' 
     },
     { 
       text: 'Estructura de Costos', 

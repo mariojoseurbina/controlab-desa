@@ -44,7 +44,8 @@ const SnifferDashboard = () => {
     { key: 'ALL', label: 'Todos los Equipos', ip: 'Red General' },
     { key: 'CM_260I', label: 'CM 260i', ip: '192.168.10.188:5050' },
     { key: 'BS_230', label: 'Mindray BS-230', ip: '192.168.30.148:5050' },
-    { key: 'CLIA_900I', label: 'CLIA 900i', ip: '192.168.30.211:5150' }
+    { key: 'CLIA_900I', label: 'CLIA 900i', ip: '192.168.30.211:5150' },
+    { key: 'BC_5380', label: 'Mindray BC-5380', ip: '192.168.10.62:5155' }
   ];
 
   const fetchLogs = async () => {
@@ -100,6 +101,9 @@ const SnifferDashboard = () => {
 
     // Normalización de nombres de prueba para despliegue amigable
     let cleanName = testName || 'TEST_DESCONOCIDO';
+    if (log.raw_frame && (log.raw_frame.includes('BC-5380') || log.raw_frame.includes('CBC+DIFF') || log.raw_frame.includes('CBC'))) {
+      cleanName = 'HEMOGRAMA COMPLETO (CBC+DIFF)';
+    }
     const upper = cleanName.toUpperCase();
     
     if (upper === '13' || upper.includes('GLUCOSE') || upper === 'GLUL' || upper === 'GLICEMIA' || upper === 'GLU') {
@@ -160,6 +164,9 @@ const SnifferDashboard = () => {
     }
     if (selectedTab === 'CLIA_900I') {
       return origin.includes('clia') || origin.includes('900i') || origin.includes('192.168.30.211') || raw.includes('clia') || raw.includes('192.168.30.211') || origin.includes('cl-900') || origin.includes('cl-900i');
+    }
+    if (selectedTab === 'BC_5380') {
+      return origin.includes('bc 5380') || origin.includes('bc-5380') || origin.includes('bc5380') || origin.includes('192.168.10.62') || raw.includes('bc-5380') || raw.includes('bc 5380');
     }
     return origin.includes(selectedTab.toLowerCase());
   });
@@ -394,6 +401,9 @@ const SnifferDashboard = () => {
                 } else if (displayEquipo.includes('192.168.30.211') || displayEquipo.toLowerCase().includes('clia') || displayEquipo.includes('900i')) {
                   displayEquipo = 'CLIA 900i (Quimioluminiscencia)';
                   equipoColor = '#c084fc';
+                } else if (displayEquipo.includes('BC 5380') || displayEquipo.includes('bc-5380') || displayEquipo.includes('192.168.10.62') || displayEquipo.toLowerCase().includes('bc 5000')) {
+                  displayEquipo = 'Mindray BC-5380 (Hematología)';
+                  equipoColor = '#10b981';
                 }
 
                 return (

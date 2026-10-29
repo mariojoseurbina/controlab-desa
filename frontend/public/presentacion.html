@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Controlab IA &bull; Congreso de Bioanalistas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #070B14;
+      --card-bg: rgba(17, 24, 39, 0.75);
+      --card-border: rgba(99, 102, 241, 0.2);
+      --primary: #6366F1;
+      --primary-glow: rgba(99, 102, 241, 0.4);
+      --cyan: #06B6D4;
+      --emerald: #10B981;
+      --amber: #F59E0B;
+      --rose: #F43F5E;
+      --text-main: #F8FAFC;
+      --text-muted: #94A3B8;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      background-color: var(--bg);
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.18) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(6, 182, 212, 0.15) 0px, transparent 50%),
+        radial-gradient(at 50% 50%, rgba(16, 185, 129, 0.08) 0px, transparent 60%);
+      background-attachment: fixed;
+      color: var(--text-main);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      line-height: 1.5;
+      overflow-x: hidden;
+      padding-bottom: 70px;
+    }
+
+    /* Contenedor central */
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 20px 16px;
+    }
+
+    /* Header y Barra superior */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 18px;
+      background: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--card-border);
+      border-radius: 999px;
+      margin-bottom: 24px;
+      position: sticky;
+      top: 12px;
+      z-index: 100;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-badge {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, #6366F1, #06B6D4);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      box-shadow: 0 0 16px var(--primary-glow);
+    }
+
+    .brand-name {
+      font-weight: 900;
+      font-size: 17px;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #ffffff 40%, #06B6D4 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .edition-tag {
+      font-size: 10.5px;
+      font-weight: 700;
+      color: #38BDF8;
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      padding: 4px 10px;
+      border-radius: 999px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Hero Section */
+    .hero {
+      text-align: center;
+      padding: 30px 10px 36px;
+    }
+
+    .hero-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(99, 102, 241, 0.15);
+      border: 1px solid rgba(99, 102, 241, 0.35);
+      color: #C7D2FE;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 6px 14px;
+      border-radius: 999px;
+      margin-bottom: 16px;
+    }
+
+    .hero h1 {
+      font-size: 32px;
+      font-weight: 900;
+      line-height: 1.15;
+      letter-spacing: -1px;
+      margin-bottom: 14px;
+    }
+
+    .hero h1 span {
+      background: linear-gradient(135deg, #818CF8 0%, #06B6D4 50%, #34D399 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-desc {
+      font-size: 15px;
+      color: var(--text-muted);
+      max-width: 650px;
+      margin: 0 auto 24px;
+      line-height: 1.6;
+    }
+
+    /* Badges de impacto */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 30px;
+    }
+
+    .kpi-box {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 14px 10px;
+      text-align: center;
+      backdrop-filter: blur(10px);
+    }
+
+    .kpi-val {
+      font-size: 24px;
+      font-weight: 900;
+      font-family: 'JetBrains Mono', monospace;
+      color: #38BDF8;
+    }
+
+    .kpi-lbl {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 600;
+      margin-top: 2px;
+    }
+
+    /* Selector de pestañas / modo interactivo */
+    .tabs-nav {
+      display: flex;
+      gap: 8px;
+      background: rgba(15, 23, 42, 0.9);
+      padding: 6px;
+      border-radius: 16px;
+      border: 1px solid var(--card-border);
+      margin-bottom: 24px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .tabs-nav::-webkit-scrollbar { display: none; }
+
+    .tab-btn {
+      flex: 1;
+      min-width: 140px;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 10px 14px;
+      border-radius: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .tab-btn.active {
+      background: linear-gradient(135deg, #6366F1, #4F46E5);
+      color: #ffffff;
+      box-shadow: 0 4px 12px var(--primary-glow);
+    }
+
+    /* Tarjetas de características */
+    .feature-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 24px 20px;
+      margin-bottom: 20px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+      transition: transform 0.2s, border-color 0.2s;
+    }
+
+    .feature-card:hover {
+      border-color: rgba(99, 102, 241, 0.5);
+    }
+
+    .feature-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+
+    .feature-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+
+    .icon-indigo { background: rgba(99, 102, 241, 0.15); border: 1px solid rgba(99, 102, 241, 0.4); }
+    .icon-cyan   { background: rgba(6, 182, 212, 0.15); border: 1px solid rgba(6, 182, 212, 0.4); }
+    .icon-emerald{ background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); }
+    .icon-amber  { background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.4); }
+    .icon-rose   { background: rgba(244, 63, 94, 0.15); border: 1px solid rgba(244, 63, 94, 0.4); }
+
+    .feature-title h3 {
+      font-size: 18px;
+      font-weight: 800;
+      color: #FFFFFF;
+      margin-bottom: 4px;
+    }
+
+    .feature-title p {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .feature-body {
+      font-size: 14px;
+      color: #CBD5E1;
+      line-height: 1.6;
+    }
+
+    .feature-list {
+      list-style: none;
+      margin-top: 14px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .feature-list li {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: #E2E8F0;
+    }
+
+    .feature-list li span.check {
+      color: var(--emerald);
+      font-weight: 900;
+    }
+
+    /* Simulador Interactivo de Trama en Vivo */
+    .live-demo-box {
+      background: #090D16;
+      border: 1px solid #1E293B;
+      border-radius: 14px;
+      padding: 14px;
+      margin-top: 14px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+    }
+
+    .live-demo-header {
+      display: flex;
+      justify-content: space-between;
+      color: #64748B;
+      font-size: 10px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      border-bottom: 1px solid #1E293B;
+      padding-bottom: 6px;
+    }
+
+    .trama-raw {
+      color: #38BDF8;
+      word-break: break-all;
+      margin-bottom: 8px;
+    }
+
+    .trama-res {
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      padding: 8px 10px;
+      border-radius: 8px;
+      color: #34D399;
+      font-size: 11.5px;
+    }
+
+    /* Grid de Analizadores Conectables */
+    .analyzers-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .analyzer-chip {
+      background: rgba(30, 41, 59, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .analyzer-chip .icon {
+      font-size: 20px;
+    }
+
+    .analyzer-chip .name {
+      font-weight: 700;
+      font-size: 12.5px;
+      color: #F1F5F9;
+    }
+
+    .analyzer-chip .sub {
+      font-size: 10.5px;
+      color: #94A3B8;
+    }
+
+    /* Testimonio / Cita Bioanalista */
+    .quote-box {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(6, 182, 212, 0.08));
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      border-radius: 20px;
+      padding: 22px;
+      margin: 30px 0;
+      text-align: center;
+    }
+
+    .quote-text {
+      font-size: 15px;
+      font-style: italic;
+      color: #E2E8F0;
+      margin-bottom: 12px;
+      line-height: 1.6;
+    }
+
+    .quote-author {
+      font-size: 12px;
+      font-weight: 700;
+      color: #38BDF8;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Llamado a la Acción (CTA) */
+    .cta-card {
+      background: linear-gradient(135deg, #1E1B4B 0%, #312E81 100%);
+      border: 1px solid #6366F1;
+      border-radius: 24px;
+      padding: 30px 20px;
+      text-align: center;
+      box-shadow: 0 20px 40px -15px var(--primary-glow);
+    }
+
+    .cta-card h2 {
+      font-size: 24px;
+      font-weight: 900;
+      margin-bottom: 10px;
+      color: #FFFFFF;
+    }
+
+    .cta-card p {
+      font-size: 14px;
+      color: #C7D2FE;
+      max-width: 500px;
+      margin: 0 auto 20px;
+    }
+
+    .cta-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: linear-gradient(135deg, #06B6D4, #3B82F6);
+      color: #FFFFFF;
+      font-weight: 800;
+      font-size: 15px;
+      padding: 14px 28px;
+      border-radius: 999px;
+      text-decoration: none;
+      box-shadow: 0 8px 20px rgba(6, 182, 212, 0.4);
+      transition: transform 0.2s;
+    }
+
+    .cta-btn:active {
+      transform: scale(0.97);
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding-top: 30px;
+      font-size: 12px;
+      color: #64748B;
+    }
+
+    @media (max-width: 600px) {
+      .hero h1 { font-size: 26px; }
+      .kpi-grid { grid-template-columns: 1fr; gap: 8px; }
+      .analyzers-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <!-- Header -->
+    <header>
+      <div class="brand">
+        <div class="logo-badge">🔬</div>
+        <div>
+          <div class="brand-name">CONTROLAB IA</div>
+        </div>
+      </div>
+      <div class="edition-tag">Congreso 2026</div>
+    </header>
+
+    <!-- Hero -->
+    <section class="hero">
+      <div class="hero-pill">✨ Especial para Bioanalistas y Directores Técnicos</div>
+      <h1>El Futuro de la Gestión y Trazabilidad en <span>Laboratorio Clínico</span></h1>
+      <p class="hero-desc">
+        La plataforma inteligente que conecta tus analizadores de mesada en tiempo real, descuenta reactivos al mililitro exacto y elimina las mermas no detectadas.
+      </p>
+
+      <!-- KPIs rápidos -->
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-val">-35%</div>
+          <div class="kpi-lbl">Desperdicio de Reactivos</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-val">100%</div>
+          <div class="kpi-lbl">Trazabilidad por Lote y Caja</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-val">0 Seg</div>
+          <div class="kpi-lbl">Descuento Inmediato con Sniffer</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Selector de Pilares / Pestañas -->
+    <div class="tabs-nav">
+      <button class="tab-btn active" onclick="mostrarPilar('sniffer', event)">⚡ Sniffer ASTM/HL7</button>
+      <button class="tab-btn" onclick="mostrarPilar('reactivos', event)">🧪 Frascos & Lotes</button>
+      <button class="tab-btn" onclick="mostrarPilar('solicitudes', event)">📦 Almacén Central</button>
+      <button class="tab-btn" onclick="mostrarPilar('equipos', event)">🔬 Analizadores</button>
+    </div>
+
+    <!-- PILAR 1: SNIFFER -->
+    <div id="pilar-sniffer" class="pilar-content">
+      <div class="feature-card">
+        <div class="feature-header">
+          <div class="feature-icon icon-indigo">⚡</div>
+          <div class="feature-title">
+            <h3>Sniffer Inteligente en Tiempo Real</h3>
+            <p>Conexión directa a puertos serie y TCP/IP de los analizadores</p>
+          </div>
+        </div>
+        <div class="feature-body">
+          Controlab escucha pasivamente las tramas de los equipos sin alterar los resultados médicos. Cada vez que el analizador emite una prueba de un paciente, el sistema descuenta automáticamente los microlitros exactos del reactivo en uso.
+          
+          <ul class="feature-list">
+            <li><span class="check">✓</span> <b>Cero intervención manual:</b> El bioanalista solo procesa en el equipo; Controlab hace todo el registro administrativo en segundo plano.</li>
+            <li><span class="check">✓</span> <b>Detección de controles y calibraciones:</b> Diferencia automáticamente si la prueba fue un paciente, un control patológico o un blanco.</li>
+            <li><span class="check">✓</span> <b>Prevención de colisiones:</b> Mapeo inteligente con prioridad exacta (ej. HDL vs Colesterol total).</li>
+          </ul>
+
+          <div class="live-demo-box">
+            <div class="live-demo-header">
+              <span>Simulación de Trama ASTM Recibida</span>
+              <span style="color: #34D399;">● ACTIVO</span>
+            </div>
+            <div class="trama-raw">R|1|^^^HDL|45.2|mg/dL||N||F|||20261025182900|CM260I</div>
+            <div class="trama-res">
+              ✅ <b>Controlab IA:</b> Detectada prueba <code>HDL DIRECTO</code>. Descontados <code>0.25 mL</code> del Lote abierto <code>#48490</code>. Restan <code>156 pruebas</code> en caja.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PILAR 2: REACTIVOS Y FRASCOS -->
+    <div id="pilar-reactivos" class="pilar-content" style="display: none;">
+      <div class="feature-card">
+        <div class="feature-header">
+          <div class="feature-icon icon-cyan">🧪</div>
+          <div class="feature-title">
+            <h3>Control de Frascos, Mermas y Fechas de Vencimiento</h3>
+            <p>Monitoreo físico de cada mililitro en la mesada de trabajo</p>
+          </div>
+        </div>
+        <div class="feature-body">
+          Olvídate de frascos que se vencen sin abrir o de cajas agotadas sin aviso.
+          <ul class="feature-list">
+            <li><span class="check">✓</span> <b>Apertura de cajas controlada:</b> El bioanalista abre la caja en el módulo y el sistema inicia el temporizador de estabilidad en equipo.</li>
+            <li><span class="check">✓</span> <b>Continuidad por Lote:</b> Agrupa múltiples cajas de un mismo lote evaluando la rentabilidad acumulada y el rendimiento real de pruebas vs teóricas del inserto.</li>
+            <li><span class="check">✓</span> <b>Cálculo de Merma:</b> Contempla el volumen muerto del frasco y el cebado de mangueras para que los números cuadren al 100%.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- PILAR 3: ALMACÉN Y SOLICITUDES -->
+    <div id="pilar-solicitudes" class="pilar-content" style="display: none;">
+      <div class="feature-card">
+        <div class="feature-header">
+          <div class="feature-icon icon-emerald">📦</div>
+          <div class="feature-title">
+            <h3>Solicitudes Electrónicas a Almacén Central</h3>
+            <p>Comunicación fluida entre Laboratorio y Almacén sin papel</p>
+          </div>
+        </div>
+        <div class="feature-body">
+          El laboratorio puede consultar en vivo el stock disponible en Almacén Central y solicitar reactivos, tubos, puntas y descartables con seguimiento en tiempo real.
+          <ul class="feature-list">
+            <li><span class="check">✓</span> <b>Catálogo en Vivo:</b> Consulta inmediata de stock en Almacén Central con buscador universal.</li>
+            <li><span class="check">✓</span> <b>Reposición Predictiva:</b> El sistema analiza el promedio de pruebas semanales del analizador y sugiere automáticamente cuándo pedir una caja antes de que se agote.</li>
+            <li><span class="check">✓</span> <b>Trazabilidad de Despacho:</b> Estados claros: <i>Pendiente ➔ Aprobada ➔ En Despacho ➔ Entregada</i>.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- PILAR 4: ANALIZADORES COMPATIBLES -->
+    <div id="pilar-equipos" class="pilar-content" style="display: none;">
+      <div class="feature-card">
+        <div class="feature-header">
+          <div class="feature-icon icon-amber">🔬</div>
+          <div class="feature-title">
+            <h3>Compatibilidad Multi-Analizador</h3>
+            <p>Conectividad validada en las marcas líderes del mercado</p>
+          </div>
+        </div>
+        <div class="feature-body">
+          Controlab es agnóstico al fabricante y centraliza todos tus instrumentos bajo una sola interfaz:
+
+          <div class="analyzers-grid">
+            <div class="analyzer-chip">
+              <div class="icon">🧪</div>
+              <div>
+                <div class="name">Wiener Lab CM 260i</div>
+                <div class="sub">Bioquímica / Reactivos AA Líquida</div>
+              </div>
+            </div>
+            <div class="analyzer-chip">
+              <div class="icon">🩸</div>
+              <div>
+                <div class="name">Mindray BS-230</div>
+                <div class="sub">Bioquímica Clínica Automatizada</div>
+              </div>
+            </div>
+            <div class="analyzer-chip">
+              <div class="icon">✨</div>
+              <div>
+                <div class="name">Mindray CL-900i</div>
+                <div class="sub">Quimioluminiscencia (CLIA)</div>
+              </div>
+            </div>
+            <div class="analyzer-chip">
+              <div class="icon">🔬</div>
+              <div>
+                <div class="name">Mindray BC 5380</div>
+                <div class="sub">Hematología Diferencial 5 Estirpes</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Testimonio / Impacto -->
+    <div class="quote-box">
+      <div class="quote-text">
+        "El mayor reto en nuestro laboratorio no era emitir los resultados, sino saber con precisión cuánto reactivo nos costaba cada prueba y cuándo pedir a almacén sin quedarnos sin stock en plena guardia. Con Controlab logramos control absoluto sin cargar más trabajo al bioanalista."
+      </div>
+      <div class="quote-author">Bioanalista &bull; Coordinación de Laboratorio</div>
+    </div>
+
+    <!-- Llamado a la Acción para el Congreso -->
+    <div class="cta-card">
+      <h2>¿Quieres Controlab en tu Laboratorio?</h2>
+      <p>
+        Agenda una demostración personalizada durante los 3 días del Congreso y descubre cómo optimizar la rentabilidad de tus reactivos.
+      </p>
+      <a href="https://wa.me/?text=Hola%2C%20estoy%20en%20el%20Congreso%20de%20Bioanalistas%20y%20quiero%20conocer%20m%C3%A1s%20sobre%20Controlab%20IA" target="_blank" class="cta-btn">
+        <span>💬 Contactar por WhatsApp</span>
+      </a>
+    </div>
+
+    <footer>
+      Controlab IA &bull; Desarrollado para Bioanalistas de Alto Nivel &bull; © 2026
+    </footer>
+  </div>
+
+  <script>
+    function mostrarPilar(id, ev) {
+      document.querySelectorAll('.pilar-content').forEach(el => el.style.display = 'none');
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      
+      const target = document.getElementById('pilar-' + id);
+      if (target) target.style.display = 'block';
+
+      if (ev && ev.currentTarget) {
+        ev.currentTarget.classList.add('active');
+      }
+    }
+  </script>
+</body>
+</html>

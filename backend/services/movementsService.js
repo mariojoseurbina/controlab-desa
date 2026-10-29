@@ -258,7 +258,7 @@ class MovementsService {
         throw new Error('Item no encontrado en el inventario.');
       }
 
-      const esFamiliaA = ['Reactivo', 'Calibrador', 'Control', 'Reactivos', 'Calibradores', 'Controles'].includes(itemInfo.categoria) || itemInfo.unidad === 'Cajas';
+      const esFamiliaA = ['Reactivo', 'Calibrador', 'Control', 'Reactivos', 'Calibradores', 'Controles', 'Solucion', 'Soluciones', 'Hematología', 'Hematologia'].some(c => (itemInfo.categoria || '').toLowerCase() === c.toLowerCase()) || (itemInfo.unidad || '').toLowerCase() === 'cajas' || ['LISANTES', 'DILUYENTES', 'REACTIVOS'].includes(itemInfo.grupo);
       const unidadDeDespacho = itemInfo.unidad || 'UND';
 
       // 1. Validar y restar en almacÃ©n origen
@@ -451,10 +451,9 @@ class MovementsService {
               await tx.lotesReactivos.updateMany({
                 where: { Id: { in: idsToUpdate } },
                 data: {
-                  estado_transferencia: 'LABORATORIO',
+                  estado_transferencia: 'EN_TRANSITO_LAB',
                   almacen_destino_id: parseInt(almacen_destino_id),
-                  AlmacenId: parseInt(almacen_destino_id),
-                  usuario_despacho: 'Transferencia Directa B',
+                                    usuario_despacho: 'Transferencia Directa B',
                   fecha_despacho: new Date()
                 }
               });

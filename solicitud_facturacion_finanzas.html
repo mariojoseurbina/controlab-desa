@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Formato de Cotización y Facturación - Servicios Controlab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #0284c7;
+      --primary-dark: #0369a1;
+      --slate-900: #0f172a;
+      --slate-800: #1e293b;
+      --slate-700: #334155;
+      --slate-100: #f1f5f9;
+      --slate-50: #f8fafc;
+      --border: #e2e8f0;
+      --text: #1e293b;
+      --text-muted: #64748b;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #f1f5f9;
+      font-family: 'Inter', sans-serif;
+      color: var(--text);
+      line-height: 1.5;
+      padding: 30px 15px;
+    }
+
+    .page-wrapper {
+      max-width: 880px;
+      margin: 0 auto;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+      padding: 42px 45px;
+      position: relative;
+    }
+
+    /* BARRA DE HERRAMIENTAS SUPERIOR (NO IMPRIMIBLE) */
+    .no-print-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 24px;
+      padding: 14px 20px;
+      background: #0f172a;
+      border-radius: 12px;
+      color: white;
+      box-shadow: 0 4px 12px rgba(15,23,42,0.15);
+    }
+
+    .bar-title {
+      font-size: 13.5px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .bar-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 12.5px;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+    }
+    .btn-print { background: #38bdf8; color: #082f49; }
+    .btn-print:hover { background: #7dd3fc; transform: translateY(-1px); }
+    .btn-add { background: #10b981; color: white; }
+    .btn-add:hover { background: #059669; }
+    .btn-reset { background: #475569; color: #f1f5f9; }
+    .btn-reset:hover { background: #334155; }
+    .btn-del {
+      background: transparent;
+      color: #ef4444;
+      border: 1px solid #fecaca;
+      border-radius: 6px;
+      padding: 3px 7px;
+      font-size: 11px;
+      cursor: pointer;
+      margin-top: 4px;
+    }
+    .btn-del:hover { background: #fef2f2; }
+
+    /* HEADER DEL DOCUMENTO */
+    .doc-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 2px solid #0f172a;
+      padding-bottom: 20px;
+      margin-bottom: 24px;
+    }
+
+    .logo-area {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .logo-box {
+      width: 50px;
+      height: 50px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #0284c7, #2563eb);
+      color: white;
+      font-family: 'Outfit', sans-serif;
+      font-size: 24px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 10px rgba(2,132,199,0.25);
+    }
+
+    .doc-type-select {
+      font-family: 'Outfit', sans-serif;
+      font-size: 20px;
+      font-weight: 800;
+      color: #0f172a;
+      border: 1px dashed transparent;
+      background: transparent;
+      padding: 2px 4px;
+      border-radius: 6px;
+      cursor: pointer;
+      max-width: 450px;
+    }
+    .doc-type-select:hover { border-color: #cbd5e1; background: #f8fafc; }
+    .doc-title p {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      font-weight: 500;
+      margin-top: 2px;
+    }
+
+    .doc-meta {
+      text-align: right;
+    }
+    .doc-number {
+      font-family: 'Outfit', sans-serif;
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--primary);
+    }
+    .doc-date {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* GRID DE PARTICIPANTES */
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-bottom: 24px;
+      font-size: 13px;
+    }
+
+    .info-block h3 {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 800;
+      color: var(--primary);
+      margin-bottom: 6px;
+    }
+
+    .editable-input {
+      width: 100%;
+      border: 1px dashed #cbd5e1;
+      background: white;
+      padding: 5px 8px;
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 13px;
+      color: #0f172a;
+      margin-top: 2px;
+      transition: all 0.15s;
+    }
+    .editable-input:focus {
+      border-color: var(--primary);
+      outline: none;
+      background: #f0f9ff;
+    }
+
+    /* TABLA DE ÍTEMS */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 24px;
+      font-size: 13px;
+    }
+    thead th {
+      background: #0f172a;
+      color: white;
+      font-family: 'Outfit', sans-serif;
+      font-size: 11.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 11px 14px;
+      text-align: left;
+    }
+    thead th:last-child { text-align: right; }
+
+    tbody td {
+      padding: 14px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+    tbody tr:nth-child(even) { background: #fafafa; }
+
+    .item-num { font-weight: 800; color: #0284c7; }
+    .item-title-input {
+      font-weight: 700;
+      color: #0f172a;
+      font-size: 13.5px;
+      margin-bottom: 4px;
+      width: 100%;
+      border: 1px dashed transparent;
+      background: transparent;
+      padding: 3px 6px;
+      border-radius: 4px;
+    }
+    .item-title-input:hover, .item-title-input:focus {
+      border-color: #cbd5e1;
+      background: white;
+    }
+    .item-desc-input {
+      font-size: 12.5px;
+      color: #475569;
+      line-height: 1.45;
+      width: 100%;
+      border: 1px dashed transparent;
+      background: transparent;
+      padding: 3px 6px;
+      border-radius: 4px;
+      resize: vertical;
+      font-family: inherit;
+    }
+    .item-desc-input:hover, .item-desc-input:focus {
+      border-color: #cbd5e1;
+      background: white;
+    }
+    .item-note-input {
+      font-size: 11.5px;
+      margin-top: 5px;
+      padding: 4px 8px;
+      border-radius: 5px;
+      width: 100%;
+      font-family: inherit;
+      font-weight: 600;
+      border: 1px solid #bfdbfe;
+      background: #eff6ff;
+      color: #1e40af;
+    }
+    .item-note-input.warning {
+      background: #fefce8;
+      border-color: #fef08a;
+      color: #854d0e;
+    }
+    .item-note-input.danger {
+      background: #fef2f2;
+      border-color: #fecaca;
+      color: #991b1b;
+    }
+
+    .item-price-input {
+      font-family: 'Outfit', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: #0f172a;
+      text-align: right;
+      width: 110px;
+      border: 1px dashed #cbd5e1;
+      padding: 4px 8px;
+      border-radius: 6px;
+      background: white;
+    }
+    .item-price-input:focus {
+      border-color: var(--primary);
+      outline: none;
+      background: #f0f9ff;
+    }
+
+    /* TOTALES */
+    .totals-wrapper {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 28px;
+    }
+    .totals-box {
+      width: 320px;
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 20px;
+    }
+    .total-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+    .total-row.final {
+      border-top: 2px solid #0f172a;
+      padding-top: 8px;
+      margin-top: 8px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 18px;
+      font-weight: 800;
+      color: #0284c7;
+    }
+
+    /* DATOS BANCARIOS */
+    .bank-box {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-bottom: 28px;
+      font-size: 12.5px;
+    }
+    .bank-box h3 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 13px;
+      font-weight: 800;
+      color: #166534;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .bank-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 10px;
+    }
+    .bank-field label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #15803d;
+      display: block;
+    }
+
+    /* FIRMAS */
+    .signatures-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      margin-top: 40px;
+      padding-top: 20px;
+    }
+    .sign-box {
+      border-top: 1px solid #94a3b8;
+      padding-top: 8px;
+      text-align: center;
+      font-size: 12px;
+    }
+    .sign-title { font-weight: 700; color: #0f172a; }
+    .sign-sub { color: #64748b; font-size: 11px; }
+
+    /* REGLAS DE IMPRESIÓN (PRINT CLEAN) */
+    @media print {
+      body { background: white; padding: 0; }
+      .no-print-bar, .btn-del, .add-row-container { display: none !important; }
+      .page-wrapper {
+        border: none;
+        box-shadow: none;
+        padding: 0;
+        max-width: 100%;
+      }
+      .editable-input, .item-title-input, .item-desc-input, .item-price-input, .doc-type-select {
+        border: none !important;
+        padding: 0 !important;
+        background: transparent !important;
+        resize: none !important;
+      }
+      thead th {
+        background: #0f172a !important;
+        color: white !important;
+        -webkit-print-color-adjust: exact;
+      }
+      .item-note-input {
+        -webkit-print-color-adjust: exact;
+      }
+      .bank-box {
+        background: #f0fdf4 !important;
+        border: 1px solid #bbf7d0 !important;
+        -webkit-print-color-adjust: exact;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="page-wrapper">
+    <!-- BARRA SUPERIOR DE ACCIONES (NO SALE EN PDF/IMPRESIÓN) -->
+    <div class="no-print-bar">
+      <div class="bar-title">
+        <span>📄</span>
+        <span><strong>Plantilla Permanente de Cobro / Cotización</strong></span>
+        <span style="opacity: 0.6; font-size: 12px;">(Cambios guardados automáticamente)</span>
+      </div>
+      <div class="bar-actions">
+        <button class="btn btn-add" onclick="addItemRow()">➕ Agregar Ítem</button>
+        <button class="btn btn-reset" onclick="resetToDefault()">🔄 Valores Originales</button>
+        <button class="btn btn-print" onclick="window.print()">🖨️ Imprimir / Guardar en PDF</button>
+      </div>
+    </div>
+
+    <!-- CABECERA PRINCIPAL -->
+    <div class="doc-header">
+      <div class="logo-area">
+        <div class="logo-box">C</div>
+        <div class="doc-title">
+          <select id="docTypeSelect" class="doc-type-select" onchange="autoSave()">
+            <option value="SOLICITUD DE FACTURACIÓN Y PAGO" selected>SOLICITUD DE FACTURACIÓN Y PAGO</option>
+            <option value="COTIZACIÓN Y PROPUESTA DE SERVICIOS">COTIZACIÓN Y PROPUESTA DE SERVICIOS</option>
+            <option value="CUENTA DE COBRO DE SERVICIOS">CUENTA DE COBRO DE SERVICIOS</option>
+          </select>
+          <p>Servicios Especializados de Plataforma &bull; Controlab IA</p>
+        </div>
+      </div>
+      <div class="doc-meta">
+        <div class="doc-number"><input id="docNumber" class="editable-input" style="text-align: right; font-weight: 800; color: #0284c7; width: 170px;" value="REF: FAC-2026-10-01" oninput="autoSave()" /></div>
+        <div class="doc-date">Fecha de Emisión: <input id="docDate" class="editable-input" style="text-align: right; width: 170px; display: inline-block;" value="26 de Octubre de 2026" oninput="autoSave()" /></div>
+        <div class="doc-date" style="color: #0284c7; font-weight: 600;">Período: <input id="docPeriod" class="editable-input" style="text-align: right; width: 170px; color: #0284c7; font-weight: 600; display: inline-block;" value="Octubre - Noviembre 2026" oninput="autoSave()" /></div>
+      </div>
+    </div>
+
+    <!-- DATOS DE LAS PARTES -->
+    <div class="info-grid">
+      <div class="info-block">
+        <h3>Dirigido a:</h3>
+        <div><strong>ÁREA DE ADMINISTRACIÓN Y FINANZAS</strong></div>
+        <div>Empresa / Cliente: <input id="clientCompany" class="editable-input" type="text" value="Laboratorio Clínico / CIACLAB" oninput="autoSave()" /></div>
+        <div>Atención: <input id="clientAttn" class="editable-input" type="text" value="Gerencia General y Dirección de Finanzas" oninput="autoSave()" /></div>
+      </div>
+      <div class="info-block">
+        <h3>Proveedor de Servicios Tecnológicos:</h3>
+        <div><strong>CONTROLAB IA • CONSULTORÍA DE SISTEMAS</strong></div>
+        <div>Área / Cargo: <input id="providerTitle" class="editable-input" type="text" value="Consultoría y Soporte Técnico de Sistemas Controlab" oninput="autoSave()" /></div>
+        <div>Concepto General: <input id="providerConcept" class="editable-input" type="text" value="Mantenimiento, Migración BD, Módulo Solicitud y Plan DRP" oninput="autoSave()" /></div>
+      </div>
+    </div>
+
+    <!-- TABLA DE ÍTEMS -->
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 45px;">#</th>
+          <th>Descripción del Servicio Tecnológico</th>
+          <th style="width: 140px; text-align: right;">Monto (USD)</th>
+        </tr>
+      </thead>
+      <tbody id="itemsTableBody">
+        <!-- ÍTEM 1 -->
+        <tr class="item-row">
+          <td class="item-num">01</td>
+          <td>
+            <input class="item-title-input" value="Mensualidad y Soporte Operativo Controlab IA" oninput="autoSave()" />
+            <textarea class="item-desc-input" rows="2" oninput="autoSave()">Servicio recurrente mensual de mantenimiento, monitoreo del Sniffer de red de analizadores clínicos, optimización de base de datos y soporte técnico operativo del sistema.</textarea>
+            <input class="item-note-input" value="📅 Período de cobertura correspondiente al mes en curso" oninput="autoSave()" />
+            <button class="btn-del" onclick="deleteRow(this)">🗑️ Eliminar fila</button>
+          </td>
+          <td>
+            <input class="item-price-input" value="200.00" oninput="handlePriceInput(this)" />
+          </td>
+        </tr>
+
+        <!-- ÍTEM 2 -->
+        <tr class="item-row">
+          <td class="item-num">02</td>
+          <td>
+            <input class="item-title-input" value="Servicio Especializado de Migración Integral de Servidor y SQL Server" oninput="autoSave()" />
+            <textarea class="item-desc-input" rows="2" oninput="autoSave()">Instalación y parametrización de Microsoft SQL Server, configuración de puertos de red, migración completa de tablas y esquemas, pruebas de conexión LIS/Sniffer, auditoría y verificación de integridad.</textarea>
+            <input class="item-note-input warning" value="⚠️ Cláusula Técnica: En caso de requerirse rollback, se efectuará un único pago. Jornada intensiva programada en fin de semana (Fecha tentativa: 31/10/2026 al 01/11/2026)." oninput="autoSave()" />
+            <button class="btn-del" onclick="deleteRow(this)">🗑️ Eliminar fila</button>
+          </td>
+          <td>
+            <input class="item-price-input" value="500.00" oninput="handlePriceInput(this)" />
+          </td>
+        </tr>
+
+        <!-- ÍTEM 3 -->
+        <tr class="item-row">
+          <td class="item-num">03</td>
+          <td>
+            <input class="item-title-input" value="Desarrollo e Implementación de Nuevo Módulo de Solicitud Electrónica" oninput="autoSave()" />
+            <textarea class="item-desc-input" rows="2" oninput="autoSave()">Ingeniería de software, adaptación de interfaz y programación de nuevas reglas de negocio para la gestión, captura y validación automatizada de órdenes de pacientes hacia los analizadores.</textarea>
+            <input class="item-note-input" value="⚙️ Incluye actualización de reglas de validación y flujo operativo" oninput="autoSave()" />
+            <button class="btn-del" onclick="deleteRow(this)">🗑️ Eliminar fila</button>
+          </td>
+          <td>
+            <input class="item-price-input" value="200.00" oninput="handlePriceInput(this)" />
+          </td>
+        </tr>
+
+        <!-- ÍTEM 4 -->
+        <tr class="item-row">
+          <td class="item-num">04</td>
+          <td>
+            <input class="item-title-input" value="Diseño y Ejecución del Plan de Backup & Disaster Recovery (DRP)" oninput="autoSave()" />
+            <textarea class="item-desc-input" rows="2" oninput="autoSave()">Auditoría y remediación técnica ante la ausencia de respaldos históricos en el sistema hasta la presente fecha. Implementación de políticas automatizadas de backup seguro (on-premise y resguardo periódico) con protocolos de contingencia ante fallos críticos.</textarea>
+            <input class="item-note-input danger" value="🛡️ Remediación: Protección de datos críticos ante la inexistencia de backups históricos" oninput="autoSave()" />
+            <button class="btn-del" onclick="deleteRow(this)">🗑️ Eliminar fila</button>
+          </td>
+          <td>
+            <input class="item-price-input" value="300.00" oninput="handlePriceInput(this)" />
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="add-row-container" style="margin-bottom: 20px;">
+      <button class="btn btn-add" style="font-size: 11.5px; padding: 6px 12px;" onclick="addItemRow()">➕ Agregar otra fila de servicio</button>
+    </div>
+
+    <!-- TOTALES -->
+    <div class="totals-wrapper">
+      <div class="totals-box">
+        <div class="total-row">
+          <span style="color: var(--text-muted);">Subtotal Servicios:</span>
+          <span style="font-weight: 700;" id="lblSubtotal">$ 1,200.00</span>
+        </div>
+        <div class="total-row">
+          <span style="color: var(--text-muted);">Moneda:</span>
+          <span>USD (Dólares Americanos)</span>
+        </div>
+        <div class="total-row final">
+          <span>TOTAL:</span>
+          <span id="lblTotal">$ 1,200.00</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- DATOS BANCARIOS -->
+    <div class="bank-box">
+      <h3>Datos para Transferencia / Pago:</h3>
+      <div class="bank-grid">
+        <div class="bank-field">
+          <label>Beneficiario / Titular:</label>
+          <input id="bankBeneficiary" class="editable-input" type="text" value="Consultoría de Sistemas Controlab" oninput="autoSave()" />
+        </div>
+        <div class="bank-field">
+          <label>C.I. / RIF:</label>
+          <input id="bankId" class="editable-input" type="text" value="V- / J-" oninput="autoSave()" />
+        </div>
+        <div class="bank-field">
+          <label>Banco Nacional:</label>
+          <input id="bankName" class="editable-input" type="text" value="Banesco / Mercantil / Banco de Venezuela" oninput="autoSave()" />
+        </div>
+        <div class="bank-field">
+          <label>Número de Cuenta:</label>
+          <input id="bankAccount" class="editable-input" type="text" value="0134-XXXX-XX-XXXXXXXXXX" oninput="autoSave()" />
+        </div>
+        <div class="bank-field">
+          <label>Pago Móvil / Teléfono:</label>
+          <input id="bankPhone" class="editable-input" type="text" value="04XX-XXXXXXX" oninput="autoSave()" />
+        </div>
+        <div class="bank-field">
+          <label>Canal Digital (Zelle / Divisas USD):</label>
+          <input id="bankDigital" class="editable-input" type="text" value="correo_pagos@ejemplo.com" oninput="autoSave()" />
+        </div>
+      </div>
+    </div>
+
+    <!-- FIRMAS -->
+    <div class="signatures-grid">
+      <div class="sign-box">
+        <div class="sign-title">ELABORADO POR:</div>
+        <div style="margin-top: 4px; font-weight: 600;">Consultoría y Soporte de Sistemas Controlab</div>
+        <div class="sign-sub">Responsable Técnico de Plataforma</div>
+      </div>
+      <div class="sign-box">
+        <div class="sign-title">RECIBIDO Y APROBADO:</div>
+        <div style="margin-top: 4px; font-weight: 600;">Administración y Finanzas</div>
+        <div class="sign-sub">Firma / Sello de Recepción</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function recalcTotal() {
+      const priceInputs = document.querySelectorAll('.item-price-input');
+      let total = 0;
+      priceInputs.forEach(input => {
+        const val = parseFloat(input.value) || 0;
+        total += val;
+      });
+
+      const formatted = '$ ' + total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      document.getElementById('lblSubtotal').innerText = formatted;
+      document.getElementById('lblTotal').innerText = formatted;
+      renumberRows();
+    }
+
+    function handlePriceInput(input) {
+      recalcTotal();
+      autoSave();
+    }
+
+    function renumberRows() {
+      const rows = document.querySelectorAll('#itemsTableBody tr.item-row');
+      rows.forEach((row, idx) => {
+        const numCell = row.querySelector('.item-num');
+        if (numCell) {
+          numCell.innerText = String(idx + 1).padStart(2, '0');
+        }
+      });
+    }
+
+    function deleteRow(btn) {
+      const row = btn.closest('tr');
+      const rows = document.querySelectorAll('#itemsTableBody tr.item-row');
+      if (rows.length <= 1) {
+        alert('Debe permanecer al menos un ítem en la cotización.');
+        return;
+      }
+      row.remove();
+      recalcTotal();
+      autoSave();
+    }
+
+    function addItemRow() {
+      const tbody = document.getElementById('itemsTableBody');
+      const count = document.querySelectorAll('#itemsTableBody tr.item-row').length + 1;
+      const numStr = String(count).padStart(2, '0');
+
+      const tr = document.createElement('tr');
+      tr.className = 'item-row';
+      tr.innerHTML = `
+        <td class="item-num">${numStr}</td>
+        <td>
+          <input class="item-title-input" value="Nuevo Servicio Tecnológico" oninput="autoSave()" />
+          <textarea class="item-desc-input" rows="2" oninput="autoSave()">Descripción detallada del servicio, alcance y condiciones técnicas.</textarea>
+          <input class="item-note-input" value="📌 Términos específicos del servicio" oninput="autoSave()" />
+          <button class="btn-del" onclick="deleteRow(this)">🗑️ Eliminar fila</button>
+        </td>
+        <td>
+          <input class="item-price-input" value="0.00" oninput="handlePriceInput(this)" />
+        </td>
+      `;
+      tbody.appendChild(tr);
+      recalcTotal();
+      autoSave();
+    }
+
+    const STORAGE_KEY = 'controlab_invoice_template_data_v2';
+
+    function autoSave() {
+      const data = {
+        docType: document.getElementById('docTypeSelect').value,
+        docNumber: document.getElementById('docNumber').value,
+        docDate: document.getElementById('docDate').value,
+        docPeriod: document.getElementById('docPeriod').value,
+        clientCompany: document.getElementById('clientCompany').value,
+        clientAttn: document.getElementById('clientAttn').value,
+        providerTitle: document.getElementById('providerTitle').value,
+        providerConcept: document.getElementById('providerConcept').value,
+        bankBeneficiary: document.getElementById('bankBeneficiary').value,
+        bankId: document.getElementById('bankId').value,
+        bankName: document.getElementById('bankName').value,
+        bankAccount: document.getElementById('bankAccount').value,
+        bankPhone: document.getElementById('bankPhone').value,
+        bankDigital: document.getElementById('bankDigital').value,
+        items: []
+      };
+
+      document.querySelectorAll('#itemsTableBody tr.item-row').forEach(row => {
+        data.items.push({
+          title: row.querySelector('.item-title-input').value,
+          desc: row.querySelector('.item-desc-input').value,
+          note: row.querySelector('.item-note-input').value,
+          noteClass: row.querySelector('.item-note-input').className,
+          price: row.querySelector('.item-price-input').value
+        });
+      });
+
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    }
+
+    function loadSavedData() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (!saved) {
+        recalcTotal();
+        return;
+      }
+      try {
+        const data = JSON.parse(saved);
+        if (data.docType) document.getElementById('docTypeSelect').value = data.docType;
+        if (data.docNumber) document.getElementById('docNumber').value = data.docNumber;
+        if (data.docDate) document.getElementById('docDate').value = data.docDate;
+        if (data.docPeriod) document.getElementById('docPeriod').value = data.docPeriod;
+        if (data.clientCompany) document.getElementById('clientCompany').value = data.clientCompany;
+        if (data.clientAttn) document.getElementById('clientAttn').value = data.clientAttn;
+        if (data.providerTitle) document.getElementById('providerTitle').value = data.providerTitle;
+        if (data.providerConcept) document.getElementById('providerConcept').value = data.providerConcept;
+        if (data.bankBeneficiary) document.getElementById('bankBeneficiary').value = data.bankBeneficiary;
+        if (data.bankId) document.getElementById('bankId').value = data.bankId;
+        if (data.bankName) document.getElementById('bankName').value = data.bankName;
+        if (data.bankAccount) document.getElementById('bankAccount').value = data.bankAccount;
+        if (data.bankPhone) document.getElementById('bankPhone').value = data.bankPhone;
+        if (data.bankDigital) document.getElementById('bankDigital').value = data.bankDigital;
+
+        if (data.items && data.items.length > 0) {
+          const tbody = document.getElementById('itemsTableBody');
+          tbody.innerHTML = '';
+          data.items.forEach((it, idx) => {
+            const tr = document.createElement('tr');
+            tr.className = 'item-row';
+            tr.innerHTML = `
+              <td class="item-num">${String(idx + 1).padStart(2, '0')}</td>
+              <td>
+                <input class="item-title-input" value="${it.title || ''}" oninput="autoSave()" />
+                <textarea class="item-desc-input" rows="2" oninput="autoSave()">${it.desc || ''}</textarea>
+                <input class="${it.noteClass || 'item-note-input'}" value="${it.note || ''}" oninput="autoSave()" />
+                <button class="btn-del" onclick="deleteRow(this)">🗑️ Eliminar fila</button>
+              </td>
+              <td>
+                <input class="item-price-input" value="${it.price || '0.00'}" oninput="handlePriceInput(this)" />
+              </td>
+            `;
+            tbody.appendChild(tr);
+          });
+        }
+        recalcTotal();
+      } catch (e) {
+        console.error('Error loading saved data:', e);
+        recalcTotal();
+      }
+    }
+
+    function resetToDefault() {
+      if (confirm('¿Deseas restablecer los 4 ítems originales ($1,200 USD) y valores por defecto?')) {
+        localStorage.removeItem(STORAGE_KEY);
+        location.reload();
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', loadSavedData);
+  </script>
+</body>
+</html>

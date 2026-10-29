@@ -142,8 +142,9 @@ const MapeoPruebasTab = () => {
           <Table size="small">
             <TableHead>
               <TableRow>
+                <TableCell><b>Equipo</b></TableCell>
                 <TableCell><b>Nombre Prueba</b></TableCell>
-                <TableCell><b>Patrn Analizador (Sniffer)</b></TableCell>
+                <TableCell><b>Patrón Analizador (Sniffer)</b></TableCell>
                 <TableCell><b>ID Reactivo</b></TableCell>
                 <TableCell><b>Reactivo Asociado</b></TableCell>
                 <TableCell><b>Consumo (mL)</b></TableCell>
@@ -152,9 +153,23 @@ const MapeoPruebasTab = () => {
             </TableHead>
             <TableBody>
               {mapeos.map((row) => (
-                <TableRow key={row.id}>
-                  <TableCell>{row.nombre_prueba}</TableCell>
-                  <TableCell><Box sx={{ bgcolor: '#eee', p: 0.5, borderRadius: 1, fontFamily: 'monospace' }}>{row.patron_busqueda}</Box></TableCell>
+                <TableRow key={row.id} sx={{ bgcolor: row.equipo_asociado?.includes('Mindray') ? '#f0fdf4' : row.equipo_asociado?.includes('CM') ? '#eff6ff' : 'inherit' }}>
+                  <TableCell>
+                    <Box sx={{
+                      display: 'inline-block',
+                      px: 1,
+                      py: 0.3,
+                      borderRadius: 1,
+                      fontSize: '0.75rem',
+                      fontWeight: 700,
+                      bgcolor: row.equipo_asociado?.includes('Mindray') ? '#dcfce7' : row.equipo_asociado?.includes('CM') ? '#dbeafe' : '#f3f4f6',
+                      color: row.equipo_asociado?.includes('Mindray') ? '#166534' : row.equipo_asociado?.includes('CM') ? '#1e40af' : '#374151'
+                    }}>
+                      {row.equipo_asociado || 'General'}
+                    </Box>
+                  </TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>{row.nombre_prueba}</TableCell>
+                  <TableCell><Box sx={{ bgcolor: '#f1f5f9', p: 0.5, borderRadius: 1, fontFamily: 'monospace', fontSize: '0.8rem' }}>{row.patron_busqueda}</Box></TableCell>
                   <TableCell>{row.reactivo_id}</TableCell>
                   <TableCell>{row.reactivo_nombre}</TableCell>
                   <TableCell>{row.consumo_por_prueba}</TableCell>

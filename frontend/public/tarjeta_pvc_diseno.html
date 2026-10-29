@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Controlab IA &bull; Diseño Tarjeta PVC Inteligente (CR80 - 85.6 x 54 mm)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    :root {
+      --bg: #0B0F19;
+      --card-bg: #0F172A;
+      --cyan: #06B6D4;
+      --indigo: #6366F1;
+      --emerald: #10B981;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #E2E8F0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: #1E293B;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .toolbar {
+      background: white;
+      border: 1px solid #CBD5E1;
+      border-radius: 16px;
+      padding: 16px 24px;
+      max-width: 900px;
+      width: 100%;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    }
+
+    .toolbar h2 {
+      font-size: 16px;
+      font-weight: 800;
+      color: #0F172A;
+      margin-bottom: 8px;
+    }
+
+    .inputs-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .inp-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .inp-group label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #64748B;
+      text-transform: uppercase;
+    }
+    .inp-group input {
+      padding: 8px 12px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      font-size: 13px;
+      font-family: inherit;
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 10px;
+    }
+    .btn {
+      padding: 10px 18px;
+      border-radius: 10px;
+      font-weight: 800;
+      font-size: 13px;
+      cursor: pointer;
+      border: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+    .btn-primary { background: #4F46E5; color: white; }
+    .btn-success { background: #10B981; color: white; }
+    .btn:hover { opacity: 0.9; }
+
+    /* CONTENEDOR DE TARJETAS DE PVC (Medida CR80 escala exacta: 85.6mm x 53.98mm = 428px x 270px a 128 DPI) */
+    .pvc-stage {
+      display: flex;
+      gap: 36px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 30px;
+    }
+
+    .pvc-wrapper {
+      text-align: center;
+    }
+
+    .pvc-label {
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #64748B;
+      margin-bottom: 10px;
+    }
+
+    /* TARJETA PVC CR80 */
+    .pvc-card {
+      width: 428px;
+      height: 270px;
+      border-radius: 16px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 20px 40px -10px rgba(15, 23, 42, 0.4);
+      box-sizing: border-box;
+      transition: transform 0.3s ease;
+    }
+    .pvc-card:hover { transform: translateY(-4px); }
+
+    /* FRENTE: Dark Tech Premium */
+    .pvc-front {
+      background: linear-gradient(135deg, #090D16 0%, #111827 50%, #1E1B4B 100%);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      color: white;
+    }
+
+    /* Patrón de líneas y chip decorativo */
+    .front-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .brand-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #6366F1, #06B6D4);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      box-shadow: 0 0 16px rgba(99, 102, 241, 0.5);
+    }
+    .brand-name {
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #FFFFFF 40%, #06B6D4 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .brand-sub {
+      font-size: 9px;
+      color: #94A3B8;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .nfc-icon {
+      font-size: 20px;
+      color: #38BDF8;
+      opacity: 0.8;
+    }
+
+    /* Simulación de Chip EMV Dorado/Plata */
+    .chip-sim {
+      width: 42px;
+      height: 32px;
+      background: linear-gradient(135deg, #D97706, #FBBF24, #B45309);
+      border-radius: 6px;
+      border: 1px solid rgba(255,255,255,0.4);
+      margin: 12px 0 6px 0;
+      position: relative;
+    }
+    .chip-sim::after {
+      content: '';
+      position: absolute;
+      top: 15px; left: 0; right: 0;
+      height: 1px;
+      background: rgba(0,0,0,0.25);
+    }
+
+    .front-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+
+    .user-name {
+      font-size: 16px;
+      font-weight: 800;
+      color: #FFFFFF;
+      letter-spacing: -0.3px;
+    }
+    .user-title {
+      font-size: 11px;
+      color: #38BDF8;
+      font-weight: 600;
+    }
+
+    .edition-pvc {
+      font-size: 9px;
+      font-family: 'JetBrains Mono', monospace;
+      color: #64748B;
+      text-transform: uppercase;
+    }
+
+    /* DORSO: QR Central + Ficha */
+    .pvc-back {
+      background: linear-gradient(135deg, #090D16 0%, #0F172A 100%);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 20px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: white;
+    }
+
+    .back-info {
+      flex: 1;
+      padding-right: 20px;
+      text-align: left;
+    }
+
+    .back-heading {
+      font-size: 14px;
+      font-weight: 900;
+      color: #FFFFFF;
+      margin-bottom: 2px;
+    }
+    .back-subheading {
+      font-size: 10px;
+      color: #38BDF8;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 10px;
+    }
+
+    .back-bullets {
+      list-style: none;
+      font-size: 10px;
+      color: #CBD5E1;
+      line-height: 1.5;
+      margin-bottom: 12px;
+    }
+    .back-bullets li::before {
+      content: "✓ ";
+      color: var(--emerald);
+      font-weight: 900;
+    }
+
+    .back-footer-text {
+      font-size: 9px;
+      color: #94A3B8;
+      line-height: 1.3;
+    }
+
+    .back-qr-box {
+      width: 130px;
+      height: 130px;
+      background: #FFFFFF;
+      border-radius: 14px;
+      padding: 6px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 0 20px rgba(6, 182, 212, 0.25);
+    }
+    .back-qr-label {
+      font-size: 8px;
+      font-weight: 800;
+      color: #0F172A;
+      margin-top: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    /* ESPECIFICACIONES DE IMPRENTA */
+    .specs-box {
+      max-width: 900px;
+      width: 100%;
+      background: white;
+      border: 1px solid #CBD5E1;
+      border-radius: 14px;
+      padding: 18px 24px;
+      font-size: 12px;
+      line-height: 1.6;
+      color: #475569;
+    }
+    .specs-box h3 {
+      font-size: 14px;
+      color: #0F172A;
+      margin-bottom: 6px;
+    }
+
+    @media print {
+      body { background: white; padding: 0; margin: 0; }
+      .toolbar, .specs-box { display: none !important; }
+      .pvc-stage { gap: 20mm; margin-top: 20mm; }
+      .pvc-card { box-shadow: none !important; border: 1px solid #CBD5E1; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Barra de Configuración -->
+  <div class="toolbar">
+    <h2>💳 CONFIGURACIÓN DE TU TARJETA DE PVC INTELIGENTE (ESTÁNDAR CR80)</h2>
+    <div class="inputs-grid">
+      <div class="inp-group">
+        <label>Nombre a Imprimir:</label>
+        <input type="text" id="inpNombre" value="Lic. Michelle Romero" placeholder="Tu Nombre o Cargo">
+      </div>
+      <div class="inp-group">
+        <label>Cargo / Especialidad:</label>
+        <input type="text" id="inpCargo" value="Bioanalista &bull; Coordinación de Laboratorio">
+      </div>
+      <div class="inp-group">
+        <label>URL o Destino del QR:</label>
+        <input type="text" id="inpUrl" value="https://controlab.ciaclab.com" placeholder="https://controlab.ciaclab.com">
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="actualizarTarjeta()">🔄 Actualizar Diseño</button>
+      <button class="btn btn-success" onclick="window.print()">🖨️ Imprimir / Guardar PDF para Imprenta</button>
+    </div>
+  </div>
+
+  <!-- Escenario de las Tarjetas PVC -->
+  <div class="pvc-stage">
+    
+    <!-- ANVERSO (FRENTE) -->
+    <div class="pvc-wrapper">
+      <div class="pvc-label">1. Anverso (Frente de la Tarjeta PVC)</div>
+      <div class="pvc-card pvc-front">
+        <div class="front-top">
+          <div class="brand-group">
+            <div class="brand-icon">🔬</div>
+            <div>
+              <div class="brand-name">CONTROLAB IA</div>
+              <div class="brand-sub">Inteligencia en Laboratorio</div>
+            </div>
+          </div>
+          <div class="nfc-icon">📶</div>
+        </div>
+
+        <div>
+          <!-- Chip decorativo de tarjeta bancaria -->
+          <div class="chip-sim"></div>
+        </div>
+
+        <div class="front-bottom">
+          <div>
+            <div class="user-name" id="dispNombre">Lic. Michelle Romero</div>
+            <div class="user-title" id="dispCargo">Bioanalista &bull; Coordinación de Laboratorio</div>
+          </div>
+          <div class="edition-pvc">CR80 &bull; 2026</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- REVERSO (DORSO) -->
+    <div class="pvc-wrapper">
+      <div class="pvc-label">2. Reverso (Dorso con Código QR)</div>
+      <div class="pvc-card pvc-back">
+        <div class="back-info">
+          <div class="back-heading">CONTROLAB IA</div>
+          <div class="back-subheading">Trazabilidad Total de Reactivos</div>
+          <ul class="back-bullets">
+            <li>Sniffer ASTM/HL7 en tiempo real</li>
+            <li>Descuento exacto por prueba</li>
+            <li>Control de frascos y mermas</li>
+            <li>Reposición automática con IA</li>
+          </ul>
+          <div class="back-footer-text">
+            Wiener CM 260i &bull; Mindray BS-230<br>
+            Mindray CL-900i &bull; Mindray BC 5380
+          </div>
+        </div>
+
+        <!-- Código QR -->
+        <div class="back-qr-box">
+          <div id="pvc-qrcode"></div>
+          <div class="back-qr-label">Escanea Aquí 📲</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Especificaciones para la Imprenta -->
+  <div class="specs-box">
+    <h3>📏 Ficha de Especificaciones Técnicas para la Imprenta / Empresa de Carnetización:</h3>
+    <ul style="padding-left: 18px;">
+      <li><b>Dimensiones de la Tarjeta:</b> Formato estándar bancario / CR80 (85.60 mm × 53.98 mm). Esquinas redondeadas radio 3.18 mm.</li>
+      <li><b>Material Recomendado:</b> PVC rígido calibre 30 milésimas (0.76 mm) o PVC negro mate (*Black Matte* o *Soft Touch*) con laminado protector UV.</li>
+      <li><b>Tecnología Híbrida (Opcional):</b> Si pides la tarjeta con chip NFC NTAG213 / NTAG215 embebido, el bioanalista podrá solo acercar el teléfono o escanear el QR en el reverso.</li>
+      <li><b>Resolución del QR:</b> Generado con nivel de corrección de error alto (H) y contraste absoluto para lectura instantánea con cualquier lente de cámara.</li>
+    </ul>
+  </div>
+
+  <script>
+    function generarQRPVC(texto) {
+      const container = document.getElementById('pvc-qrcode');
+      container.innerHTML = '';
+      if (typeof QRCode !== 'undefined') {
+        new QRCode(container, {
+          text: texto,
+          width: 105,
+          height: 105,
+          colorDark: "#0F172A",
+          colorLight: "#FFFFFF",
+          correctLevel: QRCode.CorrectLevel.H
+        });
+      }
+    }
+
+    function actualizarTarjeta() {
+      const nombre = document.getElementById('inpNombre').value.trim() || 'Lic. Bioanalista';
+      const cargo = document.getElementById('inpCargo').value.trim() || 'Laboratorio Clínico';
+      const url = document.getElementById('inpUrl').value.trim() || 'https://controlab.ciaclab.com';
+
+      document.getElementById('dispNombre').innerText = nombre;
+      document.getElementById('dispCargo').innerHTML = cargo;
+
+      generarQRPVC(url);
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      setTimeout(actualizarTarjeta, 300);
+    });
+  </script>
+</body>
+</html>

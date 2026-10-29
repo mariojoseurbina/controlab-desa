@@ -35,7 +35,12 @@ Estoy conectado directamente a tu base de datos. Puedes copiar y pegar cualquier
 - Analiza la inflación y variaciones de precio.
 - ¿Cuáles compras siguen en estado pendiente?
 - Muestra las compras recientes.
-- Evalúa el retraso de los proveedores.` 
+- Evalúa el retraso de los proveedores.
+
+4. Seguimiento, Gestión y Control de Autoanalizadores
+- Reporte de seguimiento gestión y control.
+- Reporte de autoanalizador: CM 260i, Mindray BS-230, Mindray CL-900i o Mindray BC 5380.
+- Balance detallado por prueba: Glicemia, Urea, Colesterol, HDL, TSH, Cortisol, Insulina, Hemograma.` 
     }
   ]);
   const [input, setInput] = useState('');

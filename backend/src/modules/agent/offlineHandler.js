@@ -69,22 +69,119 @@ async function handleOfflinePrompt(prompt) {
       return { respuesta: res, fuente: 'Controlab Brain' };
     }
 
+        // ---------------------------------------------------------
     // ---------------------------------------------------------
-    // MÓDULO REPORTE COMPLETO DE REACTIVO POR CAJA/LOTE (Urea, Colesterol, Calcio, etc.)
+    // MÓDULO REPORTE DE DÍAS Y AUTONOMÍA DEL CENTRO DE CONTROL DE REACTIVOS
     // ---------------------------------------------------------
-    if (cleanPrompt.includes('urea') || cleanPrompt.includes('colesterol') || cleanPrompt.includes('calcio') || cleanPrompt.includes('glicemia') || cleanPrompt.includes('tsh') || ((cleanPrompt.includes('reporte') || cleanPrompt.includes('balance') || cleanPrompt.includes('estado')) && !cleanPrompt.includes('sniffer') && !cleanPrompt.includes('auditoria') && !cleanPrompt.includes('red'))) {
-      let reactivoBuscado = 'urea';
-      if (cleanPrompt.includes('colest') || cleanPrompt.includes('chol')) reactivoBuscado = 'colesterol';
-      else if (cleanPrompt.includes('calcio') || cleanPrompt.includes('ca')) reactivoBuscado = 'calcio';
-      else if (cleanPrompt.includes('glicem') || cleanPrompt.includes('gluc')) reactivoBuscado = 'glicemia';
+    if (
+      (cleanPrompt.includes('dia') || cleanPrompt.includes('dias')) &&
+      (cleanPrompt.includes('reactivo') || cleanPrompt.includes('centro') || cleanPrompt.includes('posee') || cleanPrompt.includes('autonomia') || cleanPrompt.includes('venc') || cleanPrompt.includes('abierto'))
+    ) {
+      console.log('[Agent Offline] Intención detectada: Reporte de Días y Autonomía de Reactivos en Centro de Control');
+      const repDias = await snifferTools.snifferToolsFunctions.obtenerReporteDiasCentroReactivos();
+      return { respuesta: repDias, fuente: 'Controlab Brain' };
+    }
+
+    // ---------------------------------------------------------
+    // MÓDULO REPORTE OFICIAL DE SEGUIMIENTO, GESTIÓN Y CONTROL (AUTOANALIZADORES)
+    // ---------------------------------------------------------
+    if (
+      cleanPrompt.includes('seguimiento') ||
+      cleanPrompt.includes('gestion y control') ||
+      cleanPrompt.includes('gestion') ||
+      cleanPrompt.includes('control de analizadores') ||
+      cleanPrompt.includes('autoanalizador') ||
+      cleanPrompt.includes('analizadores') ||
+      (cleanPrompt.includes('reporte') && (cleanPrompt.includes('general') || cleanPrompt.includes('cm 260') || cleanPrompt.includes('bs 230') || cleanPrompt.includes('cl 900') || cleanPrompt.includes('bc 5380') || cleanPrompt.includes('hematologia') || cleanPrompt.includes('quimioluminiscencia') || cleanPrompt.includes('bioquimica')))
+    ) {
+      let equipoFiltro = null;
+      if (cleanPrompt.includes('cm 260') || cleanPrompt.includes('cm-260') || cleanPrompt.includes('wiener')) equipoFiltro = 'CM 260i';
+      else if (cleanPrompt.includes('bs 230') || cleanPrompt.includes('bs-230')) equipoFiltro = 'BS-230';
+      else if (cleanPrompt.includes('cl 900') || cleanPrompt.includes('cl-900') || cleanPrompt.includes('clia') || cleanPrompt.includes('hormona')) equipoFiltro = 'CL-900i';
+      else if (cleanPrompt.includes('bc 5380') || cleanPrompt.includes('bc-5380') || cleanPrompt.includes('5380') || cleanPrompt.includes('hematolog')) equipoFiltro = 'BC 5380';
+
+      console.log(`[Agent Offline] Intención detectada: Reporte de Seguimiento, Gestión y Control (Filtro: ${equipoFiltro || 'Todos'})`);
+      const reporteMarkdown = await snifferTools.snifferToolsFunctions.obtenerReporteSeguimientoGestionControl({ equipo: equipoFiltro });
+      return { respuesta: reporteMarkdown, fuente: 'Controlab Brain' };
+    }
+
+    // ---------------------------------------------------------
+    // MÓDULO REPORTE COMPLETO DE REACTIVO POR CAJA/LOTE (Universal para todas las pruebas)
+    // ---------------------------------------------------------
+    const terminosReactivos = [
+      'urea', 'colesterol', 'calcio', 'glicemia', 'glucosa', 'tsh', 'ft4', 'ft3', 't4', 't3',
+      'hdl', 'ldl', 'triglicerid', 'acido urico', 'urico', 'creatinina', 'ast', 'got', 'tgo',
+      'alt', 'gpt', 'tgp', 'bilirrubina', 'fosfatasa', 'alp', 'ggt', 'albumina', 'proteina',
+      'fosforo', 'fosfatemia', 'magnesio', 'amilasa', 'lipasa', 'hierro', 'ferritina', 'uibc',
+      'pcr', 'ck', 'cpk', 'ck-mb', 'ckmb', 'ldh', 'cortisol', 'insulina', 'insulin', 'prolactina', 'psa',
+      'fsh', 'lh', 'estradiol', 'progesterona', 'testosterona', 'dhea', 'hcg', 'troponina', 'troponin',
+      'hemograma', 'cbc', 'diluente', 'lisante', 'm-53', 'leo', 'microalbumina', 'malb', 'transferrina',
+      'vitamina b12', 'vb12', 'vitamina d', 'vd-t', 'ca 125', 'ca125', 'ca 19-9', 'ca19-9', 'ca 15-3',
+      'ca 72-4', 'cea', 'afp', 'hba1c', 'dimero d'
+    ];
+
+    const coincideReactivo = terminosReactivos.some(t => cleanPrompt.includes(t));
+
+    if (coincideReactivo || ((cleanPrompt.includes('reporte') || cleanPrompt.includes('balance') || cleanPrompt.includes('estado') || cleanPrompt.includes('consumo')) && !cleanPrompt.includes('sniffer') && !cleanPrompt.includes('auditoria') && !cleanPrompt.includes('red'))) {
+      let reactivoBuscado = 'glicemia';
+      if (cleanPrompt.includes('glicem') || cleanPrompt.includes('gluc')) reactivoBuscado = 'glicemia';
+      else if (cleanPrompt.includes('hdl')) reactivoBuscado = 'hdl';
+      else if (cleanPrompt.includes('ldl')) reactivoBuscado = 'ldl';
+      else if (cleanPrompt.includes('triglic')) reactivoBuscado = 'trigliceridos';
+      else if (cleanPrompt.includes('colest') || cleanPrompt.includes('chol')) reactivoBuscado = 'colesterol';
+      else if (cleanPrompt.includes('urea') || cleanPrompt.includes('bun')) reactivoBuscado = 'urea';
+      else if (cleanPrompt.includes('creatin')) reactivoBuscado = 'creatinina';
+      else if (cleanPrompt.includes('urico')) reactivoBuscado = 'acido urico';
+      else if (cleanPrompt.includes('tgo') || cleanPrompt.includes('ast') || cleanPrompt.includes('got')) reactivoBuscado = 'ast';
+      else if (cleanPrompt.includes('tgp') || cleanPrompt.includes('alt') || cleanPrompt.includes('gpt')) reactivoBuscado = 'alt';
+      else if (cleanPrompt.includes('bili')) reactivoBuscado = 'bilirrubina';
+      else if (cleanPrompt.includes('fosfatasa') || cleanPrompt.includes('alp')) reactivoBuscado = 'fosfatasa';
+      else if (cleanPrompt.includes('fosfat') || cleanPrompt.includes('fosfor')) reactivoBuscado = 'fosfatemia';
+      else if (cleanPrompt.includes('ggt') || cleanPrompt.includes('gamma')) reactivoBuscado = 'ggt';
+      else if (cleanPrompt.includes('album')) reactivoBuscado = 'albumina';
+      else if (cleanPrompt.includes('protein')) reactivoBuscado = 'proteinas';
+      else if (cleanPrompt.includes('calcio') || cleanPrompt.includes(' calcio') || cleanPrompt.includes('reactivo ca')) reactivoBuscado = 'calcio';
+      else if (cleanPrompt.includes('magnes')) reactivoBuscado = 'magnesio';
+      else if (cleanPrompt.includes('amilas')) reactivoBuscado = 'amilasa';
+      else if (cleanPrompt.includes('lipas')) reactivoBuscado = 'lipasa';
+      else if (cleanPrompt.includes('ferrit')) reactivoBuscado = 'ferritina';
+      else if (cleanPrompt.includes('hierro') || cleanPrompt.includes('fer-color') || /\bfer\b/.test(cleanPrompt)) reactivoBuscado = 'hierro';
+      else if (cleanPrompt.includes('uibc') || cleanPrompt.includes('tibc')) reactivoBuscado = 'uibc';
+      else if (cleanPrompt.includes('pcr')) reactivoBuscado = 'pcr';
+      else if (cleanPrompt.includes('ck') || cleanPrompt.includes('cpk')) reactivoBuscado = 'ck';
+      else if (cleanPrompt.includes('ldh')) reactivoBuscado = 'ldh';
       else if (cleanPrompt.includes('tsh')) reactivoBuscado = 'tsh';
-      else if (cleanPrompt.includes('urea')) reactivoBuscado = 'urea';
+      else if (cleanPrompt.includes('ft4')) reactivoBuscado = 'ft4';
+      else if (cleanPrompt.includes('ft3')) reactivoBuscado = 'ft3';
+      else if (cleanPrompt.includes('t4')) reactivoBuscado = 't4';
+      else if (cleanPrompt.includes('t3')) reactivoBuscado = 't3';
+      else if (cleanPrompt.includes('cortisol')) reactivoBuscado = 'cortisol';
+      else if (cleanPrompt.includes('insul')) reactivoBuscado = 'insulina';
+      else if (cleanPrompt.includes('prolact')) reactivoBuscado = 'prolactina';
+      else if (cleanPrompt.includes('psa') || cleanPrompt.includes('tpsa')) reactivoBuscado = 'psa';
+      else if (cleanPrompt.includes('fsh')) reactivoBuscado = 'fsh';
+      else if (cleanPrompt.includes('lh')) reactivoBuscado = 'lh';
+      else if (cleanPrompt.includes('estrad')) reactivoBuscado = 'estradiol';
+      else if (cleanPrompt.includes('progest')) reactivoBuscado = 'progesterona';
+      else if (cleanPrompt.includes('testost')) reactivoBuscado = 'testosterona';
+      else if (cleanPrompt.includes('dhea')) reactivoBuscado = 'dhea';
+      else if (cleanPrompt.includes('hcg')) reactivoBuscado = 'hcg';
+      else if (cleanPrompt.includes('diluent')) reactivoBuscado = 'diluente';
+      else if (cleanPrompt.includes('m-53lh') || cleanPrompt.includes('53lh') || cleanPrompt.includes('lisante verde') || cleanPrompt.includes('tapa verde')) reactivoBuscado = 'm-53lh';
+      else if (cleanPrompt.includes('leo(ii)') || cleanPrompt.includes('leo ii') || cleanPrompt.includes('leo 2') || cleanPrompt.includes('tapa negra') || cleanPrompt.includes('53 leo') || cleanPrompt.includes('m-53 leo')) reactivoBuscado = 'm-53 leo';
+      else if (cleanPrompt.includes('leo(i)') || cleanPrompt.includes('leo i') || cleanPrompt.includes('leo 1') || cleanPrompt.includes('tapa roja') || cleanPrompt.includes('m-leo') || cleanPrompt.includes('m leo')) reactivoBuscado = 'm-leo';
+      else if (/\bleo\b/.test(cleanPrompt) || cleanPrompt.includes('m-leo') || cleanPrompt.includes('lisante') || cleanPrompt.includes('lisantes') || cleanPrompt.includes('lyse')) reactivoBuscado = 'lisantes';
+      else if (cleanPrompt.includes('hemogram') || cleanPrompt.includes('cbc') || cleanPrompt.includes('leucocit') || cleanPrompt.includes('hematolog')) reactivoBuscado = 'hemograma';
       else {
-        const match = prompt.match(/(?:reporte|balance|estado|consumo)\s+(?:de\s+)?([a-zA-Z0-9\s]+)/i);
+        const match = prompt.match(/(?:reporte|balance|estado|consumo|informacion|que paso con|que paso)\s+(?:de\s+|con\s+|el\s+|los\s+|la\s+)?([a-zA-Z0-9\s\-_()]+)/i);
         if (match && match[1]) reactivoBuscado = match[1].trim();
       }
 
       console.log(`[Agent Offline] Intención detectada: Reporte completo del reactivo "${reactivoBuscado}"`);
+      if (reactivoBuscado === 'lisantes') {
+        const reporteMarkdown = await snifferTools.snifferToolsFunctions.obtenerReporteLisantesHematologia();
+        return { respuesta: reporteMarkdown, fuente: 'Controlab Brain' };
+      }
       const reporteMarkdown = await snifferTools.snifferToolsFunctions.obtenerReporteCompletoReactivo({ nombreReactivo: reactivoBuscado });
       return { respuesta: reporteMarkdown, fuente: 'Controlab Brain' };
     }
@@ -328,7 +425,7 @@ async function handleOfflinePrompt(prompt) {
     // ---------------------------------------------------------
     // MÓDULO 4: RITMO DE CONSUMO
     // ---------------------------------------------------------
-    if (cleanPrompt.includes('rapido se agotan') || cleanPrompt.includes('top')) {
+    if (cleanPrompt.includes('rapido se agotan') || /\btop\b/.test(cleanPrompt)) {
       const data = await inventoryTools.getTopConsumptions({ days: 30, limit: 5 });
       let res = `### 🔥 Top 5 Ítems de Mayor Consumo\n\n`;
       if (data.error) return { respuesta: res + data.error, fuente: 'Controlab Brain' };

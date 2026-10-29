@@ -1,0 +1,3262 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Trazabilidad Completa - FOSFATEMIA UV  AA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #0284c7;
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --border: #e2e8f0;
+      --text: #0f172a;
+      --muted: #64748b;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); padding: 30px 20px; line-height: 1.5; }
+    .container { max-width: 1200px; margin: 0 auto; }
+    .header { background: linear-gradient(135deg, #0f172a, #1e293b); color: white; padding: 26px 30px; border-radius: 14px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+    .header h1 { font-family: 'Outfit', sans-serif; font-size: 22px; margin-bottom: 4px; }
+    .badge { display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 700; background: #0284c7; color: white; }
+    
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .card { background: white; border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
+    .card-label { font-size: 11.5px; text-transform: uppercase; color: var(--muted); font-weight: 700; letter-spacing: 0.5px; margin-bottom: 6px; }
+    .card-value { font-family: 'Outfit', sans-serif; font-size: 24px; font-weight: 800; color: #0f172a; }
+    .card-sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+    .search-box { margin-bottom: 16px; display: flex; gap: 10px; }
+    .search-input { flex: 1; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; font-size: 13.5px; outline: none; }
+    .search-input:focus { border-color: var(--primary); }
+
+    table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; border: 1px solid var(--border); box-shadow: 0 2px 6px rgba(0,0,0,0.02); font-size: 13px; }
+    thead th { background: #0f172a; color: white; text-align: left; padding: 12px 14px; font-family: 'Outfit', sans-serif; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+    tbody td { padding: 11px 14px; border-bottom: 1px solid var(--border); }
+    tbody tr:hover { background: #f0f9ff; }
+    
+    .pill { display: inline-block; padding: 2px 8px; border-radius: 5px; font-size: 11px; font-weight: 700; }
+    .pill-consumo { background: #e0f2fe; color: #0369a1; }
+    .pill-entrada { background: #dcfce7; color: #15803d; }
+    .pill-transferencia { background: #fef3c7; color: #b45309; }
+    .pill-apertura { background: #f3e8ff; color: #7e22ce; }
+    .pill-otro { background: #f1f5f9; color: #475569; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div>
+        <span class="badge">REA-BQ-FOSF-CM</span>
+        <h1>FOSFATEMIA UV  AA &bull; Trazabilidad Completa</h1>
+        <p style="font-size: 13px; opacity: 0.8;">Equipo: <strong>CM 260I</strong> &bull; Presentación: <strong>CX1</strong> &bull; Marca: <strong>WIENER LAB</strong></p>
+      </div>
+      <button onclick="window.print()" style="padding: 9px 18px; border-radius: 8px; border: none; background: #38bdf8; color: #082f49; font-weight: 700; cursor: pointer;">🖨️ Imprimir / PDF</button>
+    </div>
+
+    <div class="stats-grid">
+      <div class="card">
+        <div class="card-label">Stock Total Actual</div>
+        <div class="card-value">5 Cajas</div>
+        <div class="card-sub">Central: 2 | Lab: 3</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Total Movimientos</div>
+        <div class="card-value">286</div>
+        <div class="card-sub">Histórico del 08/10 al 27/10/2026</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Consumos Sniffer (Pruebas)</div>
+        <div class="card-value">273</div>
+        <div class="card-sub">Volumen debitado: 68.25 mL</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Lote en Uso Actual</div>
+        <div class="card-value" style="font-size: 18px; color: #0284c7;">2603680000</div>
+        <div class="card-sub">Apertura activa en CM 260i</div>
+      </div>
+    </div>
+
+    <div class="search-box">
+      <input type="text" id="filterInput" class="search-input" placeholder="🔍 Buscar por fecha, motivo, referencia, tipo de movimiento o lote..." onkeyup="filterTable()" />
+    </div>
+
+    <table id="movTable">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Fecha y Hora</th>
+          <th>Tipo</th>
+          <th>Cantidad</th>
+          <th>Stock Transición</th>
+          <th>Motivo Operativo</th>
+          <th>Referencia / Lote</th>
+          <th>Almacén</th>
+        </tr>
+      </thead>
+      <tbody>
+        
+            <tr>
+              <td><strong>#17571</strong></td>
+              <td style="white-space: nowrap;">27/10/2026, 11:25:51</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">86.75 ➔ <strong style="color: #0f172a;">86.5</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 2603680000 (0.9 frascos / 0.86 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#17493</strong></td>
+              <td style="white-space: nowrap;">27/10/2026, 10:40:29</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">87 ➔ <strong style="color: #0f172a;">86.75</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 2603680000 (0.9 frascos / 0.87 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#17484</strong></td>
+              <td style="white-space: nowrap;">27/10/2026, 10:35:56</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">87.25 ➔ <strong style="color: #0f172a;">87</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 2603680000 (0.9 frascos / 0.87 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#17473</strong></td>
+              <td style="white-space: nowrap;">27/10/2026, 10:31:20</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">87.5 ➔ <strong style="color: #0f172a;">87.25</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 2603680000 (0.9 frascos / 0.87 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#17413</strong></td>
+              <td style="white-space: nowrap;">27/10/2026, 10:10:42</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">87.75 ➔ <strong style="color: #0f172a;">87.5</strong></td>
+              <td>Consumo Sniffer (REPETICION) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 2603680000 (0.9 frascos / 0.88 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#17390</strong></td>
+              <td style="white-space: nowrap;">27/10/2026, 9:38:16</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">88 ➔ <strong style="color: #0f172a;">87.75</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 2603680000 (0.9 frascos / 0.88 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#17376</strong></td>
+              <td style="white-space: nowrap;">27/10/2026, 9:32:34</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">88.25 ➔ <strong style="color: #0f172a;">88</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 2603680000 (0.9 frascos / 0.88 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#17364</strong></td>
+              <td style="white-space: nowrap;">27/10/2026, 9:27:56</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">88.5 ➔ <strong style="color: #0f172a;">88.25</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 2603680000 (0.9 frascos / 0.88 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#17345</strong></td>
+              <td style="white-space: nowrap;">27/10/2026, 9:22:28</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">88.75 ➔ <strong style="color: #0f172a;">88.5</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 2603680000 (0.9 frascos / 0.89 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#17326</strong></td>
+              <td style="white-space: nowrap;">27/10/2026, 9:10:27</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">89 ➔ <strong style="color: #0f172a;">88.75</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 2603680000 (0.9 frascos / 0.89 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#17316</strong></td>
+              <td style="white-space: nowrap;">27/10/2026, 9:06:03</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">89.25 ➔ <strong style="color: #0f172a;">89</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 2603680000 (0.9 frascos / 0.89 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#17304</strong></td>
+              <td style="white-space: nowrap;">27/10/2026, 9:01:08</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">89.5 ➔ <strong style="color: #0f172a;">89.25</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 2603680000 (0.9 frascos / 0.89 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#17255</strong></td>
+              <td style="white-space: nowrap;">27/10/2026, 8:14:54</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">89.75 ➔ <strong style="color: #0f172a;">89.5</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 2603680000 (0.9 frascos / 0.90 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#17221</strong></td>
+              <td style="white-space: nowrap;">27/10/2026, 8:05:49</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">90 ➔ <strong style="color: #0f172a;">89.75</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 2603680000 (0.9 frascos / 0.90 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#17138</strong></td>
+              <td style="white-space: nowrap;">26/10/2026, 13:36:25</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">90.25 ➔ <strong style="color: #0f172a;">90</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 2603680000 (0.9 frascos / 0.90 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#17105</strong></td>
+              <td style="white-space: nowrap;">26/10/2026, 11:58:54</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">90.5 ➔ <strong style="color: #0f172a;">90.25</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 2603680000 (0.9 frascos / 0.90 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#17040</strong></td>
+              <td style="white-space: nowrap;">26/10/2026, 11:12:21</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">90.75 ➔ <strong style="color: #0f172a;">90.5</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 2603680000 (0.9 frascos / 0.91 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#17028</strong></td>
+              <td style="white-space: nowrap;">26/10/2026, 11:08:12</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">91 ➔ <strong style="color: #0f172a;">90.75</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 2603680000 (0.9 frascos / 0.91 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#17014</strong></td>
+              <td style="white-space: nowrap;">26/10/2026, 10:56:39</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">91.25 ➔ <strong style="color: #0f172a;">91</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 2603680000 (0.9 frascos / 0.91 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#16998</strong></td>
+              <td style="white-space: nowrap;">26/10/2026, 10:47:48</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">91.5 ➔ <strong style="color: #0f172a;">91.25</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 2603680000 (0.9 frascos / 0.91 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#16987</strong></td>
+              <td style="white-space: nowrap;">26/10/2026, 10:43:25</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">91.75 ➔ <strong style="color: #0f172a;">91.5</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 2603680000 (0.9 frascos / 0.92 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#16906</strong></td>
+              <td style="white-space: nowrap;">26/10/2026, 10:20:05</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">92 ➔ <strong style="color: #0f172a;">91.75</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 2603680000 (0.9 frascos / 0.92 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#16895</strong></td>
+              <td style="white-space: nowrap;">26/10/2026, 10:15:41</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">92.25 ➔ <strong style="color: #0f172a;">92</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 2603680000 (0.9 frascos / 0.92 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#16884</strong></td>
+              <td style="white-space: nowrap;">26/10/2026, 10:11:14</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">92.5 ➔ <strong style="color: #0f172a;">92.25</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 2603680000 (0.9 frascos / 0.92 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#16875</strong></td>
+              <td style="white-space: nowrap;">26/10/2026, 10:06:43</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">92.75 ➔ <strong style="color: #0f172a;">92.5</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 2603680000 (0.9 frascos / 0.93 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#16852</strong></td>
+              <td style="white-space: nowrap;">26/10/2026, 9:58:25</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">93 ➔ <strong style="color: #0f172a;">92.75</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 2603680000 (0.9 frascos / 0.93 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#16821</strong></td>
+              <td style="white-space: nowrap;">26/10/2026, 9:36:09</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">93.25 ➔ <strong style="color: #0f172a;">93</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 2603680000 (0.9 frascos / 0.93 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#16760</strong></td>
+              <td style="white-space: nowrap;">26/10/2026, 9:03:24</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">93.5 ➔ <strong style="color: #0f172a;">93.25</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 2603680000 (0.9 frascos / 0.93 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#16695</strong></td>
+              <td style="white-space: nowrap;">26/10/2026, 8:18:56</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">93.75 ➔ <strong style="color: #0f172a;">93.5</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 2603680000 (0.9 frascos / 0.94 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#16675</strong></td>
+              <td style="white-space: nowrap;">26/10/2026, 7:57:54</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">94 ➔ <strong style="color: #0f172a;">93.75</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 2603680000 (0.9 frascos / 0.94 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#16621</strong></td>
+              <td style="white-space: nowrap;">24/10/2026, 13:41:35</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">94.25 ➔ <strong style="color: #0f172a;">94</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 2603680000 (0.9 frascos / 0.94 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#16611</strong></td>
+              <td style="white-space: nowrap;">24/10/2026, 13:37:07</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">94.5 ➔ <strong style="color: #0f172a;">94.25</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 2603680000 (0.9 frascos / 0.94 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#16594</strong></td>
+              <td style="white-space: nowrap;">24/10/2026, 13:28:41</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">94.75 ➔ <strong style="color: #0f172a;">94.5</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 2603680000 (0.9 frascos / 0.94 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#16561</strong></td>
+              <td style="white-space: nowrap;">24/10/2026, 10:46:09</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">95 ➔ <strong style="color: #0f172a;">94.75</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 2603680000 (0.9 frascos / 0.95 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#16527</strong></td>
+              <td style="white-space: nowrap;">24/10/2026, 10:32:57</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">95.25 ➔ <strong style="color: #0f172a;">95</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 2603680000 (0.9 frascos / 0.95 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#16499</strong></td>
+              <td style="white-space: nowrap;">24/10/2026, 9:40:50</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">95.5 ➔ <strong style="color: #0f172a;">95.25</strong></td>
+              <td>Consumo Sniffer (REPETICION) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 2603680000 (1.0 frascos / 0.95 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#16493</strong></td>
+              <td style="white-space: nowrap;">24/10/2026, 9:19:48</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">95.75 ➔ <strong style="color: #0f172a;">95.5</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 2603680000 (1.0 frascos / 0.95 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#16481</strong></td>
+              <td style="white-space: nowrap;">24/10/2026, 9:15:28</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">96 ➔ <strong style="color: #0f172a;">95.75</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 2603680000 (1.0 frascos / 0.96 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#16471</strong></td>
+              <td style="white-space: nowrap;">24/10/2026, 9:11:00</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">96.25 ➔ <strong style="color: #0f172a;">96</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 2603680000 (1.0 frascos / 0.96 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#16460</strong></td>
+              <td style="white-space: nowrap;">24/10/2026, 9:06:45</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">96.5 ➔ <strong style="color: #0f172a;">96.25</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 2603680000 (1.0 frascos / 0.96 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#16414</strong></td>
+              <td style="white-space: nowrap;">24/10/2026, 8:37:20</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">96.75 ➔ <strong style="color: #0f172a;">96.5</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 2603680000 (1.0 frascos / 0.96 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#16373</strong></td>
+              <td style="white-space: nowrap;">24/10/2026, 8:26:43</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">97 ➔ <strong style="color: #0f172a;">96.75</strong></td>
+              <td>Consumo Sniffer (QC) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 2603680000 (1.0 frascos / 0.97 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#16361</strong></td>
+              <td style="white-space: nowrap;">24/10/2026, 8:20:41</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">97.25 ➔ <strong style="color: #0f172a;">97</strong></td>
+              <td>Consumo Sniffer (QC) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 2603680000 (1.0 frascos / 0.97 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#16280</strong></td>
+              <td style="white-space: nowrap;">23/10/2026, 16:34:59</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">97.5 ➔ <strong style="color: #0f172a;">97.25</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 2603680000 (1.0 frascos / 0.97 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#16268</strong></td>
+              <td style="white-space: nowrap;">23/10/2026, 16:27:47</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">97.75 ➔ <strong style="color: #0f172a;">97.5</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 2603680000 (1.0 frascos / 0.97 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#16256</strong></td>
+              <td style="white-space: nowrap;">23/10/2026, 16:20:34</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">98 ➔ <strong style="color: #0f172a;">97.75</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 2603680000 (1.0 frascos / 0.98 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#16181</strong></td>
+              <td style="white-space: nowrap;">23/10/2026, 15:20:18</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">98.25 ➔ <strong style="color: #0f172a;">98</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 2603680000 (1.0 frascos / 0.98 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#16173</strong></td>
+              <td style="white-space: nowrap;">23/10/2026, 15:16:28</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">98.5 ➔ <strong style="color: #0f172a;">98.25</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 2603680000 (1.0 frascos / 0.98 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#15882</strong></td>
+              <td style="white-space: nowrap;">23/10/2026, 9:53:20</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">98.75 ➔ <strong style="color: #0f172a;">98.5</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 2603680000 (1.0 frascos / 0.98 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#15855</strong></td>
+              <td style="white-space: nowrap;">23/10/2026, 9:48:00</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">99 ➔ <strong style="color: #0f172a;">98.75</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 2603680000 (1.0 frascos / 0.99 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#15822</strong></td>
+              <td style="white-space: nowrap;">23/10/2026, 9:42:04</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">99.25 ➔ <strong style="color: #0f172a;">99</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 2603680000 (1.0 frascos / 0.99 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#15810</strong></td>
+              <td style="white-space: nowrap;">23/10/2026, 9:30:58</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">99.5 ➔ <strong style="color: #0f172a;">99.25</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 2603680000 (1.0 frascos / 0.99 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#15799</strong></td>
+              <td style="white-space: nowrap;">23/10/2026, 9:24:29</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">99.75 ➔ <strong style="color: #0f172a;">99.5</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 2603680000 (1.0 frascos / 0.99 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#15787</strong></td>
+              <td style="white-space: nowrap;">23/10/2026, 9:19:24</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">100 ➔ <strong style="color: #0f172a;">99.75</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 2603680000 (1.0 frascos / 1.00 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#15784</strong></td>
+              <td style="white-space: nowrap;">23/10/2026, 9:14:54</td>
+              <td><span class="pill pill-apertura">APERTURA_CAJA</span></td>
+              <td style="font-weight: 700;">0</td>
+              <td style="color: var(--muted);">1 ➔ <strong style="color: #0f172a;">1</strong></td>
+              <td>APERTURA DE CAJA (FRASCO 1 EN USO) EN CM 260I</td>
+              <td style="font-size: 12px; color: #475569;">LOTE: 2603680000 - APERTURA POR RAFAEL JIMENEZ</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#15783</strong></td>
+              <td style="white-space: nowrap;">23/10/2026, 9:14:54</td>
+              <td><span class="pill pill-otro">SUSTITUCION_LOTE</span></td>
+              <td style="font-weight: 700;">0</td>
+              <td style="color: var(--muted);">99.75 ➔ <strong style="color: #0f172a;">0</strong></td>
+              <td>CIERRE POR SUSTITUCION: APERTURA DE NUEVO LOTE 2603680000 EN CM 260I</td>
+              <td style="font-size: 12px; color: #475569;">LOTE ANTERIOR: 2603680000 CERRADO POR RAFAEL JIMENEZ</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#15745</strong></td>
+              <td style="white-space: nowrap;">22/10/2026, 17:20:11</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">100 ➔ <strong style="color: #0f172a;">99.75</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 2603680000 (-0.25ml)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#15182</strong></td>
+              <td style="white-space: nowrap;">22/10/2026, 11:12:03</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">100.25 ➔ <strong style="color: #0f172a;">100</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 2603680000 (-0.25ml)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#15165</strong></td>
+              <td style="white-space: nowrap;">22/10/2026, 10:53:53</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">100.5 ➔ <strong style="color: #0f172a;">100.25</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 2603680000 (-0.25ml)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#15156</strong></td>
+              <td style="white-space: nowrap;">22/10/2026, 10:48:55</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">100.75 ➔ <strong style="color: #0f172a;">100.5</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 2603680000 (-0.25ml)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#15147</strong></td>
+              <td style="white-space: nowrap;">22/10/2026, 10:44:28</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">101 ➔ <strong style="color: #0f172a;">100.75</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 2603680000 (-0.25ml)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#15137</strong></td>
+              <td style="white-space: nowrap;">22/10/2026, 10:39:13</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">101.25 ➔ <strong style="color: #0f172a;">101</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 2603680000 (-0.25ml)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#15098</strong></td>
+              <td style="white-space: nowrap;">22/10/2026, 10:25:40</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">101.5 ➔ <strong style="color: #0f172a;">101.25</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 2603680000 (-0.25ml)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#15058</strong></td>
+              <td style="white-space: nowrap;">22/10/2026, 10:10:50</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">101.75 ➔ <strong style="color: #0f172a;">101.5</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 2603680000 (-0.25ml)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#15039</strong></td>
+              <td style="white-space: nowrap;">22/10/2026, 10:04:23</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">102 ➔ <strong style="color: #0f172a;">101.75</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 2603680000 (-0.25ml)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#15011</strong></td>
+              <td style="white-space: nowrap;">22/10/2026, 9:51:00</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">102.25 ➔ <strong style="color: #0f172a;">102</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 2603680000 (-0.25ml)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#14962</strong></td>
+              <td style="white-space: nowrap;">22/10/2026, 9:26:06</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">102.5 ➔ <strong style="color: #0f172a;">102.25</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 2603680000 (-0.25ml)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#14946</strong></td>
+              <td style="white-space: nowrap;">22/10/2026, 9:21:33</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">102.75 ➔ <strong style="color: #0f172a;">102.5</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 2603680000 (-0.25ml)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#14921</strong></td>
+              <td style="white-space: nowrap;">22/10/2026, 8:59:50</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">103 ➔ <strong style="color: #0f172a;">102.75</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 2603680000 (-0.25ml)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#14870</strong></td>
+              <td style="white-space: nowrap;">22/10/2026, 8:30:27</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">103.25 ➔ <strong style="color: #0f172a;">103</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 2603680000 (-0.25ml)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#14858</strong></td>
+              <td style="white-space: nowrap;">22/10/2026, 8:26:07</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">103.5 ➔ <strong style="color: #0f172a;">103.25</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 2603680000 (-0.25ml)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#14842</strong></td>
+              <td style="white-space: nowrap;">22/10/2026, 8:21:44</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">103.75 ➔ <strong style="color: #0f172a;">103.5</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 2603680000 (-0.25ml)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#14830</strong></td>
+              <td style="white-space: nowrap;">22/10/2026, 8:16:52</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">104 ➔ <strong style="color: #0f172a;">103.75</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 2603680000 (-0.25ml)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#12753</strong></td>
+              <td style="white-space: nowrap;">16/10/2026, 16:29:03</td>
+              <td><span class="pill pill-apertura">APERTURA_CAJA</span></td>
+              <td style="font-weight: 700;">0</td>
+              <td style="color: var(--muted);">1 ➔ <strong style="color: #0f172a;">1</strong></td>
+              <td>APERTURA DE CAJA (FRASCO 1 EN USO) EN CM 260I</td>
+              <td style="font-size: 12px; color: #475569;">LOTE: 2603680000 - APERTURA POR ANDRELYS ZURITA</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#12752</strong></td>
+              <td style="white-space: nowrap;">16/10/2026, 16:29:03</td>
+              <td><span class="pill pill-otro">SUSTITUCION_LOTE</span></td>
+              <td style="font-weight: 700;">0</td>
+              <td style="color: var(--muted);">-0.5 ➔ <strong style="color: #0f172a;">0</strong></td>
+              <td>CIERRE POR SUSTITUCION: APERTURA DE NUEVO LOTE 2603680000 EN CM 260I</td>
+              <td style="font-size: 12px; color: #475569;">LOTE ANTERIOR: 1 CERRADO POR ANDRELYS ZURITA</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#12749</strong></td>
+              <td style="white-space: nowrap;">16/10/2026, 16:25:53</td>
+              <td><span class="pill pill-otro">RECEPCION_ELECTRONIC</span></td>
+              <td style="font-weight: 700;">1</td>
+              <td style="color: var(--muted);">1 ➔ <strong style="color: #0f172a;">1</strong></td>
+              <td>CONFIRMACION ELECTRONICA DE RECEPCION EN LABORATORIO</td>
+              <td style="font-size: 12px; color: #475569;">LOTE: 2603680000 - RECIBIDO POR DRA. MARÍA URBINA (BIOANALISTA)</td>
+              <td style="font-size: 12px;">Almacén Central ➔ Almacén Laboratorio</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#12748</strong></td>
+              <td style="white-space: nowrap;">16/10/2026, 16:25:43</td>
+              <td><span class="pill pill-transferencia">TRANSFERENCIA</span></td>
+              <td style="font-weight: 700;">1</td>
+              <td style="color: var(--muted);">3 ➔ <strong style="color: #0f172a;">2</strong></td>
+              <td>SUMINISTRO OPERATIVO A LABORATORIO</td>
+              <td style="font-size: 12px; color: #475569;">TRANS-339587</td>
+              <td style="font-size: 12px;">Almacén Central ➔ Almacén Laboratorio</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#12724</strong></td>
+              <td style="white-space: nowrap;">16/10/2026, 14:56:49</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">-0.25 ➔ <strong style="color: #0f172a;">-0.5</strong></td>
+              <td>Consumo Sniffer (REPETICION) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (-0.25ml)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#12712</strong></td>
+              <td style="white-space: nowrap;">16/10/2026, 14:55:46</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">0 ➔ <strong style="color: #0f172a;">-0.25</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (-0.25ml)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#12694</strong></td>
+              <td style="white-space: nowrap;">16/10/2026, 14:40:52</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">0.25 ➔ <strong style="color: #0f172a;">0</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (-0.25ml)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#12671</strong></td>
+              <td style="white-space: nowrap;">16/10/2026, 13:54:09</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">0.5 ➔ <strong style="color: #0f172a;">0.25</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (-0.25ml)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#12747</strong></td>
+              <td style="white-space: nowrap;">16/10/2026, 12:25:14</td>
+              <td><span class="pill pill-entrada">ENTRADA</span></td>
+              <td style="font-weight: 700;">1</td>
+              <td style="color: var(--muted);">2 ➔ <strong style="color: #0f172a;">3</strong></td>
+              <td>Ingreso RecepciÃ³n Lote: 2603680000 - IVA 16%</td>
+              <td style="font-size: 12px; color: #475569;">REC-BATCH-1792182314861</td>
+              <td style="font-size: 12px;">Almacén Central</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#12500</strong></td>
+              <td style="white-space: nowrap;">16/10/2026, 11:11:48</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">0.75 ➔ <strong style="color: #0f172a;">0.5</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.0 frascos / 0.01 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#12483</strong></td>
+              <td style="white-space: nowrap;">16/10/2026, 11:07:45</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">1 ➔ <strong style="color: #0f172a;">0.75</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.0 frascos / 0.01 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#12465</strong></td>
+              <td style="white-space: nowrap;">16/10/2026, 10:56:51</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">1.25 ➔ <strong style="color: #0f172a;">1</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.0 frascos / 0.02 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#12443</strong></td>
+              <td style="white-space: nowrap;">16/10/2026, 10:51:13</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">1.5 ➔ <strong style="color: #0f172a;">1.25</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.0 frascos / 0.02 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#12430</strong></td>
+              <td style="white-space: nowrap;">16/10/2026, 10:46:33</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">1.75 ➔ <strong style="color: #0f172a;">1.5</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.0 frascos / 0.03 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#12416</strong></td>
+              <td style="white-space: nowrap;">16/10/2026, 10:41:43</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">2 ➔ <strong style="color: #0f172a;">1.75</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.0 frascos / 0.03 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#12391</strong></td>
+              <td style="white-space: nowrap;">16/10/2026, 10:35:14</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">2.25 ➔ <strong style="color: #0f172a;">2</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.0 frascos / 0.04 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#12377</strong></td>
+              <td style="white-space: nowrap;">16/10/2026, 10:30:50</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">2.5 ➔ <strong style="color: #0f172a;">2.25</strong></td>
+              <td>Consumo Sniffer (REPETICION) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.0 frascos / 0.04 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#12376</strong></td>
+              <td style="white-space: nowrap;">16/10/2026, 10:30:50</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">2.75 ➔ <strong style="color: #0f172a;">2.5</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.0 frascos / 0.05 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#12362</strong></td>
+              <td style="white-space: nowrap;">16/10/2026, 10:26:12</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">3 ➔ <strong style="color: #0f172a;">2.75</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.1 frascos / 0.05 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#12346</strong></td>
+              <td style="white-space: nowrap;">16/10/2026, 10:14:53</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">3.25 ➔ <strong style="color: #0f172a;">3</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.1 frascos / 0.05 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#12330</strong></td>
+              <td style="white-space: nowrap;">16/10/2026, 10:10:29</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">3.5 ➔ <strong style="color: #0f172a;">3.25</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.1 frascos / 0.06 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#12314</strong></td>
+              <td style="white-space: nowrap;">16/10/2026, 10:07:05</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">3.75 ➔ <strong style="color: #0f172a;">3.5</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.1 frascos / 0.06 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#12300</strong></td>
+              <td style="white-space: nowrap;">16/10/2026, 10:01:05</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">4 ➔ <strong style="color: #0f172a;">3.75</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.1 frascos / 0.07 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#12282</strong></td>
+              <td style="white-space: nowrap;">16/10/2026, 9:45:52</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">4.25 ➔ <strong style="color: #0f172a;">4</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.1 frascos / 0.07 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#12267</strong></td>
+              <td style="white-space: nowrap;">16/10/2026, 9:41:54</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">4.5 ➔ <strong style="color: #0f172a;">4.25</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.1 frascos / 0.08 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#12253</strong></td>
+              <td style="white-space: nowrap;">16/10/2026, 9:37:20</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">4.75 ➔ <strong style="color: #0f172a;">4.5</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.1 frascos / 0.08 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#12238</strong></td>
+              <td style="white-space: nowrap;">16/10/2026, 9:32:19</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">5 ➔ <strong style="color: #0f172a;">4.75</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.1 frascos / 0.09 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#12224</strong></td>
+              <td style="white-space: nowrap;">16/10/2026, 9:27:17</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">5.25 ➔ <strong style="color: #0f172a;">5</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.1 frascos / 0.09 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#12208</strong></td>
+              <td style="white-space: nowrap;">16/10/2026, 9:23:02</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">5.5 ➔ <strong style="color: #0f172a;">5.25</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.1 frascos / 0.10 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#12195</strong></td>
+              <td style="white-space: nowrap;">16/10/2026, 9:07:19</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">5.75 ➔ <strong style="color: #0f172a;">5.5</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.1 frascos / 0.10 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#12178</strong></td>
+              <td style="white-space: nowrap;">16/10/2026, 9:02:44</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">6 ➔ <strong style="color: #0f172a;">5.75</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.1 frascos / 0.10 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#12161</strong></td>
+              <td style="white-space: nowrap;">16/10/2026, 8:57:31</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">6.25 ➔ <strong style="color: #0f172a;">6</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.1 frascos / 0.11 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#12145</strong></td>
+              <td style="white-space: nowrap;">16/10/2026, 8:52:44</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">6.5 ➔ <strong style="color: #0f172a;">6.25</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.1 frascos / 0.11 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#12130</strong></td>
+              <td style="white-space: nowrap;">16/10/2026, 8:48:32</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">6.75 ➔ <strong style="color: #0f172a;">6.5</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.1 frascos / 0.12 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#12110</strong></td>
+              <td style="white-space: nowrap;">16/10/2026, 8:42:33</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">7 ➔ <strong style="color: #0f172a;">6.75</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.1 frascos / 0.12 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#12094</strong></td>
+              <td style="white-space: nowrap;">16/10/2026, 8:10:40</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">7.25 ➔ <strong style="color: #0f172a;">7</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.1 frascos / 0.13 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#12081</strong></td>
+              <td style="white-space: nowrap;">16/10/2026, 8:06:37</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">7.5 ➔ <strong style="color: #0f172a;">7.25</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.1 frascos / 0.13 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#12063</strong></td>
+              <td style="white-space: nowrap;">16/10/2026, 7:54:04</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">7.75 ➔ <strong style="color: #0f172a;">7.5</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.1 frascos / 0.14 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#12032</strong></td>
+              <td style="white-space: nowrap;">15/10/2026, 16:55:15</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">8 ➔ <strong style="color: #0f172a;">7.75</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.1 frascos / 0.14 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#12016</strong></td>
+              <td style="white-space: nowrap;">15/10/2026, 16:54:42</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">8.25 ➔ <strong style="color: #0f172a;">8</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.1 frascos / 0.15 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#11991</strong></td>
+              <td style="white-space: nowrap;">15/10/2026, 16:53:51</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">8.5 ➔ <strong style="color: #0f172a;">8.25</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.1 frascos / 0.15 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#11976</strong></td>
+              <td style="white-space: nowrap;">15/10/2026, 16:53:19</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">8.75 ➔ <strong style="color: #0f172a;">8.5</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.2 frascos / 0.15 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#11960</strong></td>
+              <td style="white-space: nowrap;">15/10/2026, 16:52:25</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">9 ➔ <strong style="color: #0f172a;">8.75</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.2 frascos / 0.16 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#11945</strong></td>
+              <td style="white-space: nowrap;">15/10/2026, 16:51:54</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">9.25 ➔ <strong style="color: #0f172a;">9</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.2 frascos / 0.16 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#11905</strong></td>
+              <td style="white-space: nowrap;">15/10/2026, 16:50:30</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">9.5 ➔ <strong style="color: #0f172a;">9.25</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.2 frascos / 0.17 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#11885</strong></td>
+              <td style="white-space: nowrap;">15/10/2026, 16:49:49</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">9.75 ➔ <strong style="color: #0f172a;">9.5</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.2 frascos / 0.17 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#11870</strong></td>
+              <td style="white-space: nowrap;">15/10/2026, 16:49:18</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">10 ➔ <strong style="color: #0f172a;">9.75</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.2 frascos / 0.18 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#11855</strong></td>
+              <td style="white-space: nowrap;">15/10/2026, 16:48:47</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">10.25 ➔ <strong style="color: #0f172a;">10</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.2 frascos / 0.18 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#11840</strong></td>
+              <td style="white-space: nowrap;">15/10/2026, 16:48:16</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">10.5 ➔ <strong style="color: #0f172a;">10.25</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.2 frascos / 0.19 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#11825</strong></td>
+              <td style="white-space: nowrap;">15/10/2026, 16:47:44</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">10.75 ➔ <strong style="color: #0f172a;">10.5</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.2 frascos / 0.19 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#11810</strong></td>
+              <td style="white-space: nowrap;">15/10/2026, 16:47:39</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">11 ➔ <strong style="color: #0f172a;">10.75</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.2 frascos / 0.20 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#11793</strong></td>
+              <td style="white-space: nowrap;">15/10/2026, 16:47:36</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">11.25 ➔ <strong style="color: #0f172a;">11</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.2 frascos / 0.20 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#11772</strong></td>
+              <td style="white-space: nowrap;">15/10/2026, 16:47:34</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">11.5 ➔ <strong style="color: #0f172a;">11.25</strong></td>
+              <td>Consumo Sniffer (REPETICION) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.2 frascos / 0.20 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#11771</strong></td>
+              <td style="white-space: nowrap;">15/10/2026, 16:47:34</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">11.75 ➔ <strong style="color: #0f172a;">11.5</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.2 frascos / 0.21 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#11753</strong></td>
+              <td style="white-space: nowrap;">15/10/2026, 16:47:31</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">12 ➔ <strong style="color: #0f172a;">11.75</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.2 frascos / 0.21 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#11737</strong></td>
+              <td style="white-space: nowrap;">15/10/2026, 16:46:16</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">12.25 ➔ <strong style="color: #0f172a;">12</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.2 frascos / 0.22 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#11722</strong></td>
+              <td style="white-space: nowrap;">15/10/2026, 16:46:14</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">12.5 ➔ <strong style="color: #0f172a;">12.25</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.2 frascos / 0.22 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#11704</strong></td>
+              <td style="white-space: nowrap;">15/10/2026, 16:46:12</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">12.75 ➔ <strong style="color: #0f172a;">12.5</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.2 frascos / 0.23 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#11695</strong></td>
+              <td style="white-space: nowrap;">15/10/2026, 16:46:11</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">13 ➔ <strong style="color: #0f172a;">12.75</strong></td>
+              <td>Consumo Sniffer (CALIBRACION) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.2 frascos / 0.23 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#11682</strong></td>
+              <td style="white-space: nowrap;">15/10/2026, 16:46:09</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">13.25 ➔ <strong style="color: #0f172a;">13</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.2 frascos / 0.24 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#11666</strong></td>
+              <td style="white-space: nowrap;">15/10/2026, 16:46:07</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">13.5 ➔ <strong style="color: #0f172a;">13.25</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.2 frascos / 0.24 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#11649</strong></td>
+              <td style="white-space: nowrap;">15/10/2026, 16:46:05</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">13.75 ➔ <strong style="color: #0f172a;">13.5</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.2 frascos / 0.25 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#11626</strong></td>
+              <td style="white-space: nowrap;">15/10/2026, 16:46:02</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">14 ➔ <strong style="color: #0f172a;">13.75</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.3 frascos / 0.25 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#11605</strong></td>
+              <td style="white-space: nowrap;">15/10/2026, 16:45:59</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">14.25 ➔ <strong style="color: #0f172a;">14</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.3 frascos / 0.25 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#11592</strong></td>
+              <td style="white-space: nowrap;">15/10/2026, 16:45:15</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">14.5 ➔ <strong style="color: #0f172a;">14.25</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.3 frascos / 0.26 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#11565</strong></td>
+              <td style="white-space: nowrap;">15/10/2026, 16:44:19</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">14.75 ➔ <strong style="color: #0f172a;">14.5</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.3 frascos / 0.26 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#11549</strong></td>
+              <td style="white-space: nowrap;">15/10/2026, 16:43:29</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">15 ➔ <strong style="color: #0f172a;">14.75</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.3 frascos / 0.27 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#11531</strong></td>
+              <td style="white-space: nowrap;">15/10/2026, 16:42:52</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">15.25 ➔ <strong style="color: #0f172a;">15</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.3 frascos / 0.27 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#11510</strong></td>
+              <td style="white-space: nowrap;">15/10/2026, 16:42:09</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">15.5 ➔ <strong style="color: #0f172a;">15.25</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.3 frascos / 0.28 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#11492</strong></td>
+              <td style="white-space: nowrap;">15/10/2026, 16:41:31</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">15.75 ➔ <strong style="color: #0f172a;">15.5</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.3 frascos / 0.28 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#11475</strong></td>
+              <td style="white-space: nowrap;">15/10/2026, 16:41:20</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">16 ➔ <strong style="color: #0f172a;">15.75</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.3 frascos / 0.29 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#11460</strong></td>
+              <td style="white-space: nowrap;">15/10/2026, 16:41:18</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">16.25 ➔ <strong style="color: #0f172a;">16</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.3 frascos / 0.29 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#11422</strong></td>
+              <td style="white-space: nowrap;">15/10/2026, 16:19:00</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">16.5 ➔ <strong style="color: #0f172a;">16.25</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.3 frascos / 0.30 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#11407</strong></td>
+              <td style="white-space: nowrap;">15/10/2026, 16:18:58</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">16.75 ➔ <strong style="color: #0f172a;">16.5</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.3 frascos / 0.30 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#11392</strong></td>
+              <td style="white-space: nowrap;">15/10/2026, 16:18:56</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">17 ➔ <strong style="color: #0f172a;">16.75</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.3 frascos / 0.30 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#11377</strong></td>
+              <td style="white-space: nowrap;">15/10/2026, 16:18:54</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">17.25 ➔ <strong style="color: #0f172a;">17</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.3 frascos / 0.31 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#11358</strong></td>
+              <td style="white-space: nowrap;">15/10/2026, 16:18:35</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">17.5 ➔ <strong style="color: #0f172a;">17.25</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.3 frascos / 0.31 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#11343</strong></td>
+              <td style="white-space: nowrap;">15/10/2026, 16:18:31</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">17.75 ➔ <strong style="color: #0f172a;">17.5</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.3 frascos / 0.32 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#11328</strong></td>
+              <td style="white-space: nowrap;">15/10/2026, 16:18:29</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">18 ➔ <strong style="color: #0f172a;">17.75</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.3 frascos / 0.32 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#11010</strong></td>
+              <td style="white-space: nowrap;">15/10/2026, 11:37:17</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">18.25 ➔ <strong style="color: #0f172a;">18</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.3 frascos / 0.33 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#10986</strong></td>
+              <td style="white-space: nowrap;">15/10/2026, 10:48:46</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">18.5 ➔ <strong style="color: #0f172a;">18.25</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.3 frascos / 0.33 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#10968</strong></td>
+              <td style="white-space: nowrap;">15/10/2026, 10:36:31</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">18.75 ➔ <strong style="color: #0f172a;">18.5</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.3 frascos / 0.34 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#10955</strong></td>
+              <td style="white-space: nowrap;">15/10/2026, 10:24:52</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">19 ➔ <strong style="color: #0f172a;">18.75</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.3 frascos / 0.34 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#10938</strong></td>
+              <td style="white-space: nowrap;">15/10/2026, 10:20:52</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">19.25 ➔ <strong style="color: #0f172a;">19</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.3 frascos / 0.35 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#10914</strong></td>
+              <td style="white-space: nowrap;">15/10/2026, 9:51:36</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">19.5 ➔ <strong style="color: #0f172a;">19.25</strong></td>
+              <td>Consumo Sniffer (REPETICION) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.3 frascos / 0.35 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#10913</strong></td>
+              <td style="white-space: nowrap;">15/10/2026, 9:51:36</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">19.75 ➔ <strong style="color: #0f172a;">19.5</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.4 frascos / 0.35 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#10897</strong></td>
+              <td style="white-space: nowrap;">15/10/2026, 9:46:31</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">20 ➔ <strong style="color: #0f172a;">19.75</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.4 frascos / 0.36 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#10882</strong></td>
+              <td style="white-space: nowrap;">15/10/2026, 9:42:21</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">20.25 ➔ <strong style="color: #0f172a;">20</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.4 frascos / 0.36 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#10868</strong></td>
+              <td style="white-space: nowrap;">15/10/2026, 9:37:39</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">20.5 ➔ <strong style="color: #0f172a;">20.25</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.4 frascos / 0.37 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#10848</strong></td>
+              <td style="white-space: nowrap;">15/10/2026, 9:14:45</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">20.75 ➔ <strong style="color: #0f172a;">20.5</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.4 frascos / 0.37 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#10830</strong></td>
+              <td style="white-space: nowrap;">15/10/2026, 9:09:05</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">21 ➔ <strong style="color: #0f172a;">20.75</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.4 frascos / 0.38 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#10828</strong></td>
+              <td style="white-space: nowrap;">15/10/2026, 9:08:19</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">21.25 ➔ <strong style="color: #0f172a;">21</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.4 frascos / 0.38 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#10797</strong></td>
+              <td style="white-space: nowrap;">15/10/2026, 8:59:08</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">21.5 ➔ <strong style="color: #0f172a;">21.25</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.4 frascos / 0.39 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#10782</strong></td>
+              <td style="white-space: nowrap;">15/10/2026, 8:54:39</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">21.75 ➔ <strong style="color: #0f172a;">21.5</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.4 frascos / 0.39 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#10760</strong></td>
+              <td style="white-space: nowrap;">15/10/2026, 8:48:29</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">22 ➔ <strong style="color: #0f172a;">21.75</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.4 frascos / 0.40 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#10742</strong></td>
+              <td style="white-space: nowrap;">15/10/2026, 8:34:41</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">22.25 ➔ <strong style="color: #0f172a;">22</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.4 frascos / 0.40 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#10719</strong></td>
+              <td style="white-space: nowrap;">15/10/2026, 8:28:38</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">22.5 ➔ <strong style="color: #0f172a;">22.25</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.4 frascos / 0.40 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#10705</strong></td>
+              <td style="white-space: nowrap;">15/10/2026, 8:24:19</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">22.75 ➔ <strong style="color: #0f172a;">22.5</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.4 frascos / 0.41 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#10689</strong></td>
+              <td style="white-space: nowrap;">15/10/2026, 8:19:12</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">23 ➔ <strong style="color: #0f172a;">22.75</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.4 frascos / 0.41 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#10674</strong></td>
+              <td style="white-space: nowrap;">15/10/2026, 8:15:05</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">23.25 ➔ <strong style="color: #0f172a;">23</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.4 frascos / 0.42 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#10652</strong></td>
+              <td style="white-space: nowrap;">15/10/2026, 8:02:42</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">23.5 ➔ <strong style="color: #0f172a;">23.25</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.4 frascos / 0.42 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#10626</strong></td>
+              <td style="white-space: nowrap;">14/10/2026, 15:50:36</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">23.75 ➔ <strong style="color: #0f172a;">23.5</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.4 frascos / 0.43 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#10604</strong></td>
+              <td style="white-space: nowrap;">14/10/2026, 15:44:48</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">24 ➔ <strong style="color: #0f172a;">23.75</strong></td>
+              <td>Consumo Sniffer (REPETICION) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.4 frascos / 0.43 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#10603</strong></td>
+              <td style="white-space: nowrap;">14/10/2026, 15:44:47</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">24.25 ➔ <strong style="color: #0f172a;">24</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.4 frascos / 0.44 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#10585</strong></td>
+              <td style="white-space: nowrap;">14/10/2026, 14:34:57</td>
+              <td><span class="pill pill-otro">RECEPCION_ELECTRONIC</span></td>
+              <td style="font-weight: 700;">1</td>
+              <td style="color: var(--muted);">1 ➔ <strong style="color: #0f172a;">1</strong></td>
+              <td>CONFIRMACION ELECTRONICA DE RECEPCION EN LABORATORIO</td>
+              <td style="font-size: 12px; color: #475569;">LOTE: 2603680000 - RECIBIDO POR DRA. MARÍA URBINA (BIOANALISTA)</td>
+              <td style="font-size: 12px;">Almacén Central ➔ Almacén Laboratorio</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#10565</strong></td>
+              <td style="white-space: nowrap;">14/10/2026, 13:45:04</td>
+              <td><span class="pill pill-transferencia">TRANSFERENCIA</span></td>
+              <td style="font-weight: 700;">1</td>
+              <td style="color: var(--muted);">3 ➔ <strong style="color: #0f172a;">2</strong></td>
+              <td>SUMINISTRO OPERATIVO A LABORATORIO</td>
+              <td style="font-size: 12px; color: #475569;">TRANS-898967</td>
+              <td style="font-size: 12px;">Almacén Central ➔ Almacén Laboratorio</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#10537</strong></td>
+              <td style="white-space: nowrap;">14/10/2026, 11:28:09</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">24.5 ➔ <strong style="color: #0f172a;">24.25</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.4 frascos / 0.44 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#10517</strong></td>
+              <td style="white-space: nowrap;">14/10/2026, 11:23:47</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">24.75 ➔ <strong style="color: #0f172a;">24.5</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.4 frascos / 0.45 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#10504</strong></td>
+              <td style="white-space: nowrap;">14/10/2026, 11:18:49</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">25 ➔ <strong style="color: #0f172a;">24.75</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.5 frascos / 0.45 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#10487</strong></td>
+              <td style="white-space: nowrap;">14/10/2026, 11:14:24</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">25.25 ➔ <strong style="color: #0f172a;">25</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.5 frascos / 0.45 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#10473</strong></td>
+              <td style="white-space: nowrap;">14/10/2026, 11:09:15</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">25.5 ➔ <strong style="color: #0f172a;">25.25</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.5 frascos / 0.46 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#10456</strong></td>
+              <td style="white-space: nowrap;">14/10/2026, 10:56:38</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">25.75 ➔ <strong style="color: #0f172a;">25.5</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.5 frascos / 0.46 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#10438</strong></td>
+              <td style="white-space: nowrap;">14/10/2026, 10:52:12</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">26 ➔ <strong style="color: #0f172a;">25.75</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.5 frascos / 0.47 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#10424</strong></td>
+              <td style="white-space: nowrap;">14/10/2026, 10:41:57</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">26.75 ➔ <strong style="color: #0f172a;">26.5</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (Paciente: 101402001)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#10392</strong></td>
+              <td style="white-space: nowrap;">14/10/2026, 10:37:18</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">26.5 ➔ <strong style="color: #0f172a;">26.25</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.5 frascos / 0.48 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#10378</strong></td>
+              <td style="white-space: nowrap;">14/10/2026, 10:32:55</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">26.75 ➔ <strong style="color: #0f172a;">26.5</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.5 frascos / 0.48 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#10366</strong></td>
+              <td style="white-space: nowrap;">14/10/2026, 10:20:56</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">27 ➔ <strong style="color: #0f172a;">26.75</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.5 frascos / 0.49 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#10332</strong></td>
+              <td style="white-space: nowrap;">14/10/2026, 10:11:32</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">27.25 ➔ <strong style="color: #0f172a;">27</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.5 frascos / 0.49 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#10320</strong></td>
+              <td style="white-space: nowrap;">14/10/2026, 10:06:24</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">27.5 ➔ <strong style="color: #0f172a;">27.25</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.5 frascos / 0.50 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#10302</strong></td>
+              <td style="white-space: nowrap;">14/10/2026, 9:55:23</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">27.75 ➔ <strong style="color: #0f172a;">27.5</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.5 frascos / 0.50 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#10288</strong></td>
+              <td style="white-space: nowrap;">14/10/2026, 9:50:51</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">28 ➔ <strong style="color: #0f172a;">27.75</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.5 frascos / 0.50 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#10276</strong></td>
+              <td style="white-space: nowrap;">13/10/2026, 16:32:44</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">28.25 ➔ <strong style="color: #0f172a;">28</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.5 frascos / 0.51 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#10256</strong></td>
+              <td style="white-space: nowrap;">13/10/2026, 16:27:24</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">28.5 ➔ <strong style="color: #0f172a;">28.25</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.5 frascos / 0.51 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#10219</strong></td>
+              <td style="white-space: nowrap;">13/10/2026, 13:07:15</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">28.75 ➔ <strong style="color: #0f172a;">28.5</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.5 frascos / 0.52 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#10188</strong></td>
+              <td style="white-space: nowrap;">13/10/2026, 11:38:53</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">29 ➔ <strong style="color: #0f172a;">28.75</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.5 frascos / 0.52 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#10169</strong></td>
+              <td style="white-space: nowrap;">13/10/2026, 11:33:02</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">29.25 ➔ <strong style="color: #0f172a;">29</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.5 frascos / 0.53 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#10156</strong></td>
+              <td style="white-space: nowrap;">13/10/2026, 11:29:41</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">29.5 ➔ <strong style="color: #0f172a;">29.25</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.5 frascos / 0.53 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#10140</strong></td>
+              <td style="white-space: nowrap;">13/10/2026, 11:29:28</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">29.75 ➔ <strong style="color: #0f172a;">29.5</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.5 frascos / 0.54 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#10126</strong></td>
+              <td style="white-space: nowrap;">13/10/2026, 11:19:00</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">30 ➔ <strong style="color: #0f172a;">29.75</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.5 frascos / 0.54 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#10113</strong></td>
+              <td style="white-space: nowrap;">13/10/2026, 11:14:40</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">30.25 ➔ <strong style="color: #0f172a;">30</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.5 frascos / 0.55 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#10091</strong></td>
+              <td style="white-space: nowrap;">13/10/2026, 11:01:46</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">30.5 ➔ <strong style="color: #0f172a;">30.25</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.6 frascos / 0.55 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#10071</strong></td>
+              <td style="white-space: nowrap;">13/10/2026, 10:58:01</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">30.75 ➔ <strong style="color: #0f172a;">30.5</strong></td>
+              <td>Consumo Sniffer (REPETICION) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.6 frascos / 0.55 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#10062</strong></td>
+              <td style="white-space: nowrap;">13/10/2026, 10:57:21</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">31 ➔ <strong style="color: #0f172a;">30.75</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.6 frascos / 0.56 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#10047</strong></td>
+              <td style="white-space: nowrap;">13/10/2026, 10:52:21</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">31.25 ➔ <strong style="color: #0f172a;">31</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.6 frascos / 0.56 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#10034</strong></td>
+              <td style="white-space: nowrap;">13/10/2026, 10:47:52</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">31.5 ➔ <strong style="color: #0f172a;">31.25</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.6 frascos / 0.57 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#10019</strong></td>
+              <td style="white-space: nowrap;">13/10/2026, 10:43:43</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">31.75 ➔ <strong style="color: #0f172a;">31.5</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.6 frascos / 0.57 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#10000</strong></td>
+              <td style="white-space: nowrap;">13/10/2026, 10:38:30</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">32 ➔ <strong style="color: #0f172a;">31.75</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.6 frascos / 0.58 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#9979</strong></td>
+              <td style="white-space: nowrap;">13/10/2026, 10:01:28</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">32.25 ➔ <strong style="color: #0f172a;">32</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.6 frascos / 0.58 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#9956</strong></td>
+              <td style="white-space: nowrap;">13/10/2026, 9:49:14</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">32.5 ➔ <strong style="color: #0f172a;">32.25</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.6 frascos / 0.59 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#9941</strong></td>
+              <td style="white-space: nowrap;">13/10/2026, 9:48:07</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">32.75 ➔ <strong style="color: #0f172a;">32.5</strong></td>
+              <td>Consumo Sniffer (REPETICION) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.6 frascos / 0.59 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#9940</strong></td>
+              <td style="white-space: nowrap;">13/10/2026, 9:48:07</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">33 ➔ <strong style="color: #0f172a;">32.75</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.6 frascos / 0.60 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#9926</strong></td>
+              <td style="white-space: nowrap;">13/10/2026, 8:59:16</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">33.25 ➔ <strong style="color: #0f172a;">33</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.6 frascos / 0.60 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#9911</strong></td>
+              <td style="white-space: nowrap;">13/10/2026, 8:54:53</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">33.5 ➔ <strong style="color: #0f172a;">33.25</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.6 frascos / 0.60 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#9895</strong></td>
+              <td style="white-space: nowrap;">13/10/2026, 8:50:22</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">33.75 ➔ <strong style="color: #0f172a;">33.5</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.6 frascos / 0.61 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#9879</strong></td>
+              <td style="white-space: nowrap;">13/10/2026, 8:12:05</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">34 ➔ <strong style="color: #0f172a;">33.75</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.6 frascos / 0.61 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#9865</strong></td>
+              <td style="white-space: nowrap;">13/10/2026, 8:08:09</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">34.25 ➔ <strong style="color: #0f172a;">34</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.6 frascos / 0.62 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#9838</strong></td>
+              <td style="white-space: nowrap;">12/10/2026, 11:52:55</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">34.5 ➔ <strong style="color: #0f172a;">34.25</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.6 frascos / 0.62 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#9823</strong></td>
+              <td style="white-space: nowrap;">12/10/2026, 11:39:44</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">34.75 ➔ <strong style="color: #0f172a;">34.5</strong></td>
+              <td>Consumo Sniffer (NORMAL) - CM 260i</td>
+              <td style="font-size: 12px; color: #475569;">Lote: 1 (0.6 frascos / 0.63 cajas rest.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#9805</strong></td>
+              <td style="white-space: nowrap;">12/10/2026, 10:44:02</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">35 ➔ <strong style="color: #0f172a;">34.75</strong></td>
+              <td>CONSUMO SNIFFER (NORMAL) - CM 260I</td>
+              <td style="font-size: 12px; color: #475569;">LOTE: 1 (0.6 FRASCOS / 0.63 CAJAS REST.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#9784</strong></td>
+              <td style="white-space: nowrap;">12/10/2026, 9:54:18</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">35.25 ➔ <strong style="color: #0f172a;">35</strong></td>
+              <td>CONSUMO SNIFFER (REPETICION) - CM 260I</td>
+              <td style="font-size: 12px; color: #475569;">LOTE: 1 (0.6 FRASCOS / 0.64 CAJAS REST.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#9773</strong></td>
+              <td style="white-space: nowrap;">12/10/2026, 9:46:15</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">35.5 ➔ <strong style="color: #0f172a;">35.25</strong></td>
+              <td>CONSUMO SNIFFER (NORMAL) - CM 260I</td>
+              <td style="font-size: 12px; color: #475569;">LOTE: 1 (0.6 FRASCOS / 0.64 CAJAS REST.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#9752</strong></td>
+              <td style="white-space: nowrap;">12/10/2026, 9:37:36</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">35.75 ➔ <strong style="color: #0f172a;">35.5</strong></td>
+              <td>CONSUMO SNIFFER (REPETICION) - CM 260I</td>
+              <td style="font-size: 12px; color: #475569;">LOTE: 1 (0.6 FRASCOS / 0.65 CAJAS REST.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#9737</strong></td>
+              <td style="white-space: nowrap;">12/10/2026, 9:37:19</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">36 ➔ <strong style="color: #0f172a;">35.75</strong></td>
+              <td>CONSUMO SNIFFER (REPETICION) - CM 260I</td>
+              <td style="font-size: 12px; color: #475569;">LOTE: 1 (0.7 FRASCOS / 0.65 CAJAS REST.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#9721</strong></td>
+              <td style="white-space: nowrap;">12/10/2026, 9:37:09</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">36.25 ➔ <strong style="color: #0f172a;">36</strong></td>
+              <td>CONSUMO SNIFFER (REPETICION) - CM 260I</td>
+              <td style="font-size: 12px; color: #475569;">LOTE: 1 (0.7 FRASCOS / 0.65 CAJAS REST.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#9699</strong></td>
+              <td style="white-space: nowrap;">12/10/2026, 9:17:59</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">36.5 ➔ <strong style="color: #0f172a;">36.25</strong></td>
+              <td>CONSUMO SNIFFER (NORMAL) - CM 260I</td>
+              <td style="font-size: 12px; color: #475569;">LOTE: 1 (0.7 FRASCOS / 0.66 CAJAS REST.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#9680</strong></td>
+              <td style="white-space: nowrap;">12/10/2026, 9:14:17</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">36.75 ➔ <strong style="color: #0f172a;">36.5</strong></td>
+              <td>CONSUMO SNIFFER (NORMAL) - CM 260I</td>
+              <td style="font-size: 12px; color: #475569;">LOTE: 1 (0.7 FRASCOS / 0.66 CAJAS REST.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#9664</strong></td>
+              <td style="white-space: nowrap;">12/10/2026, 9:07:23</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">37 ➔ <strong style="color: #0f172a;">36.75</strong></td>
+              <td>CONSUMO SNIFFER (NORMAL) - CM 260I</td>
+              <td style="font-size: 12px; color: #475569;">LOTE: 1 (0.7 FRASCOS / 0.67 CAJAS REST.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#9651</strong></td>
+              <td style="white-space: nowrap;">12/10/2026, 9:03:01</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">37.25 ➔ <strong style="color: #0f172a;">37</strong></td>
+              <td>CONSUMO SNIFFER (REPETICION) - CM 260I</td>
+              <td style="font-size: 12px; color: #475569;">LOTE: 1 (0.7 FRASCOS / 0.67 CAJAS REST.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#9639</strong></td>
+              <td style="white-space: nowrap;">12/10/2026, 8:44:48</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">37.5 ➔ <strong style="color: #0f172a;">37.25</strong></td>
+              <td>CONSUMO SNIFFER (NORMAL) - CM 260I</td>
+              <td style="font-size: 12px; color: #475569;">LOTE: 1 (0.7 FRASCOS / 0.68 CAJAS REST.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#9623</strong></td>
+              <td style="white-space: nowrap;">12/10/2026, 8:10:48</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">37.75 ➔ <strong style="color: #0f172a;">37.5</strong></td>
+              <td>CONSUMO SNIFFER (NORMAL) - CM 260I</td>
+              <td style="font-size: 12px; color: #475569;">LOTE: 1 (0.7 FRASCOS / 0.68 CAJAS REST.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#9602</strong></td>
+              <td style="white-space: nowrap;">10/10/2026, 11:20:32</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">38 ➔ <strong style="color: #0f172a;">37.75</strong></td>
+              <td>CONSUMO SNIFFER (NORMAL) - CM 260I</td>
+              <td style="font-size: 12px; color: #475569;">LOTE: 1 (0.7 FRASCOS / 0.69 CAJAS REST.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#9588</strong></td>
+              <td style="white-space: nowrap;">10/10/2026, 11:08:17</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">38.25 ➔ <strong style="color: #0f172a;">38</strong></td>
+              <td>CONSUMO SNIFFER (NORMAL) - CM 260I</td>
+              <td style="font-size: 12px; color: #475569;">LOTE: 1 (0.7 FRASCOS / 0.69 CAJAS REST.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#9571</strong></td>
+              <td style="white-space: nowrap;">10/10/2026, 11:03:18</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">38.5 ➔ <strong style="color: #0f172a;">38.25</strong></td>
+              <td>CONSUMO SNIFFER (NORMAL) - CM 260I</td>
+              <td style="font-size: 12px; color: #475569;">LOTE: 1 (0.7 FRASCOS / 0.70 CAJAS REST.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#9546</strong></td>
+              <td style="white-space: nowrap;">10/10/2026, 10:58:06</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">38.75 ➔ <strong style="color: #0f172a;">38.5</strong></td>
+              <td>CONSUMO SNIFFER (NORMAL) - CM 260I</td>
+              <td style="font-size: 12px; color: #475569;">LOTE: 1 (0.7 FRASCOS / 0.70 CAJAS REST.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#9530</strong></td>
+              <td style="white-space: nowrap;">10/10/2026, 10:52:17</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">39 ➔ <strong style="color: #0f172a;">38.75</strong></td>
+              <td>CONSUMO SNIFFER (NORMAL) - CM 260I</td>
+              <td style="font-size: 12px; color: #475569;">LOTE: 1 (0.7 FRASCOS / 0.70 CAJAS REST.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#9513</strong></td>
+              <td style="white-space: nowrap;">10/10/2026, 9:54:43</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">39.25 ➔ <strong style="color: #0f172a;">39</strong></td>
+              <td>CONSUMO SNIFFER (NORMAL) - CM 260I</td>
+              <td style="font-size: 12px; color: #475569;">LOTE: 1 (0.7 FRASCOS / 0.71 CAJAS REST.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#9497</strong></td>
+              <td style="white-space: nowrap;">10/10/2026, 9:50:35</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">39.5 ➔ <strong style="color: #0f172a;">39.25</strong></td>
+              <td>CONSUMO SNIFFER (NORMAL) - CM 260I</td>
+              <td style="font-size: 12px; color: #475569;">LOTE: 1 (0.7 FRASCOS / 0.71 CAJAS REST.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#9477</strong></td>
+              <td style="white-space: nowrap;">10/10/2026, 9:35:53</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">39.75 ➔ <strong style="color: #0f172a;">39.5</strong></td>
+              <td>CONSUMO SNIFFER (NORMAL) - CM 260I</td>
+              <td style="font-size: 12px; color: #475569;">LOTE: 1 (0.7 FRASCOS / 0.72 CAJAS REST.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#9462</strong></td>
+              <td style="white-space: nowrap;">10/10/2026, 9:31:16</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">40 ➔ <strong style="color: #0f172a;">39.75</strong></td>
+              <td>CONSUMO SNIFFER (NORMAL) - CM 260I</td>
+              <td style="font-size: 12px; color: #475569;">LOTE: 1 (0.7 FRASCOS / 0.72 CAJAS REST.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#9445</strong></td>
+              <td style="white-space: nowrap;">10/10/2026, 9:25:55</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">40.25 ➔ <strong style="color: #0f172a;">40</strong></td>
+              <td>CONSUMO SNIFFER (NORMAL) - CM 260I</td>
+              <td style="font-size: 12px; color: #475569;">LOTE: 1 (0.7 FRASCOS / 0.73 CAJAS REST.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#9422</strong></td>
+              <td style="white-space: nowrap;">10/10/2026, 9:11:20</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">40.5 ➔ <strong style="color: #0f172a;">40.25</strong></td>
+              <td>CONSUMO SNIFFER (NORMAL) - CM 260I</td>
+              <td style="font-size: 12px; color: #475569;">LOTE: 1 (0.7 FRASCOS / 0.73 CAJAS REST.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#9403</strong></td>
+              <td style="white-space: nowrap;">10/10/2026, 8:33:52</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">40.75 ➔ <strong style="color: #0f172a;">40.5</strong></td>
+              <td>CONSUMO SNIFFER (NORMAL) - CM 260I</td>
+              <td style="font-size: 12px; color: #475569;">LOTE: 1 (0.7 FRASCOS / 0.74 CAJAS REST.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#9390</strong></td>
+              <td style="white-space: nowrap;">10/10/2026, 8:29:45</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">41 ➔ <strong style="color: #0f172a;">40.75</strong></td>
+              <td>CONSUMO SNIFFER (NORMAL) - CM 260I</td>
+              <td style="font-size: 12px; color: #475569;">LOTE: 1 (0.7 FRASCOS / 0.74 CAJAS REST.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#9373</strong></td>
+              <td style="white-space: nowrap;">10/10/2026, 8:24:03</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">41.25 ➔ <strong style="color: #0f172a;">41</strong></td>
+              <td>CONSUMO SNIFFER (NORMAL) - CM 260I</td>
+              <td style="font-size: 12px; color: #475569;">LOTE: 1 (0.7 FRASCOS / 0.75 CAJAS REST.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#9357</strong></td>
+              <td style="white-space: nowrap;">9/10/2026, 16:29:18</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">41.5 ➔ <strong style="color: #0f172a;">41.25</strong></td>
+              <td>CONSUMO SNIFFER (NORMAL) - CM 260I</td>
+              <td style="font-size: 12px; color: #475569;">LOTE: 1 (0.8 FRASCOS / 0.75 CAJAS REST.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#9338</strong></td>
+              <td style="white-space: nowrap;">9/10/2026, 16:22:16</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">41.75 ➔ <strong style="color: #0f172a;">41.5</strong></td>
+              <td>CONSUMO SNIFFER (NORMAL) - CM 260I</td>
+              <td style="font-size: 12px; color: #475569;">LOTE: 1 (0.8 FRASCOS / 0.75 CAJAS REST.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#9319</strong></td>
+              <td style="white-space: nowrap;">9/10/2026, 16:16:18</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">42 ➔ <strong style="color: #0f172a;">41.75</strong></td>
+              <td>CONSUMO SNIFFER (NORMAL) - CM 260I</td>
+              <td style="font-size: 12px; color: #475569;">LOTE: 1 (0.8 FRASCOS / 0.76 CAJAS REST.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#9298</strong></td>
+              <td style="white-space: nowrap;">9/10/2026, 13:56:25</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">42.25 ➔ <strong style="color: #0f172a;">42</strong></td>
+              <td>CONSUMO SNIFFER (NORMAL) - CM 260I</td>
+              <td style="font-size: 12px; color: #475569;">LOTE: 1 (0.8 FRASCOS / 0.76 CAJAS REST.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#9243</strong></td>
+              <td style="white-space: nowrap;">9/10/2026, 11:37:58</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">42.5 ➔ <strong style="color: #0f172a;">42.25</strong></td>
+              <td>CONSUMO SNIFFER (REPETICION) - CM 260I</td>
+              <td style="font-size: 12px; color: #475569;">LOTE: 1 (0.8 FRASCOS / 0.77 CAJAS REST.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#9228</strong></td>
+              <td style="white-space: nowrap;">9/10/2026, 11:37:51</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">42.75 ➔ <strong style="color: #0f172a;">42.5</strong></td>
+              <td>CONSUMO SNIFFER (REPETICION) - CM 260I</td>
+              <td style="font-size: 12px; color: #475569;">LOTE: 1 (0.8 FRASCOS / 0.77 CAJAS REST.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#9214</strong></td>
+              <td style="white-space: nowrap;">9/10/2026, 11:37:44</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">43 ➔ <strong style="color: #0f172a;">42.75</strong></td>
+              <td>CONSUMO SNIFFER (NORMAL) - CM 260I</td>
+              <td style="font-size: 12px; color: #475569;">LOTE: 1 (0.8 FRASCOS / 0.78 CAJAS REST.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#9199</strong></td>
+              <td style="white-space: nowrap;">9/10/2026, 11:37:33</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">43.25 ➔ <strong style="color: #0f172a;">43</strong></td>
+              <td>CONSUMO SNIFFER (NORMAL) - CM 260I</td>
+              <td style="font-size: 12px; color: #475569;">LOTE: 1 (0.8 FRASCOS / 0.78 CAJAS REST.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#9181</strong></td>
+              <td style="white-space: nowrap;">9/10/2026, 11:10:18</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">43.5 ➔ <strong style="color: #0f172a;">43.25</strong></td>
+              <td>CONSUMO SNIFFER (NORMAL) - CM 260I</td>
+              <td style="font-size: 12px; color: #475569;">LOTE: 1 (0.8 FRASCOS / 0.79 CAJAS REST.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#9160</strong></td>
+              <td style="white-space: nowrap;">9/10/2026, 11:04:31</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">43.75 ➔ <strong style="color: #0f172a;">43.5</strong></td>
+              <td>CONSUMO SNIFFER (NORMAL) - CM 260I</td>
+              <td style="font-size: 12px; color: #475569;">LOTE: 1 (0.8 FRASCOS / 0.79 CAJAS REST.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#9143</strong></td>
+              <td style="white-space: nowrap;">9/10/2026, 11:00:06</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">44 ➔ <strong style="color: #0f172a;">43.75</strong></td>
+              <td>CONSUMO SNIFFER (NORMAL) - CM 260I</td>
+              <td style="font-size: 12px; color: #475569;">LOTE: 1 (0.8 FRASCOS / 0.80 CAJAS REST.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#9123</strong></td>
+              <td style="white-space: nowrap;">9/10/2026, 10:54:18</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">44.25 ➔ <strong style="color: #0f172a;">44</strong></td>
+              <td>CONSUMO SNIFFER (NORMAL) - CM 260I</td>
+              <td style="font-size: 12px; color: #475569;">LOTE: 1 (0.8 FRASCOS / 0.80 CAJAS REST.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#9108</strong></td>
+              <td style="white-space: nowrap;">9/10/2026, 10:49:44</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">44.5 ➔ <strong style="color: #0f172a;">44.25</strong></td>
+              <td>CONSUMO SNIFFER (NORMAL) - CM 260I</td>
+              <td style="font-size: 12px; color: #475569;">LOTE: 1 (0.8 FRASCOS / 0.80 CAJAS REST.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#9092</strong></td>
+              <td style="white-space: nowrap;">9/10/2026, 10:45:46</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">44.75 ➔ <strong style="color: #0f172a;">44.5</strong></td>
+              <td>CONSUMO SNIFFER (NORMAL) - CM 260I</td>
+              <td style="font-size: 12px; color: #475569;">LOTE: 1 (0.8 FRASCOS / 0.81 CAJAS REST.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#9075</strong></td>
+              <td style="white-space: nowrap;">9/10/2026, 10:45:33</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">45 ➔ <strong style="color: #0f172a;">44.75</strong></td>
+              <td>CONSUMO SNIFFER (NORMAL) - CM 260I</td>
+              <td style="font-size: 12px; color: #475569;">LOTE: 1 (0.8 FRASCOS / 0.81 CAJAS REST.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#9047</strong></td>
+              <td style="white-space: nowrap;">9/10/2026, 10:26:08</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">45.25 ➔ <strong style="color: #0f172a;">45</strong></td>
+              <td>CONSUMO SNIFFER (NORMAL) - CM 260I</td>
+              <td style="font-size: 12px; color: #475569;">LOTE: 1 (0.8 FRASCOS / 0.82 CAJAS REST.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#9025</strong></td>
+              <td style="white-space: nowrap;">9/10/2026, 10:20:34</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">45.5 ➔ <strong style="color: #0f172a;">45.25</strong></td>
+              <td>CONSUMO SNIFFER (NORMAL) - CM 260I</td>
+              <td style="font-size: 12px; color: #475569;">LOTE: 1 (0.8 FRASCOS / 0.82 CAJAS REST.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#9011</strong></td>
+              <td style="white-space: nowrap;">9/10/2026, 10:16:28</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">45.75 ➔ <strong style="color: #0f172a;">45.5</strong></td>
+              <td>CONSUMO SNIFFER (NORMAL) - CM 260I</td>
+              <td style="font-size: 12px; color: #475569;">LOTE: 1 (0.8 FRASCOS / 0.83 CAJAS REST.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#9000</strong></td>
+              <td style="white-space: nowrap;">9/10/2026, 10:13:09</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">46 ➔ <strong style="color: #0f172a;">45.75</strong></td>
+              <td>CONSUMO SNIFFER (NORMAL) - CM 260I</td>
+              <td style="font-size: 12px; color: #475569;">LOTE: 1 (0.8 FRASCOS / 0.83 CAJAS REST.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#8983</strong></td>
+              <td style="white-space: nowrap;">9/10/2026, 10:07:43</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">46.25 ➔ <strong style="color: #0f172a;">46</strong></td>
+              <td>CONSUMO SNIFFER (NORMAL) - CM 260I</td>
+              <td style="font-size: 12px; color: #475569;">LOTE: 1 (0.8 FRASCOS / 0.84 CAJAS REST.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#8970</strong></td>
+              <td style="white-space: nowrap;">9/10/2026, 9:55:46</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">46.5 ➔ <strong style="color: #0f172a;">46.25</strong></td>
+              <td>CONSUMO SNIFFER (NORMAL) - CM 260I</td>
+              <td style="font-size: 12px; color: #475569;">LOTE: 1 (0.8 FRASCOS / 0.84 CAJAS REST.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#8955</strong></td>
+              <td style="white-space: nowrap;">9/10/2026, 9:51:39</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">46.75 ➔ <strong style="color: #0f172a;">46.5</strong></td>
+              <td>CONSUMO SNIFFER (NORMAL) - CM 260I</td>
+              <td style="font-size: 12px; color: #475569;">LOTE: 1 (0.8 FRASCOS / 0.85 CAJAS REST.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#8940</strong></td>
+              <td style="white-space: nowrap;">9/10/2026, 9:46:32</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">47 ➔ <strong style="color: #0f172a;">46.75</strong></td>
+              <td>CONSUMO SNIFFER (NORMAL) - CM 260I</td>
+              <td style="font-size: 12px; color: #475569;">LOTE: 1 (0.8 FRASCOS / 0.85 CAJAS REST.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#8924</strong></td>
+              <td style="white-space: nowrap;">9/10/2026, 9:42:38</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">47.25 ➔ <strong style="color: #0f172a;">47</strong></td>
+              <td>CONSUMO SNIFFER (NORMAL) - CM 260I</td>
+              <td style="font-size: 12px; color: #475569;">LOTE: 1 (0.9 FRASCOS / 0.85 CAJAS REST.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#8905</strong></td>
+              <td style="white-space: nowrap;">9/10/2026, 9:12:44</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">47.5 ➔ <strong style="color: #0f172a;">47.25</strong></td>
+              <td>CONSUMO SNIFFER (NORMAL) - CM 260I</td>
+              <td style="font-size: 12px; color: #475569;">LOTE: 1 (0.9 FRASCOS / 0.86 CAJAS REST.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#8892</strong></td>
+              <td style="white-space: nowrap;">9/10/2026, 9:08:12</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">47.75 ➔ <strong style="color: #0f172a;">47.5</strong></td>
+              <td>CONSUMO SNIFFER (NORMAL) - CM 260I</td>
+              <td style="font-size: 12px; color: #475569;">LOTE: 1 (0.9 FRASCOS / 0.86 CAJAS REST.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#8877</strong></td>
+              <td style="white-space: nowrap;">9/10/2026, 9:03:57</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">48 ➔ <strong style="color: #0f172a;">47.75</strong></td>
+              <td>CONSUMO SNIFFER (NORMAL) - CM 260I</td>
+              <td style="font-size: 12px; color: #475569;">LOTE: 1 (0.9 FRASCOS / 0.87 CAJAS REST.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#8862</strong></td>
+              <td style="white-space: nowrap;">9/10/2026, 8:59:28</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">48.25 ➔ <strong style="color: #0f172a;">48</strong></td>
+              <td>CONSUMO SNIFFER (NORMAL) - CM 260I</td>
+              <td style="font-size: 12px; color: #475569;">LOTE: 1 (0.9 FRASCOS / 0.87 CAJAS REST.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#8847</strong></td>
+              <td style="white-space: nowrap;">9/10/2026, 8:01:11</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">48.5 ➔ <strong style="color: #0f172a;">48.25</strong></td>
+              <td>CONSUMO SNIFFER (NORMAL) - CM 260I</td>
+              <td style="font-size: 12px; color: #475569;">LOTE: 1 (0.9 FRASCOS / 0.88 CAJAS REST.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#8833</strong></td>
+              <td style="white-space: nowrap;">9/10/2026, 7:57:14</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">48.75 ➔ <strong style="color: #0f172a;">48.5</strong></td>
+              <td>CONSUMO SNIFFER (NORMAL) - CM 260I</td>
+              <td style="font-size: 12px; color: #475569;">LOTE: 1 (0.9 FRASCOS / 0.88 CAJAS REST.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#8814</strong></td>
+              <td style="white-space: nowrap;">8/10/2026, 17:14:51</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">49 ➔ <strong style="color: #0f172a;">48.75</strong></td>
+              <td>CONSUMO SNIFFER (NORMAL) - CM 260I</td>
+              <td style="font-size: 12px; color: #475569;">LOTE: 1 (0.9 FRASCOS / 0.89 CAJAS REST.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#8794</strong></td>
+              <td style="white-space: nowrap;">8/10/2026, 17:09:36</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">49.25 ➔ <strong style="color: #0f172a;">49</strong></td>
+              <td>CONSUMO SNIFFER (NORMAL) - CM 260I</td>
+              <td style="font-size: 12px; color: #475569;">LOTE: 1 (0.9 FRASCOS / 0.89 CAJAS REST.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#8700</strong></td>
+              <td style="white-space: nowrap;">8/10/2026, 12:40:34</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">54.5 ➔ <strong style="color: #0f172a;">54.25</strong></td>
+              <td>CONSUMO SNIFFER (NORMAL) - UNKNOWN_DEVICE</td>
+              <td style="font-size: 12px; color: #475569;">LOTE: 1 (1.0 FRASCOS / 0.99 CAJAS REST.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#8699</strong></td>
+              <td style="white-space: nowrap;">8/10/2026, 12:40:34</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">54.75 ➔ <strong style="color: #0f172a;">54.5</strong></td>
+              <td>CONSUMO SNIFFER (NORMAL) - UNKNOWN_DEVICE</td>
+              <td style="font-size: 12px; color: #475569;">LOTE: 1 (1.0 FRASCOS / 0.99 CAJAS REST.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#8698</strong></td>
+              <td style="white-space: nowrap;">8/10/2026, 12:40:34</td>
+              <td><span class="pill pill-consumo">CONSUMO</span></td>
+              <td style="font-weight: 700;">0.25</td>
+              <td style="color: var(--muted);">55 ➔ <strong style="color: #0f172a;">54.75</strong></td>
+              <td>CONSUMO SNIFFER (NORMAL) - UNKNOWN_DEVICE</td>
+              <td style="font-size: 12px; color: #475569;">LOTE: 1 (1.0 FRASCOS / 1.00 CAJAS REST.)</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#8578</strong></td>
+              <td style="white-space: nowrap;">8/10/2026, 12:33:57</td>
+              <td><span class="pill pill-apertura">APERTURA_CAJA</span></td>
+              <td style="font-weight: 700;">0</td>
+              <td style="color: var(--muted);">55 ➔ <strong style="color: #0f172a;">55</strong></td>
+              <td>APERTURA DE CAJA (FRASCO 1 EN USO) EN CM 260I</td>
+              <td style="font-size: 12px; color: #475569;">LOTE: 1 - APERTURA POR RAFAEL JIMENEZ</td>
+              <td style="font-size: 12px;">Equipo / En Uso</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#8552</strong></td>
+              <td style="white-space: nowrap;">8/10/2026, 11:44:50</td>
+              <td><span class="pill pill-otro">DEVOLUCION_ALMACEN</span></td>
+              <td style="font-weight: 700;">1</td>
+              <td style="color: var(--muted);">1 ➔ <strong style="color: #0f172a;">1</strong></td>
+              <td>DEVOLUCION MASIVA RECHAZADA POR LABORATORIO</td>
+              <td style="font-size: 12px; color: #475569;">RECHAZO-290761</td>
+              <td style="font-size: 12px;">Almacén Laboratorio ➔ Almacén Central</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#8528</strong></td>
+              <td style="white-space: nowrap;">8/10/2026, 11:25:36</td>
+              <td><span class="pill pill-transferencia">TRANSFERENCIA</span></td>
+              <td style="font-weight: 700;">1</td>
+              <td style="color: var(--muted);">4 ➔ <strong style="color: #0f172a;">3</strong></td>
+              <td>SUMINISTRO OPERATIVO A LABORATORIO INICIO DE PRUEBA</td>
+              <td style="font-size: 12px; color: #475569;">TRANS-1</td>
+              <td style="font-size: 12px;">Almacén Central ➔ Almacén Laboratorio</td>
+            </tr>
+          
+            <tr>
+              <td><strong>#8505</strong></td>
+              <td style="white-space: nowrap;">8/10/2026, 10:42:14</td>
+              <td><span class="pill pill-entrada">ENTRADA</span></td>
+              <td style="font-weight: 700;">1</td>
+              <td style="color: var(--muted);">3 ➔ <strong style="color: #0f172a;">4</strong></td>
+              <td>AJUSTE MANUAL DE INVENTARIO INICIO DE PRUEBA</td>
+              <td style="font-size: 12px; color: #475569;">1</td>
+              <td style="font-size: 12px;">Almacén Central</td>
+            </tr>
+          
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    function filterTable() {
+      const q = document.getElementById('filterInput').value.toLowerCase();
+      const rows = document.querySelectorAll('#movTable tbody tr');
+      rows.forEach(r => {
+        const text = r.innerText.toLowerCase();
+        r.style.display = text.includes(q) ? '' : 'none';
+      });
+    }
+  </script>
+</body>
+</html>

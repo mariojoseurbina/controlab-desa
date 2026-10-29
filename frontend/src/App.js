@@ -34,6 +34,7 @@ import SnifferDashboard from './pages/Sniffer/SnifferDashboard';
 import TraceabilityView from './pages/Traceability/TraceabilityView';
 import LiveReagentsMonitor from './pages/LiveReagents/LiveReagentsMonitor';
 import GestionCajasFrascos from './pages/CajasFrascos/GestionCajasFrascos';
+import SolicitudesProductos from './pages/Solicitudes/SolicitudesProductos';
 
 const theme = createTheme({
   palette: {
@@ -136,6 +137,7 @@ function App() {
                       <Route path="/compras/editar/:id" element={<FormularioCompra />} />
                       <Route path="/compras/:id" element={<DetalleCompra />} />
                       <Route path="/descuentos" element={<DescuentosPorPruebas />} />
+                      <Route path="/solicitudes" element={<ProtectedRoute requiredPath="/solicitudes"><SolicitudesProductos /></ProtectedRoute>} />
                       <Route path="/costos" element={<ProtectedRoute requiredPath="/costos"><Costos /></ProtectedRoute>} />
                       <Route path="/sniffer" element={<SnifferDashboard />} />
                       <Route path="/live-reagents" element={<LiveReagentsMonitor />} />
@@ -144,7 +146,7 @@ function App() {
                       {/* Otras rutas */}
                       <Route path="/reports" element={<Reports />} />
                       <Route path="/lotes/auditoria" element={<ReporteLotes />} />
-                      <Route path="/users" element={<Users />} />
+                      <Route path="/users" element={<ProtectedRoute requiredPath="/users"><Users /></ProtectedRoute>} />
                       <Route path="/" element={<Navigate to="/dashboard" />} />
                     </Routes>
                   </Layout>

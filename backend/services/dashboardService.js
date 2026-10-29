@@ -98,9 +98,11 @@ class DashboardService {
         const mlConsumidosTotal = Math.max(0, totalVolCaja - cantActual);
         const frascoCalculado = Math.min(totalFrascos, Math.floor(mlConsumidosTotal / volPorFrasco) + 1);
         const frascoActual = Math.max(Number(meta.frasco_actual) || 1, frascoCalculado);
+        const antepenultimoFrasco = Math.max(1, totalFrascos - 2);
         const penultimoFrasco = Math.max(1, totalFrascos - 1);
 
-        const esPenultimoOUltimo = frascoActual >= penultimoFrasco;
+        // REGLA DE NEGOCIO FIJA: Alerta Crítica en Analizador desde el ANTEPENÚLTIMO frasco
+        const esAntepenultimoOPosterior = frascoActual >= antepenultimoFrasco;
         const consumoIndicado = Number(meta.consumo_indicado || row.consumo_indicado) || 0.25;
         const mlConsumidosEnFrascosPrevios = (frascoActual - 1) * volPorFrasco;
         const mlConsumidosEnFrascoActual = Math.max(0, mlConsumidosTotal - mlConsumidosEnFrascosPrevios);
@@ -108,7 +110,7 @@ class DashboardService {
         const pruebasRestantesFrasco = Math.max(0, Math.floor(mlRestantesFrasco / consumoIndicado));
         const pruebasRestantesCaja = Math.max(0, Math.floor(cantActual / consumoIndicado));
 
-        if (esPenultimoOUltimo) {
+        if (esAntepenultimoOPosterior) {
           alertasReposicionAnalizador.push({
             loteId: row.lote_id,
             numeroLote: row.NumeroLote,
@@ -122,7 +124,7 @@ class DashboardService {
             totalFrascos,
             esUltimoFrasco: frascoActual === totalFrascos,
             esPenultimoFrasco: frascoActual === penultimoFrasco,
-            nivelCriticidad: frascoActual === totalFrascos ? 'CRITICO' : 'ALTO',
+            nivelCriticidad: frascoActual >= antepenultimoFrasco ? 'CRITICO' : 'ALTO',
             mlRestantesFrasco,
             pruebasRestantesFrasco,
             mlRestantesCaja: cantActual,

@@ -152,6 +152,27 @@ const LiveReagentsMonitor = () => {
   const cajasAgotadas = cajasData.cajasAgotadas || [];
 
   // Métricas globales KPI en tiempo real para todos los reactivos en uso
+// REGLA DE NEGOCIO FIJA CONTROLAB: Alerta de Reactivo Crítico en Centro de Reactivos
+// Un reactivo entra en estado CRÍTICO a partir de su ANTEPENÚLTIMO frasco
+// (es decir, cuando ya está en uso el frasco N-2 o superior, quedando 2 frascos o menos en la caja),
+// o cuando la caja tiene 1 o 2 frascos en total.
+const evaluarNivelStock = (caja) => {
+  const totalFrascos = Number(caja.totalFrascos) || 1;
+  const frascoActual = Number(caja.frascoActual) || 1;
+  const pctFrasco = caja.porcentajeRestante !== undefined ? Number(caja.porcentajeRestante) : 100;
+
+  // Antepenúltimo frasco (ej: frasco 2 en caja de 4, frasco 1 en caja de 3 o menos)
+  const antepenultimoFrasco = Math.max(1, totalFrascos - 2);
+
+  // Es crítico si ya alcanzó el antepenúltimo frasco, penúltimo o último
+  const esCritico = frascoActual >= antepenultimoFrasco;
+
+  // Nivel medio preventivo si está a un frasco del antepenúltimo al 50% o menos
+  const esMedio = !esCritico && (frascoActual === antepenultimoFrasco - 1 && pctFrasco <= 50);
+
+  return { esCritico, esMedio, esOptimo: !esCritico && !esMedio };
+};
+
   const kpis = useMemo(() => {
     let totalHoy = 0;
     let totalAcum = 0;
@@ -162,9 +183,9 @@ const LiveReagentsMonitor = () => {
     cajasEnUso.forEach(c => {
       totalHoy += Number(c.pruebasConsumidasHoy) || 0;
       totalAcum += Number(c.pruebasConsumidasTotal) || 0;
-      const pct = c.porcentajeRestante !== undefined ? c.porcentajeRestante : 100;
-      if (pct < 20) totalCriticos++;
-      else if (pct <= 50) totalMedio++;
+      const { esCritico, esMedio } = evaluarNivelStock(c);
+      if (esCritico) totalCriticos++;
+      else if (esMedio) totalMedio++;
       else totalOptimo++;
     });
 
@@ -187,16 +208,23 @@ const LiveReagentsMonitor = () => {
 
       // 2. Filtro de equipo
       if (equipoFiltro !== 'TODOS') {
-        if (!c.equipoAsociado || !c.equipoAsociado.toLowerCase().includes(equipoFiltro.toLowerCase())) {
+        const eq = (c.equipoAsociado || '').toLowerCase().replace(/[-_\s]/g, '');
+        const f = equipoFiltro.toLowerCase().replace(/[-_\s]/g, '');
+        const matchEq = eq.includes(f) || f.includes(eq) ||
+          (f.includes('5380') && eq.includes('5380')) ||
+          (f.includes('900') && eq.includes('900')) ||
+          (f.includes('230') && eq.includes('230')) ||
+          (f.includes('260') && eq.includes('260'));
+        if (!matchEq) {
           return false;
         }
       }
 
       // 3. Filtro de alerta de stock
-      const pct = c.porcentajeRestante !== undefined ? c.porcentajeRestante : 100;
-      if (alertaFiltro === 'CRITICOS' && pct >= 20) return false;
-      if (alertaFiltro === 'MEDIO' && (pct < 20 || pct > 50)) return false;
-      if (alertaFiltro === 'OPTIMO' && pct <= 50) return false;
+      const { esCritico, esMedio, esOptimo } = evaluarNivelStock(c);
+      if (alertaFiltro === 'CRITICOS' && !esCritico) return false;
+      if (alertaFiltro === 'MEDIO' && !esMedio) return false;
+      if (alertaFiltro === 'OPTIMO' && !esOptimo) return false;
 
       return true;
     });
@@ -467,6 +495,30 @@ const LiveReagentsMonitor = () => {
                 border: '1px solid #334155'
               }}
             />
+              <Chip
+                label="Mindray CL-900i"
+                clickable
+                size="small"
+                onClick={() => setEquipoFiltro('Mindray CL-900i')}
+                sx={{
+                  fontWeight: 700,
+                  backgroundColor: equipoFiltro === 'Mindray CL-900i' ? '#f59e0b' : '#1e293b',
+                  color: equipoFiltro === 'Mindray CL-900i' ? '#0f172a' : '#94a3b8',
+                  border: '1px solid #334155'
+                }}
+              />
+              <Chip
+                label="Mindray BC-5380"
+                clickable
+                size="small"
+                onClick={() => setEquipoFiltro('Mindray BC-5380')}
+                sx={{
+                  fontWeight: 700,
+                  backgroundColor: equipoFiltro === 'Mindray BC-5380' ? '#10b981' : '#1e293b',
+                  color: equipoFiltro === 'Mindray BC-5380' ? '#0f172a' : '#94a3b8',
+                  border: '1px solid #334155'
+                }}
+              />
 
             <Divider orientation="vertical" flexItem sx={{ mx: 0.5, borderColor: '#334155' }} />
 
@@ -587,13 +639,14 @@ const LiveReagentsMonitor = () => {
 
                 // Ancho de columna dinámico para el rack de frascos
                 const frascoColXs = totalFrascos === 1 ? 12 : totalFrascos === 2 ? 6 : totalFrascos === 6 ? 4 : 3;
+                const { esCritico } = evaluarNivelStock(caja);
 
                 return (
                   <Grid item xs={12} sm={6} lg={4} xl={3} key={caja.id}>
                     <Card 
                       sx={{ 
                         backgroundColor: '#1e293b', 
-                        border: pctFrasco < 20 ? '2px solid #ef4444' : '1px solid #334155', 
+                        border: esCritico ? '2px solid #ef4444' : '1px solid #334155', 
                         color: '#f8fafc',
                         borderRadius: 3.5,
                         boxShadow: '0 8px 24px rgba(0,0,0,0.25)',
@@ -955,7 +1008,7 @@ const LiveReagentsMonitor = () => {
 
 
                         <Typography variant="caption" sx={{ color: '#64748b', display: 'block', mt: 1, textAlign: 'center', fontSize: '0.62rem' }}>
-                          Abierto por: {caja.usuarioApertura || 'Bioanalista'} | Caja Total: {caja.mlRestantesCaja} / {totalVolCaja} mL ({pruebasRestantesCajaTotal} de {pruebasPorCajaTotal} restantes)
+                          {caja.usuarioApertura ? `Abierto por: ${caja.usuarioApertura} | ` : ''}Caja Total: {caja.mlRestantesCaja} / {totalVolCaja} mL ({pruebasRestantesCajaTotal} de {pruebasPorCajaTotal} restantes)
                         </Typography>
                       </CardContent>
                     </Card>

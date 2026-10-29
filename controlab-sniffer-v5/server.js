@@ -56,14 +56,22 @@ mappings.forEach(mapping => {
 
         let sessionBuffer = ''; // Buffer para acumular paquetes fragmentados de la misma transmisión
 
-        // Conectar a LIS (Infolab)
+        // Conexión puente inteligente a LIS (Infolab) con Modo Autónomo Fallback
+        let lisConnected = false;
+
         const lisSocket = net.connect(mapping.egressPort, mapping.egressHost, () => {
+            lisConnected = true;
             console.log(`[+] [${equipoNombre} | Puerto ${mapping.ingressPort}] Conexión puente establecida con LIS en ${mapping.egressHost}:${mapping.egressPort}`);
         });
 
-        // Manejo de errores
+        // Si Infolab está cerrado o no responde, Controlab NO se cae y opera de forma 100% autónoma
         lisSocket.on('error', (err) => {
-            console.error(`[!] [${equipoNombre} | Puerto ${mapping.ingressPort}] Error al conectar con LIS (${mapping.egressHost}:${mapping.egressPort}):`, err.message);
+            lisConnected = false;
+            console.log(`[i] [${equipoNombre} | Puerto ${mapping.ingressPort}] LIS cerrado o no disponible (${err.message}). Controlab operando en MODO AUTÓNOMO.`);
+        });
+
+        lisSocket.on('close', () => {
+            lisConnected = false;
         });
 
         clientSocket.on('error', (err) => {
@@ -72,27 +80,33 @@ mappings.forEach(mapping => {
 
         // Interceptar datos del analizador
         clientSocket.on('data', (data) => {
-            // 1. Reenviar a LIS inmediatamente (Transparencia absoluta)
-            if (!lisSocket.destroyed) {
+            // 1. Si Infolab está abierto, pasarle la data inmediatamente
+            if (lisConnected && !lisSocket.destroyed) {
                 lisSocket.write(data);
+            } else {
+                // 2. ¡BIFURCACIÓN AUTÓNOMA! Si Infolab está cerrado o apagado, Controlab le responde ACK (0x06)
+                // al equipo inmediatamente, para que el analizador nunca se frene y termine toda la transmisión.
+                const ACK = Buffer.from([0x06]);
+                if (!clientSocket.destroyed) {
+                    clientSocket.write(ACK);
+                }
             }
 
             const rawChunk = data.toString('utf-8');
             sessionBuffer += rawChunk;
 
-            // En el protocolo ASTM, el carácter EOT (End of Transmission, ASCII 0x04) marca el final del envío
-            // Si detectamos EOT (0x04), enviamos la trama completa acumulada al cerebro de Controlab
-            if (data.includes(0x04) || rawChunk.includes('\x04')) {
+            // En el protocolo ASTM/HL7, EOT (0x04) o fin de registro marca el envío
+            if (data.includes(0x04) || rawChunk.includes('\x04') || rawChunk.includes('L|1|N')) {
                 const fullFrame = sessionBuffer;
                 sessionBuffer = ''; // Limpiar buffer para la siguiente muestra
                 
                 processASTMFrame(fullFrame, mapping).catch(err => {
-                    console.error(`[!] [${equipoNombre} | Puerto ${mapping.ingressPort}] Error al procesar trama por EOT:`, err.message);
+                    console.error(`[!] [${equipoNombre} | Puerto ${mapping.ingressPort}] Error al procesar trama:`, err.message);
                 });
             }
         });
 
-        // Reenviar respuestas de LIS de vuelta al analizador
+        // Reenviar respuestas de LIS de vuelta al analizador si LIS está respondiendo
         lisSocket.on('data', (data) => {
             if (!clientSocket.destroyed) {
                 clientSocket.write(data);
@@ -101,7 +115,9 @@ mappings.forEach(mapping => {
         
         clientSocket.on('close', () => {
             console.log(`[-] [${equipoNombre} | Puerto ${mapping.ingressPort}] Analizador desconectado.`);
-            lisSocket.end();
+            if (lisConnected && !lisSocket.destroyed) {
+                lisSocket.end();
+            }
 
             // Si el socket se cierra y quedó algo de data en el buffer sin enviar por falta de EOT, la enviamos
             if (sessionBuffer.trim().length > 0) {
@@ -114,8 +130,8 @@ mappings.forEach(mapping => {
         });
 
         lisSocket.on('close', () => {
-            console.log(`[-] [${equipoNombre} | Puerto ${mapping.ingressPort}] LIS cerró la conexión.`);
-            clientSocket.end();
+            console.log(`[-] [${equipoNombre} | Puerto ${mapping.ingressPort}] LIS cerró la conexión (Infolab inactivo).`);
+            // Nota: NO cerramos clientSocket abruptamente para que el analizador no reciba error
         });
     });
 
