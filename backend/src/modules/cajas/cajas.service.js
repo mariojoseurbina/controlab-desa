@@ -145,11 +145,14 @@ class CajasService {
         }
       } catch (_) {}
 
-      const totalFrascos = Number(meta.total_frascos || lote.items_inventario?.frascos_por_caja) || 4;
-      const volPorFrasco = Number(meta.vol_por_frasco || lote.items_inventario?.volumen_por_frasco) || 45;
-      const pruebasPorFrasco = Number(meta.pruebas_por_frasco || lote.items_inventario?.pruebas_teoricas_frasco) || 180;
-      const pruebasPorCaja = Number(meta.pruebas_por_caja || lote.items_inventario?.pruebas_teoricas_caja) || (pruebasPorFrasco * totalFrascos);
-      const totalVolCaja = Number(meta.volumen_total_caja || (totalFrascos * volPorFrasco));
+            // REGLA MAESTRA: La Ficha de Producto (items_inventario) es la fuente de verdad primaria
+      const itemFicha = lote.items_inventario;
+      const totalFrascos = Number(itemFicha?.frascos_por_caja || meta.total_frascos) || 1;
+      const volPorFrasco = Number(itemFicha?.volumen_por_frasco || meta.vol_por_frasco) || (totalFrascos > 0 && Number(itemFicha?.volumen_total_caja) ? (Number(itemFicha.volumen_total_caja) / totalFrascos) : 45);
+      const consumoPorPrueba = Number(itemFicha?.consumo_indicado || meta.consumo_indicado) || 0.25;
+      const pruebasPorFrasco = Number(itemFicha?.pruebas_teoricas_frasco || meta.pruebas_por_frasco) || (volPorFrasco > 0 ? Math.floor(volPorFrasco / consumoPorPrueba) : 180);
+      const pruebasPorCaja = Number(itemFicha?.pruebas_teoricas_caja || meta.pruebas_por_caja) || (pruebasPorFrasco * totalFrascos);
+      const totalVolCaja = Number(itemFicha?.volumen_total_caja || (totalFrascos * volPorFrasco));
 
       const statsTotal = consumoTotalPorLote[lote.Id] || { count: 0, ml: 0 };
       const statsHoy = consumoHoyPorLote[lote.Id] || { count: 0, ml: 0 };
@@ -157,12 +160,12 @@ class CajasService {
       const pruebasConsumidasLoteTotal = statsTotal.count;
       const mlConsumidosLoteTotal = statsTotal.ml;
 
-      // ðŸ”„ AUTO-TRANSICIÃ“N AUTOMÃTICA DE FRASCOS (Sin necesidad de clic manual):
-      // Si el volumen total acumulado consumido supera la capacidad de los frascos anteriores, avanza automÃ¡ticamente
-      const frascoCalculadoPorConsumo = Math.min(totalFrascos, Math.floor(mlConsumidosLoteTotal / volPorFrasco) + 1);
-      let frascoActual = Math.max(Number(meta.frasco_actual) || 1, frascoCalculadoPorConsumo);
+      // 🔄 AUTO-TRANSICIÓN AUTOMÁTICA DE FRASCOS (Sin necesidad de clic manual):
+      // Si el volumen total acumulado consumido supera la capacidad de los frascos anteriores, avanza automáticamente
+      const frascoCalculadoPorConsumo = Math.min(totalFrascos, Math.floor(mlConsumidosLoteTotal / (volPorFrasco || 1)) + 1);
+      let frascoActual = Math.min(totalFrascos, Math.max(1, Math.max(Number(meta.frasco_actual) || 1, frascoCalculadoPorConsumo)));
 
-      // Si el frasco actual cambiÃ³ de forma automÃ¡tica por el consumo del Sniffer, persistir en metadata
+      // Si el frasco actual cambia de forma automatica por el consumo del Sniffer, persistir en metadata
       if (frascoActual !== meta.frasco_actual && frascoActual <= totalFrascos) {
         meta.frasco_actual = frascoActual;
         meta[`fecha_apertura_frasco_${frascoActual}`] = meta[`fecha_apertura_frasco_${frascoActual}`] || new Date().toISOString();
@@ -172,8 +175,8 @@ class CajasService {
         }).catch(() => {});
       }
 
-      const eqItem = (lote.items_inventario?.equipo_asociado || '').toUpperCase();
-      const nomItem = (lote.items_inventario?.nombre || '').toUpperCase();
+      const eqItem = (itemFicha?.equipo_asociado || '').toUpperCase();
+      const nomItem = (itemFicha?.nombre || '').toUpperCase();
       let equipoAsociado = 'CM 260i';
 
       if (eqItem.includes('5380') || eqItem.includes('BC') || nomItem.includes('M-53') || nomItem.includes('LEO')) {
@@ -184,13 +187,12 @@ class CajasService {
         equipoAsociado = 'Mindray BS-230';
       } else if (eqItem.includes('260') || eqItem.includes('WIENER')) {
         equipoAsociado = 'CM 260i';
-      } else if ((lote.items_inventario?.marca || '').toUpperCase().includes('MINDRAY')) {
+      } else if ((itemFicha?.marca || '').toUpperCase().includes('MINDRAY')) {
         equipoAsociado = nomItem.includes('CLIA') ? 'Mindray CL-900i' : 'Mindray BS-230';
       }
 
-      // Descuento exacto por frasco en uso a travÃ©s de los dÃ­as:
-      const consumoPorPrueba = Number(meta.consumo_indicado || lote.items_inventario?.consumo_indicado) || 0.25;
-      const mlRestantesCaja = Number(Math.min(totalVolCaja, totalVolCaja - mlConsumidosLoteTotal, Number(lote.CantidadActual)).toFixed(2));
+      // Descuento exacto por frasco en uso a traves de los días:
+      const mlRestantesCaja = Number(Math.max(0, Math.min(totalVolCaja, totalVolCaja - mlConsumidosLoteTotal)).toFixed(2));
       const pruebasRestantesCaja = Math.floor(mlRestantesCaja / consumoPorPrueba);
 
       const mlConsumidosEnFrascosPrevios = (frascoActual - 1) * volPorFrasco;
@@ -433,7 +435,7 @@ class CajasService {
         }
       });
 
-      // 2. REGLA DE NEGOCIO OBLIGATORIA: Debitar 1 caja fÃ­sica del AlmacÃ©n de Laboratorio (almacen_id = 2)
+      // 2. REGLA DE NEGOCIO OBLIGATORIA: Debitar 1 caja fisica del Almacen de Laboratorio (almacen_id = 2)
       const stockLab = await tx.stockPorAlmacen.findFirst({
         where: { item_id: lote.InventarioId, almacen_id: 2 }
       });
@@ -478,7 +480,7 @@ class CajasService {
 
     return {
       success: true,
-      message: `âœ… Caja del lote ${lote.NumeroLote} ABIERTA con Ã©xito por ${usuarioFinal}. Frasco 1 colocado en ${equipoFinal}.`,
+      message: `âœ… Caja del lote ${lote.NumeroLote} ABIERTA con exito por ${usuarioFinal}. Frasco 1 colocado en ${equipoFinal}.`,
       lote: updated
     };
   }
@@ -514,7 +516,7 @@ class CajasService {
       return {
         success: true,
         cajaFinalizada: true,
-        message: `ðŸ La caja del lote ${lote.NumeroLote} ha finalizado todos sus ${totalFrascos} frascos.`
+        message: ` La caja del lote ${lote.NumeroLote} ha finalizado todos sus ${totalFrascos} frascos.`
       };
     }
 
@@ -540,7 +542,7 @@ class CajasService {
 
   /**
    * Parser Inteligente de Escaneo de CÃ³digos de Barras:
-   * Recibe la lectura de la pistola lÃ¡ser (GS1-128 de caja o cÃ³digo de frasco)
+   * Recibe la lectura de la pistola lÃ¡ser (GS1-128 de caja o codigo de frasco)
    */
   
   async buscarCandidatosEscaneo({ barcode, equipo }) {
@@ -731,12 +733,12 @@ class CajasService {
   async procesarEscaneo({ barcode, usuarioNombre, equipo }) {
 
     const raw = String(barcode).trim();
-    console.log('ðŸ” [CajasService] Procesando cÃ³digo escaneado o bÃºsqueda manual:', raw);
+    console.log('ðŸ” [CajasService] Procesando codigo escaneado o busqueda manual:', raw);
 
     let gtin = null;
     let loteDetectado = null;
 
-    // A) Detectar estÃ¡ndar GS1-128 (ej: 017791778040338410LDK0527060)
+    // A) Detectar estandar GS1-128 (ej: 017791778040338410LDK0527060)
     if (raw.startsWith('01') && raw.length >= 16) {
       gtin = raw.substring(2, 16); // 14 dÃ­gitos de GTIN
       const resto = raw.substring(16);
@@ -780,12 +782,12 @@ class CajasService {
         raw,
         gtin,
         loteDetectado,
-        message: `âš ï¸ BÃºsqueda/Escaneo: "${raw}". No se encontrÃ³ ningÃºn lote o reactivo registrado por Lote, CÃ³digo, Nombre o CÃ³digo de Barra.`
+        message: `asi¸ Busqueda/Escaneo: "${raw}". No se encontra ningunn lote o reactivo registrado por Lote, CÃ³digo, Nombre o CÃ³digo de Barra.`
       };
     }
 
-    // Priorizar selecciÃ³n segÃºn el ciclo operativo:
-    // 1. Cajas en trÃ¡nsito hacia laboratorio (Pendiente por confirmar recepciÃ³n)
+    // Priorizar seleccion segÃºn el ciclo operativo:
+    // 1. Cajas en trasnsito hacia laboratorio (Pendiente por confirmar recepcion)
     // 2. Cajas cerradas en reserva/nevera (Pendiente por abrir para uso)
     // 3. Cajas activas en analizadores
     let lote = candidatos.find(c => c.estado_transferencia === 'EN_TRANSITO');
@@ -796,7 +798,7 @@ class CajasService {
       lote = candidatos[0];
     }
 
-    // Si la caja estaba EN TRANSITO, confirmar su recepciÃ³n electrÃ³nica a la nevera del laboratorio
+    // Si la caja estaba EN TRANSITO, confirmar su recepcion electronica a la nevera del laboratorio
     if (lote.estado_transferencia === 'EN_TRANSITO') {
       await this.confirmarRecepcionElectronica({
         loteId: lote.Id,
@@ -809,7 +811,7 @@ class CajasService {
         accion: 'RECEPCION_CONFIRMADA',
         producto: lote.items_inventario?.nombre,
         lote: lote.NumeroLote,
-        message: `ðŸŸ¢ Â¡RecepciÃ³n ElectrÃ³nica Confirmada! Reactivo: ${lote.items_inventario?.nombre} | Lote: ${lote.NumeroLote}. Caja ingresada a Reserva de Nevera.`
+        message: `Recepcion Electronica Confirmada! Reactivo: ${lote.items_inventario?.nombre} | Lote: ${lote.NumeroLote}. Caja ingresada a Reserva de Nevera.`
       };
     }
 
@@ -819,7 +821,7 @@ class CajasService {
       const equipoDestino = equipo || ((lote.items_inventario?.marca || '').toLowerCase().includes('mindray') ? 'Mindray BS-230' : 'CM 260i');
       await this.abrirCaja({
         loteId: lote.Id,
-        usuarioNombre: usuarioNombre || 'Bioanalista (ValidaciÃ³n)',
+        usuarioNombre: usuarioNombre || 'Bioanalista (Validacion)',
         equipo: equipoDestino
       });
 
@@ -831,7 +833,7 @@ class CajasService {
         lote: lote.NumeroLote,
         frascoActual: 1,
         totalFrascos: Number(lote.items_inventario?.frascos_por_caja) || 4,
-        message: `ðŸŸ¢ Â¡Caja Abierta por ValidaciÃ³n! Reactivo: ${lote.items_inventario?.nombre} | Lote: ${lote.NumeroLote}. Frasco 1 colocado en ${equipoDestino}.`
+        message: `¡Caja Abierta por Validacion! Reactivo: ${lote.items_inventario?.nombre} | Lote: ${lote.NumeroLote}. Frasco 1 colocado en ${equipoDestino}.`
       };
     } else {
       // La caja ya estaba abierta, confirmar su estado activo
@@ -853,7 +855,7 @@ class CajasService {
   /**
    * Finalizar Caja y Activar AutomÃ¡ticamente la Siguiente Caja en Nevera:
    * 1. Marca la caja actual como Agotada.
-   * 2. Busca la siguiente caja del mismo reactivo en la nevera (AlmacÃ©n Laboratorio / Estado Cerrada).
+   * 2. Busca la siguiente caja del mismo reactivo en la nevera (Almacen Laboratorio / Estado Cerrada).
    * 3. Si existe, la activa a 'Activo' con frasco 1 en uso.
    * 4. Registra el movimiento en KÃ¡rdex.
    */
@@ -980,7 +982,7 @@ class CajasService {
   }
 
   /**
-   * ValidaciÃ³n Ãgil (3 Pruebas) para DemostraciÃ³n al Cliente:
+   * Validacion Ãgil (3 Pruebas) para DemostraciÃ³n al Cliente:
    * Simula 3 pruebas clÃ­nicas sucesivas en el lote, completando el ciclo de la caja
    * y activando de inmediato la siguiente caja de la nevera.
    */
@@ -1015,7 +1017,7 @@ class CajasService {
       });
     }
 
-    // Ejecutar la transiciÃ³n de agotamiento y activaciÃ³n de la siguiente caja
+    // Ejecutar la transicion de agotamiento y activacion de la siguiente caja
     return await this.finalizarCajaYActivarSiguiente({ loteId, usuarioNombre: usuarioNombre || 'Sistema' });
   }
 
@@ -1049,7 +1051,7 @@ class CajasService {
   }
 
   /**
-   * FASE 1: Despachar Caja desde AlmacÃ©n Central hacia Laboratorio (Estado: EN_TRANSITO_LAB)
+   * FASE 1: Despachar Caja desde Almacen Central hacia Laboratorio (Estado: EN_TRANSITO_LAB)
    */
   async despacharCajaAlmacen({ loteId, almacenDestinoId, usuarioDespacho }) {
     const lote = await prisma.lotesReactivos.findUnique({
@@ -1059,7 +1061,7 @@ class CajasService {
 
     if (!lote) throw new Error('Caja o lote no encontrado.');
 
-    const usuario = usuarioDespacho || 'Encargado de AlmacÃ©n';
+    const usuario = usuarioDespacho || 'Encargado de Almacen';
     const destId = almacenDestinoId ? parseInt(almacenDestinoId) : 2;
 
     const updated = await prisma.$transaction(async (tx) => {
@@ -1094,13 +1096,13 @@ class CajasService {
 
     return {
       success: true,
-      message: `ðŸšš Caja del lote ${lote.NumeroLote} despachada hacia el Laboratorio. Estado: EN TRÃNSITO.`,
+      message: ` Caja del lote ${lote.NumeroLote} despachada hacia el Laboratorio. Estado: EN TRÃNSITO.`,
       lote: updated
     };
   }
 
   /**
-   * FASE 2: ConfirmaciÃ³n ElectrÃ³nica de RecepciÃ³n en Laboratorio (EscÃ¡ner o Clic)
+   * FASE 2: Confirmacion Electronica de Recepcion en Laboratorio (Escaner o Clic)
    * Cambia el estado a RECIBIDO_LABORATORIO (Nevera / Reserva) y registra usuario y timestamp
    */
   async confirmarRecepcionElectronica({ barcode, loteId, usuarioRecepcion }) {

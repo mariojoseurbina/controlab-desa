@@ -122,7 +122,7 @@ const downloadTransferPdf = async (req, res) => {
       doc.text(code, 55, currentY + 6, { width: 80 });
       doc.text(name, 140, currentY + 6, { width: 190 });
       doc.fillColor('#0369a1').text(presentacion, 335, currentY + 6, { width: 120 });
-      doc.fillColor('#1e293b').text(`${qty} ${unit}`, 460, currentY + 6, { align: 'right', width: 95 });
+      doc.fillColor('#1e293b').text(`${qty}`, 460, currentY + 6, { align: 'right', width: 95 });
 
       // Línea fina para fila de tabla
       doc.strokeColor('#e2e8f0').moveTo(50, currentY + 22).lineTo(562, currentY + 22).stroke();
@@ -243,7 +243,7 @@ const downloadReceptionPdf = async (req, res) => {
         doc.text(code, 55, currentY + 6, { width: 80 });
         doc.text(name, 140, currentY + 6, { width: 190 });
         doc.text(presentacion, 335, currentY + 6, { width: 120 });
-        doc.fillColor(colorTheme).text(`${qty} Caja(s)`, 460, currentY + 6, { align: 'right', width: 95 });
+        doc.fillColor(colorTheme).text(`${qty}`, 460, currentY + 6, { align: 'right', width: 95 });
   
         doc.strokeColor('#e2e8f0').moveTo(50, currentY + 22).lineTo(562, currentY + 22).stroke();
         currentY += 24;
@@ -381,7 +381,7 @@ const downloadMovementPdf = async (req, res) => {
       doc.text(code, 55, currentY + 6, { width: 80 });
       doc.text(name, 140, currentY + 6, { width: 190 });
       doc.fillColor('#0369a1').text(presentacion, 335, currentY + 6, { width: 120 });
-      doc.fillColor('#1e293b').text(`${qty} ${unit}`, 460, currentY + 6, { align: 'right', width: 95 });
+      doc.fillColor('#1e293b').text(`${qty}`, 460, currentY + 6, { align: 'right', width: 95 });
 
       doc.strokeColor('#e2e8f0').moveTo(50, currentY + 22).lineTo(562, currentY + 22).stroke();
       currentY += 24;
@@ -389,7 +389,7 @@ const downloadMovementPdf = async (req, res) => {
 
     doc.rect(50, currentY, 512, 20).fill('#f8fafc');
     doc.fillColor('#0f172a').fontSize(9).text(`TOTAL GENERAL: ${movements.length} ÍTEMS REGISTRADOS`, 55, currentY + 5, { bold: true });
-    doc.text(`${totalQty} Total Cajas/Unidades`, 460, currentY + 5, { bold: true, align: 'right', width: 95 });
+    doc.text(`${totalQty}`, 460, currentY + 5, { bold: true, align: 'right', width: 95 });
     currentY += 30;
 
     const signatureY = Math.max(currentY + 60, 620);

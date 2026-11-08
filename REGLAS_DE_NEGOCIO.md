@@ -178,3 +178,40 @@ Para garantizar que **ninguna regla de negocio se vuelva a romper**:
 ### 9.3. INMUTABILIDAD ABSOLUTA DE LAS REGLAS DE NEGOCIO VALIDADAS
 * Queda **TERMINANTEMENTE PROHIBIDO** para cualquier programador o modelo de IA modificar, comentar, neutralizar o alterar las reglas de negocio validadas del sistema (tales como la exclusividad de canal en rotor, la sustitución de cajas por canal, el flujo obligatorio Almacén Central ➔ Laboratorio, y la deducción exacta del Sniffer).
 * Las reglas de negocio operativas son **PERMANENTES E INMUTABLES**, protegiendo la paz mental del cliente y la integridad clínica del laboratorio sin generar estrés ni retrocesos operativos.
+
+---
+
+### 10. REGLA DE PRUEBAS HOMÓLOGAS Y REACTIVOS MULTIMARCA EN ANALIZADORES
+
+#### 10.1. Exclusividad de Canal Clínico en Rotor
+* Para cualquier prueba clínica (ej. FT3, Glucosa, Ferritina), el analizador solo admite **UN lote y caja en estado 'Activo'** de manera simultánea en su rotor/carrusel.
+* Si el laboratorio adquiere reactivos de distintas marcas para una misma prueba (ej. Mindray y Wiener), cada marca posee su propio Ítem de Inventario y Ficha Técnica, pero comparten la relación homóloga con la prueba del analizador.
+
+#### 10.2. Regla de Apertura y Sustitución de Cajas
+1. **Mismo Lote (Continuidad de Lote):**
+   * Al abrir una nueva caja del mismo lote, la caja previa en el analizador se cierra administrativamente como agotada.
+   * El sistema acumula el conteo de pruebas, calibraciones y controles a nivel del Lote (Caja 1 + Caja 2...), preservando el cálculo del rendimiento global del lote.
+2. **Distinto Lote o Cambio de Marca (Sustitución de Lote/Marca):**
+   * Al abrir una caja de un lote diferente o de una marca homóloga alternativa (ej. cambio de Mindray a Wiener):
+     a) Se cierra automáticamente la caja activa anterior en el analizador con motivo "Sustitución de reactivo / cambio de lote".
+     b) Se activa la nueva caja en el canal correspondiente.
+     c) Se sella el ciclo del lote saliente y se inicia el conteo independiente para el nuevo lote y marca.
+
+#### 10.3. Deducción Dinámica del Sniffer por Caja Activa
+* El Sniffer no depende de una marca fija grabada en código rígido. Al detectar una prueba procesada (ej. `FT3`), el Sniffer identifica entre los reactivos homólogos mapeados cuál posee la **caja actualmente activa y abierta en el analizador** y aplica el descuento sobre dicha caja.
+
+```mermaid
+flowchart TD
+    A["Bioanalista toma caja física de Nevera<br>(Mindray o Wiener)"] --> B["Entra a Módulo 'Cajas y Frascos'<br>o Escanea el Lote"]
+    B --> C{"¿Qué reactivo seleccionó?"}
+    C -->|"Mismo Lote que el anterior"| D["Cierra caja vieja y abre nueva.<br>Continúa acumulado del lote."]
+    C -->|"Distinto Lote / Nueva Marca"| E["Alerta: 'Sustitución de reactivo'<br>Cierra lote anterior y abre nuevo."]
+    D --> F["Caja queda 'Activa' en Analizador"]
+    E --> F
+    F --> G["Sniffer descuenta automáticamente<br>sobre la caja activa sin intervención humana"]
+```
+
+**Garantías del Esquema:**
+1. El bioanalista no puede equivocarse porque el sistema le advierte antes de sustituir mediante el modal interactivo de confirmación.
+2. Todo queda registrado con su nombre y apellido real en el Kárdex y trazabilidad.
+3. El sniffer siempre sabe con precisión matemática de cuál frasco descontar.

@@ -144,7 +144,7 @@ const GestionCajasFrascos = () => {
       const response = await api.post('/cajas/recepcion-masiva', {
         loteIds: selectedLotes,
         action: action,
-        usuarioNombre: 'Dra. María Urbina (Bioanalista)' // TODO: Get from auth context
+        usuarioNombre: user?.nombre_completo || user?.nombre || user?.usuario || 'Bioanalista'
       });
 
       if (response.data && response.data.success) {
@@ -205,7 +205,7 @@ const GestionCajasFrascos = () => {
       const response = await api.post('/cajas/confirmar-recepcion', {
         loteId,
         barcode: barcodeVal,
-        usuarioNombre: 'Dra. María Urbina (Bioanalista)'
+        usuarioNombre: user?.nombre_completo || user?.nombre || user?.usuario || 'Bioanalista'
       });
 
       if (response.data && response.data.success) {
@@ -323,6 +323,14 @@ const GestionCajasFrascos = () => {
 
   const handleProcesarLote = async (loteId, equipoAsociado) => {
     const cand = candidatosScan.find(c => c.id === loteId);
+    if (cand && (cand.estado === 'Activo' || cand.estado?.toLowerCase() === 'activo')) {
+      setScanMessage({
+        type: 'info',
+        text: `ℹ️ La caja Lote: ${cand.lote} (${cand.producto}) ya fue abierta y se encuentra activa en producción.`
+      });
+      setCandidatosModalOpen(false);
+      return;
+    }
     if (cand && !cand.estaEnLab && cand.estadoTransferencia !== 'EN_TRANSITO') {
       setScanMessage({
         type: 'error',
@@ -1399,7 +1407,28 @@ const GestionCajasFrascos = () => {
                     </TableCell>
                     <TableCell>{c.equipoAsociado}</TableCell>
                     <TableCell align="center">
-                      {c.estaEnLab ? (
+                      {c.estaEnLab && (c.estado === 'Activo' || c.estado?.toLowerCase() === 'activo') ? (
+                        <Tooltip title="Bloqueado: Esta caja ya fue abierta y sus frascos se encuentran activos en producción en el analizador.">
+                          <span>
+                            <Button 
+                              variant="outlined" 
+                              size="small"
+                              disabled
+                              sx={{ 
+                                fontWeight: 700, 
+                                opacity: 0.65,
+                                color: '#15803d !important',
+                                borderColor: '#86efac !important',
+                                backgroundColor: '#f0fdf4 !important',
+                                cursor: 'not-allowed',
+                                textTransform: 'none'
+                              }}
+                            >
+                              En Producción
+                            </Button>
+                          </span>
+                        </Tooltip>
+                      ) : c.estaEnLab ? (
                         <Button 
                           variant="contained" 
                           color="success" 
@@ -1450,99 +1479,262 @@ const GestionCajasFrascos = () => {
 
       <Dialog open={modalOpen}
         onClose={() => setModalOpen(false)}
-        maxWidth="sm"
+        maxWidth="md"
         fullWidth
         PaperProps={{ sx: { borderRadius: 3, p: 1 } }}
       >
-        <DialogTitle sx={{ fontWeight: 700, display: 'flex', alignItems: 'center', gap: 1.5 }}>
-          <LockOpenIcon sx={{ color: '#f59e0b' }} />
-          Confirmar Apertura de Caja y Colocación de Frasco
-        </DialogTitle>
-        <DialogContent dividers>
-          {selectedCaja && (
-            <Box>
-              <Alert severity="success" sx={{ mb: 2, fontWeight: 600 }}>
-                📍 Caja verificada en Almacén de Laboratorio. Apertura y colocación de frasco autorizada exclusivamente para Bioanalistas.
-              </Alert>
-              <Typography variant="body1" fontWeight={600} gutterBottom>
-                ¿Desea abrir la caja y colocar el primer frasco en el analizador clínico?
-              </Typography>
-              <Box sx={{ backgroundColor: '#f8fafc', p: 2, borderRadius: 2, my: 2, border: '1px solid #e2e8f0' }}>
-                <Typography variant="subtitle2" color="#0f172a">
-                  <strong>Reactivo:</strong> {selectedCaja.productoNombre}
-                </Typography>
-                <Typography variant="subtitle2" color="#0f172a">
-                  <strong>Marca:</strong> {selectedCaja.marca || 'Wiener'}
-                </Typography>
-                <Typography variant="subtitle2" color="#0f172a">
-                  <strong>Lote:</strong> {selectedCaja.numeroLote}
-                </Typography>
-                <Typography variant="subtitle2" color="#0f172a">
-                  <strong>Contenido:</strong> {selectedCaja.totalFrascos} frascos × {selectedCaja.volPorFrasco}ml
-                </Typography>
-              </Box>
+        {(() => {
+          // Evaluar si existe una caja previa activa en el mismo analizador y canal
+          const cajaActivaPrevia = selectedCaja ? (cajasData.cajasEnUso || []).find(c => {
+            const eqCaja = (c.equipoAsociado || c.equipo || '').toUpperCase();
+            const eqSel = (equipoSeleccionado || '').toUpperCase();
+            const matchEquipo = eqCaja.includes(eqSel) || eqSel.includes(eqCaja) ||
+              (eqSel.includes('CL-900') && eqCaja.includes('CL-900')) ||
+              (eqSel.includes('BS-230') && eqCaja.includes('BS-230')) ||
+              (eqSel.includes('260') && eqCaja.includes('260'));
+            if (!matchEquipo) return false;
 
-              {/* SELECTOR DE EQUIPO ANALIZADOR (QUÍMICA CLÍNICA) */}
-              <Box sx={{ my: 2, p: 1.5, backgroundColor: '#f0f9ff', borderRadius: 2, border: '1px solid #bae6fd' }}>
-                <FormControl component="fieldset">
-                  <FormLabel component="legend" sx={{ fontWeight: 700, color: '#0369a1', fontSize: '0.85rem', mb: 0.5 }}>
-                    Seleccione el Analizador de Química donde colocará el Frasco:
-                  </FormLabel>
-                  <RadioGroup
-                    row
-                    value={equipoSeleccionado}
-                    onChange={(e) => setEquipoSeleccionado(e.target.value)}
-                  >
-                    <FormControlLabel
-                      value="CM 260i"
-                      control={<Radio size="small" color="primary" />}
-                      label={<Typography variant="body2" fontWeight={600}>Wiener CM 260i (192.168.10.188)</Typography>}
-                    />
-                    <FormControlLabel
-                      value="Mindray BS-230"
-                      control={<Radio size="small" color="primary" />}
-                      label={<Typography variant="body2" fontWeight={600}>Mindray BS-230 (192.168.30.148)</Typography>}
-                    />
-                    <FormControlLabel
-                      value="Mindray CL-900i"
-                      control={<Radio size="small" color="warning" />}
-                      label={<Typography variant="body2" fontWeight={600}>Mindray CL-900i (192.168.30.211)</Typography>}
-                    />
-                    <FormControlLabel
-                      value="Mindray BC 5380"
-                      control={<Radio size="small" color="success" />}
-                      label={<Typography variant="body2" fontWeight={600}>Mindray BC 5380 (192.168.10.62)</Typography>}
-                    />
-                  </RadioGroup>
-                </FormControl>
-              </Box>
+            const nomA = (c.productoNombre || '').toUpperCase().trim();
+            const nomB = (selectedCaja.productoNombre || '').toUpperCase().trim();
+            const simplificar = str => str.replace(/\(.*?\)/g, '').replace(/10\s*LTS|50\s*ML|100\s*DET|R1|R2/gi, '').trim();
+            return nomA === nomB || simplificar(nomA) === simplificar(nomB) || (c.inventarioId && c.inventarioId === selectedCaja.inventarioId);
+          }) : null;
 
-              <Alert severity="info" sx={{ borderRadius: 2 }}>
-                Al confirmar, la caja pasará a <strong>ABIERTO / EN USO EN {equipoSeleccionado}</strong>.
-                El Sniffer capturará las tramas de este equipo y descontará automáticamente las pruebas realizadas.
-              </Alert>
-            </Box>
-          )}
-        </DialogContent>
-        <DialogActions sx={{ p: 2 }}>
-          <Button onClick={() => setModalOpen(false)} color="inherit" sx={{ fontWeight: 600 }}>
-            Cancelar
-          </Button>
-          <Button
-            variant="contained"
-            onClick={handleAbrirCaja}
-            disabled={actionLoading}
-            sx={{
-              backgroundColor: '#f59e0b',
-              '&:hover': { backgroundColor: '#d97706' },
-              color: '#ffffff',
-              fontWeight: 700,
-              px: 3
-            }}
-          >
-            {actionLoading ? <CircularProgress size={20} color="inherit" /> : `Confirmar y Colocar en ${equipoSeleccionado}`}
-          </Button>
-        </DialogActions>
+          const esMismoLote = Boolean(cajaActivaPrevia && cajaActivaPrevia.numeroLote === selectedCaja?.numeroLote);
+          const esSustitucion = Boolean(cajaActivaPrevia && cajaActivaPrevia.numeroLote !== selectedCaja?.numeroLote);
+
+          return (
+            <>
+              <DialogTitle sx={{ fontWeight: 700, display: 'flex', alignItems: 'center', gap: 1.5, pb: 1 }}>
+                {esSustitucion ? (
+                  <WarningIcon sx={{ color: '#d97706', fontSize: 28 }} />
+                ) : esMismoLote ? (
+                  <SyncIcon sx={{ color: '#0284c7', fontSize: 28 }} />
+                ) : (
+                  <LockOpenIcon sx={{ color: '#16a34a', fontSize: 28 }} />
+                )}
+                <Box>
+                  <Typography variant="h6" fontWeight={700} color={esSustitucion ? '#92400e' : esMismoLote ? '#0369a1' : '#0f172a'}>
+                    {esSustitucion
+                      ? '⚠️ Sustitución de Reactivo / Cambio de Lote en Analizador'
+                      : esMismoLote
+                      ? '🔄 Continuidad de Lote: Apertura de Siguiente Caja'
+                      : 'Confirmar Apertura de Caja y Colocación de Frasco'}
+                  </Typography>
+                  <Typography variant="caption" color="#64748b">
+                    Canal: {selectedCaja?.productoNombre || 'Reactivo Clínico'} | Equipo: {equipoSeleccionado}
+                  </Typography>
+                </Box>
+              </DialogTitle>
+
+              <DialogContent dividers sx={{ py: 2 }}>
+                {selectedCaja && (
+                  <Box>
+                    {/* ALERTA DE ROL BIOANALISTA Y UBICACIÓN */}
+                    <Alert severity="success" sx={{ mb: 2, fontWeight: 600, borderRadius: 2 }}>
+                      📍 Caja verificada en Almacén de Laboratorio. Apertura y colocación autorizada exclusivamente para Bioanalistas.
+                      Responsable: <strong>{user?.nombre_completo || user?.usuario || 'Bioanalista en Turno'}</strong>.
+                    </Alert>
+
+                    {/* COMPARATIVA EN CASO DE SUSTITUCIÓN DE LOTE O CAMBIO DE MARCA */}
+                    {esSustitucion && (
+                      <Paper sx={{ p: 2, mb: 2.5, backgroundColor: '#fffbeb', border: '2px solid #f59e0b', borderRadius: 2.5 }}>
+                        <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#92400e', display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
+                          <WarningIcon sx={{ color: '#f59e0b' }} />
+                          ALERTA DE SUSTITUCIÓN DE CANAL: EN EL ROTOR SOLO PUEDE HABER 1 CAJA ACTIVA
+                        </Typography>
+
+                        <Grid container spacing={2}>
+                          {/* CAJA SALIENTE */}
+                          <Grid item xs={12} sm={6}>
+                            <Box sx={{ p: 1.5, backgroundColor: '#ffffff', borderRadius: 2, border: '1px solid #fcd34d' }}>
+                              <Chip label="Caja Actual en Analizador (Saliente)" size="small" sx={{ bgcolor: '#fee2e2', color: '#991b1b', fontWeight: 700, mb: 1 }} />
+                              <Typography variant="body2" fontWeight={700} color="#0f172a">
+                                {cajaActivaPrevia.productoNombre}
+                              </Typography>
+                              <Typography variant="caption" display="block" color="#475569">
+                                <strong>Marca:</strong> {cajaActivaPrevia.marca || 'Mindray'} | <strong>Lote:</strong> {cajaActivaPrevia.numeroLote}
+                              </Typography>
+                              <Typography variant="caption" display="block" color="#dc2626" fontWeight={600} sx={{ mt: 0.5 }}>
+                                Pruebas Restantes: {cajaActivaPrevia.pruebasRestantes ?? 'N/D'}
+                              </Typography>
+                              <Typography variant="caption" display="block" color="#64748b" sx={{ fontStyle: 'italic', mt: 0.5 }}>
+                                ➔ Se cerrará administrativamente como "Agotada por sustitución".
+                              </Typography>
+                            </Box>
+                          </Grid>
+
+                          {/* CAJA ENTRANTE */}
+                          <Grid item xs={12} sm={6}>
+                            <Box sx={{ p: 1.5, backgroundColor: '#ffffff', borderRadius: 2, border: '1px solid #86efac' }}>
+                              <Chip label="Nueva Caja a Montar (Entrante)" size="small" sx={{ bgcolor: '#dcfce7', color: '#166534', fontWeight: 700, mb: 1 }} />
+                              <Typography variant="body2" fontWeight={700} color="#0f172a">
+                                {selectedCaja.productoNombre}
+                              </Typography>
+                              <Typography variant="caption" display="block" color="#475569">
+                                <strong>Marca:</strong> {selectedCaja.marca || 'Wiener'} | <strong>Lote:</strong> {selectedCaja.numeroLote}
+                              </Typography>
+                              <Typography variant="caption" display="block" color="#16a34a" fontWeight={600} sx={{ mt: 0.5 }}>
+                                Pruebas Teóricas: {selectedCaja.pruebasTeoricasCaja || selectedCaja.pruebasPorCaja || (selectedCaja.totalFrascos * selectedCaja.volPorFrasco)} pruebas
+                              </Typography>
+                              <Typography variant="caption" display="block" color="#15803d" sx={{ fontStyle: 'italic', mt: 0.5 }}>
+                                ➔ Se activará en el analizador e iniciará su ciclo de conteo limpio.
+                              </Typography>
+                            </Box>
+                          </Grid>
+                        </Grid>
+                      </Paper>
+                    )}
+
+                    {/* CONTINUIDAD DE LOTE */}
+                    {esMismoLote && (
+                      <Alert severity="info" sx={{ mb: 2, borderRadius: 2, fontWeight: 600 }}>
+                        🔄 <strong>Continuidad de Lote:</strong> Se detectó que la caja previa en el equipo pertenece al mismo lote ({selectedCaja.numeroLote}).
+                        Al abrir esta caja, la anterior se sella y el sistema continuará acumulando el conteo de pruebas, calibraciones y controles a nivel del Lote.
+                      </Alert>
+                    )}
+
+                    {/* DETALLES DE LA CAJA SELECCIONADA */}
+                    {!esSustitucion && (
+                      <Box sx={{ backgroundColor: '#f8fafc', p: 2, borderRadius: 2, my: 2, border: '1px solid #e2e8f0' }}>
+                        <Grid container spacing={2}>
+                          <Grid item xs={12} sm={6}>
+                            <Typography variant="subtitle2" color="#0f172a">
+                              <strong>Reactivo:</strong> {selectedCaja.productoNombre}
+                            </Typography>
+                            <Typography variant="subtitle2" color="#0f172a">
+                              <strong>Marca:</strong> {selectedCaja.marca || 'Wiener / Mindray'}
+                            </Typography>
+                          </Grid>
+                          <Grid item xs={12} sm={6}>
+                            <Typography variant="subtitle2" color="#0f172a">
+                              <strong>Lote:</strong> {selectedCaja.numeroLote}
+                            </Typography>
+                            <Typography variant="subtitle2" color="#0f172a">
+                              <strong>Contenido:</strong> {selectedCaja.totalFrascos} frasco(s) × {selectedCaja.volPorFrasco}ml
+                            </Typography>
+                          </Grid>
+                        </Grid>
+                      </Box>
+                    )}
+
+                    {/* SELECTOR DE EQUIPO ANALIZADOR */}
+                    <Box sx={{ my: 2, p: 2, backgroundColor: '#f0f9ff', borderRadius: 2, border: '1px solid #bae6fd' }}>
+                      <FormControl component="fieldset" fullWidth>
+                        <FormLabel component="legend" sx={{ fontWeight: 700, color: '#0369a1', fontSize: '0.85rem', mb: 1 }}>
+                          Analizador donde se montará físicamente el Frasco:
+                        </FormLabel>
+                        <RadioGroup
+                          row
+                          value={equipoSeleccionado}
+                          onChange={(e) => setEquipoSeleccionado(e.target.value)}
+                        >
+                          <FormControlLabel
+                            value="CM 260i"
+                            control={<Radio size="small" color="primary" />}
+                            label={<Typography variant="body2" fontWeight={600}>Wiener CM 260i</Typography>}
+                          />
+                          <FormControlLabel
+                            value="Mindray BS-230"
+                            control={<Radio size="small" color="primary" />}
+                            label={<Typography variant="body2" fontWeight={600}>Mindray BS-230</Typography>}
+                          />
+                          <FormControlLabel
+                            value="Mindray CL-900i"
+                            control={<Radio size="small" color="warning" />}
+                            label={<Typography variant="body2" fontWeight={600}>Mindray CL-900i</Typography>}
+                          />
+                          <FormControlLabel
+                            value="Mindray BC 5380"
+                            control={<Radio size="small" color="success" />}
+                            label={<Typography variant="body2" fontWeight={600}>Mindray BC 5380</Typography>}
+                          />
+                        </RadioGroup>
+                      </FormControl>
+                    </Box>
+
+                    {/* DIAGRAMA VISUAL DE OPERACIÓN Y GARANTÍAS */}
+                    <Box sx={{ mt: 2, p: 2, bgcolor: '#f8fafc', borderRadius: 2.5, border: '1px solid #e2e8f0' }}>
+                      <Typography variant="caption" sx={{ fontWeight: 800, color: '#475569', textTransform: 'uppercase', letterSpacing: 0.5, display: 'block', mb: 1.5 }}>
+                        Esquema Operativo de Laboratorio & Controlab Sniffer:
+                      </Typography>
+                      <Grid container spacing={1} alignItems="center">
+                        <Grid item xs={12} sm={3.6}>
+                          <Box sx={{ p: 1, bgcolor: '#ffffff', border: '1px solid #cbd5e1', borderRadius: 1.5, textAlign: 'center' }}>
+                            <Typography variant="caption" fontWeight={700} color="#0f172a" display="block">1. Selección en Nevera</Typography>
+                            <Typography variant="caption" color="#64748b" sx={{ fontSize: '0.72rem' }}>Mindray o Wiener</Typography>
+                          </Box>
+                        </Grid>
+                        <Grid item xs={12} sm={0.6} sx={{ textAlign: 'center', color: '#94a3b8', fontWeight: 700 }}>➔</Grid>
+                        <Grid item xs={12} sm={3.6}>
+                          <Box sx={{ p: 1, bgcolor: esSustitucion ? '#fef3c7' : '#f0f9ff', border: `1px solid ${esSustitucion ? '#f59e0b' : '#38bdf8'}`, borderRadius: 1.5, textAlign: 'center' }}>
+                            <Typography variant="caption" fontWeight={700} color={esSustitucion ? '#92400e' : '#0369a1'} display="block">
+                              2. {esSustitucion ? 'Sustitución de Lote' : esMismoLote ? 'Continuidad de Lote' : 'Apertura de Canal'}
+                            </Typography>
+                            <Typography variant="caption" color="#64748b" sx={{ fontSize: '0.72rem' }}>
+                              {esSustitucion ? 'Cierra anterior y abre nuevo' : esMismoLote ? 'Acumula conteo del lote' : 'Canal libre en analizador'}
+                            </Typography>
+                          </Box>
+                        </Grid>
+                        <Grid item xs={12} sm={0.6} sx={{ textAlign: 'center', color: '#94a3b8', fontWeight: 700 }}>➔</Grid>
+                        <Grid item xs={12} sm={3.6}>
+                          <Box sx={{ p: 1, bgcolor: '#f0fdf4', border: '1px solid #86efac', borderRadius: 1.5, textAlign: 'center' }}>
+                            <Typography variant="caption" fontWeight={700} color="#166534" display="block">3. Sniffer Automático</Typography>
+                            <Typography variant="caption" color="#64748b" sx={{ fontSize: '0.72rem' }}>Deducción exacta sin tocar nada</Typography>
+                          </Box>
+                        </Grid>
+                      </Grid>
+
+                      <Box sx={{ mt: 1.5, pt: 1, borderTop: '1px dashed #cbd5e1', display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                        <Typography variant="caption" color="#059669" sx={{ display: 'flex', alignItems: 'center', gap: 0.5, fontWeight: 600 }}>
+                          ✓ <strong>Cero error:</strong> El sistema advierte y compara antes de sustituir cualquier reactivo en el analizador.
+                        </Typography>
+                        <Typography variant="caption" color="#059669" sx={{ display: 'flex', alignItems: 'center', gap: 0.5, fontWeight: 600 }}>
+                          ✓ <strong>Trazabilidad 100%:</strong> Todo queda registrado con el Nombre y Apellido real del Bioanalista.
+                        </Typography>
+                        <Typography variant="caption" color="#059669" sx={{ display: 'flex', alignItems: 'center', gap: 0.5, fontWeight: 600 }}>
+                          ✓ <strong>Sniffer dinámico:</strong> Siempre sabe con precisión matemática de cuál frasco activo descontar.
+                        </Typography>
+                      </Box>
+                    </Box>
+                  </Box>
+                )}
+              </DialogContent>
+
+              <DialogActions sx={{ p: 2.5, backgroundColor: '#f8fafc', borderTop: '1px solid #e2e8f0' }}>
+                <Button onClick={() => setModalOpen(false)} color="inherit" sx={{ fontWeight: 600, px: 2 }}>
+                  Cancelar
+                </Button>
+                <Button
+                  variant="contained"
+                  onClick={handleAbrirCaja}
+                  disabled={actionLoading}
+                  sx={{
+                    backgroundColor: esSustitucion ? '#d97706' : esMismoLote ? '#0284c7' : '#16a34a',
+                    '&:hover': {
+                      backgroundColor: esSustitucion ? '#b45309' : esMismoLote ? '#0369a1' : '#15803d'
+                    },
+                    color: '#ffffff',
+                    fontWeight: 700,
+                    px: 3,
+                    py: 1,
+                    borderRadius: 2
+                  }}
+                >
+                  {actionLoading ? (
+                    <CircularProgress size={20} color="inherit" />
+                  ) : esSustitucion ? (
+                    `Confirmar Sustitución y Montar en ${equipoSeleccionado}`
+                  ) : esMismoLote ? (
+                    `Confirmar Continuidad y Montar en ${equipoSeleccionado}`
+                  ) : (
+                    `Confirmar y Colocar en ${equipoSeleccionado}`
+                  )}
+                </Button>
+              </DialogActions>
+            </>
+          );
+        })()}
       </Dialog>
     </Container>
   );

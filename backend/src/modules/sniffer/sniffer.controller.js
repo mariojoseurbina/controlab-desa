@@ -100,6 +100,9 @@ const ANALYZER_ALIASES = {
     'PCRCR': ['PCRCR', 'PCR-CR', 'PROTEINA C REACTIVA CR', 'PCR'],
     'CREAT W': ['CREAT W', 'CREAT-W', 'CREATININA WIENER', 'CREATININA', 'CREA'],
     'PTUL': ['PTUL', 'TPUC', 'PROTEINAS TOTALES ORINA', 'PROTI U', 'PROTI'],
+    'PROTEINURIA EN ORINA': ['PROTEINURIA EN ORINA', 'PROTEINURIA', 'PTUL', 'TPUC', 'PROTEINAS TOTALES ORINA'],
+    'ANTISTREPTOLYSIN ?O?': ['ASO', 'ASTO', 'ANTIESTREPTOLISINA', 'ANTISTREPTOLYSIN'],
+    'ANTISTREPTOLYSIN': ['ASO', 'ASTO', 'ANTIESTREPTOLISINA'],
     'CK W': ['CK W', 'CK-W', 'CREATINE KINASE WIENER', 'CK', 'CPK'],
     // Mindray CL-900i (CLIA / Inmunodiagnóstico)
     'FT3': ['FT3', 'FREE T3', 'FREE TRIIODOTHYRONINE', 'FREE TRILODOTHYRONINE'],
@@ -172,15 +175,13 @@ async function processCM260i({ raw_frame, test_name, patient_id, is_qc, is_calib
     let resolvedTestName = test_name;
     let resolvedPatientId = patient_id || 'UNKNOWN';
 
-    // Extracción de prueba desde OBX si viene genérico
-    if (!resolvedTestName || resolvedTestName === 'RAW_TEST' || resolvedTestName === 'TEST_DESCONOCIDO' || resolvedTestName === 'RAW_TEST_HL7') {
-        const obxMatch = raw_frame.match(/OBX\|\d+\|[A-Za-z0-9]+\|([^|^|\r\n]*)/);
-        if (obxMatch && obxMatch[1]) {
-            resolvedTestName = obxMatch[1].trim();
-        } else {
-            const dspMatch = raw_frame.match(/DSP\|29\|\|([^|^|\r\n]+)/);
-            if (dspMatch && dspMatch[1]) resolvedTestName = dspMatch[1].trim();
-        }
+    // Extracción de prueba desde OBX: En CM 260i el segmento OBX contiene el código original e infalible del equipo (PT, GPTL, etc.)
+    const obxMatch = raw_frame.match(/OBX\|\d+\|[A-Za-z0-9]+\|([^|^|\r\n]*)/);
+    if (obxMatch && obxMatch[1]) {
+        resolvedTestName = obxMatch[1].trim();
+    } else if (!resolvedTestName || resolvedTestName === 'RAW_TEST' || resolvedTestName === 'TEST_DESCONOCIDO' || resolvedTestName === 'RAW_TEST_HL7') {
+        const dspMatch = raw_frame.match(/DSP\|29\|\|([^|^|\r\n]+)/);
+        if (dspMatch && dspMatch[1]) resolvedTestName = dspMatch[1].trim();
     }
 
     // Extracción de paciente / control desde OBR si viene genérico
@@ -409,7 +410,7 @@ async function processCM260i({ raw_frame, test_name, patient_id, is_qc, is_calib
         });
 
         return { createdLog, loteActivo, restMl, frascosRestantes, cajasRestantes, tipoCorrida };
-    });
+    }, { maxWait: 15000, timeout: 30000 });
 
     if (txResult) {
         return {
@@ -711,7 +712,7 @@ async function processBS230({ raw_frame, test_name, patient_id, is_qc, is_calibr
             });
 
             return { createdLog, loteActivo, restMl, frascosRestantes, cajasRestantes, tipoCorrida, mlAConsumir };
-        });
+        }, { maxWait: 15000, timeout: 30000 });
 
         if (txResult) {
             results.push({
@@ -980,7 +981,7 @@ async function processCL900i({ raw_frame, test_name, patient_id, is_qc, is_calib
             }
         }
         return results;
-    });
+    }, { maxWait: 15000, timeout: 30000 });
 
     return {
         success: true,
@@ -1143,7 +1144,7 @@ async function processBC5380({ raw_frame, test_name, patient_id, is_qc, is_calib
             }
         }
         return { logsCreated, totalDescontado };
-    });
+    }, { maxWait: 15000, timeout: 30000 });
 
     return {
         success: true,
@@ -1196,6 +1197,8 @@ exports.webhookSniffer = async (req, res) => {
         const isQry = raw_text.includes('QRY^Q02');
 
         // Filtro Anti-Duplicados (Idempotencia de red)
+        // Nota: En Wiener CM 260i el campo MSH-10 (Control ID) es fijo ('1') para todos los mensajes.
+        // Por lo tanto, SIEMPRE debemos diferenciar por paciente y prueba para no bloquear pruebas consecutivas legítimas.
         let msgControlId = null;
         if (raw_text.includes('MSH|')) {
             const mshMatch = raw_text.match(/MSH\|[^|]*\|[^|]*\|[^|]*\|[^|]*\|[^|]*\|[^|]*\|[^|]*\|[^|]*\|([^|]+)\|/);
@@ -1203,14 +1206,22 @@ exports.webhookSniffer = async (req, res) => {
                 msgControlId = mshMatch[1].trim();
             }
         }
-        const dedupKey = msgControlId 
-            ? `${dev_name}_MSH_${msgControlId}` 
-            : `${dev_name}_${test_name}_${patient_id}_${raw_text.slice(0, 80)}`;
+
+        let dedupTest = test_name || '';
+        let dedupPid = patient_id || '';
+        const obxM = raw_text.match(/OBX\|\d+\|[A-Za-z0-9]+\|([^|^|\r\n]*)/);
+        if (obxM && obxM[1]) dedupTest = obxM[1].trim();
+        const obrM = raw_text.match(/OBR\|[^|]*\|([A-Za-z0-9_\- ]+)/);
+        if (obrM && obrM[1]) dedupPid = obrM[1].trim();
+
+        const dedupKey = (msgControlId && msgControlId !== '1')
+            ? `${dev_name}_MSH_${msgControlId}`
+            : `${dev_name}_${dedupPid}_${dedupTest}`;
 
         const nowMs = Date.now();
         if (recentMessagesCache.has(dedupKey)) {
             const lastSeen = recentMessagesCache.get(dedupKey);
-            if (nowMs - lastSeen < 12000) {
+            if (nowMs - lastSeen < 3000) {
                 return res.status(200).json({
                     success: true,
                     message: 'Trama duplicada ignorada (Idempotencia)',

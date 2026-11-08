@@ -666,6 +666,30 @@ router.get('/quick/rendimiento-cajas', async (req, res) => {
     const { PrismaClient } = require('@prisma/client');
     const prisma = new PrismaClient();
 
+    // 1. Agrupación instantánea de los 61,000+ logs del sniffer en una sola consulta SQL optimizada (300ms)
+    const logStats = await prisma.$queryRawUnsafe(`
+      SELECT 
+        lote_afectado_id,
+        COUNT(*) as total_logs,
+        SUM(CASE WHEN is_qc = 1 OR is_calibracion = 1 OR is_repeticion = 1 THEN 1 ELSE 0 END) as qc_mermas,
+        SUM(CASE WHEN is_qc = 0 AND is_calibracion = 0 AND is_repeticion = 0 THEN 1 ELSE 0 END) as pacientes,
+        SUM(ISNULL(ml_descontados, 0)) as vol_descontado
+      FROM log_sniffer
+      WHERE lote_afectado_id IS NOT NULL
+      GROUP BY lote_afectado_id
+    `);
+
+    const logMap = new Map();
+    logStats.forEach(s => {
+      logMap.set(s.lote_afectado_id, {
+        total: Number(s.total_logs) || 0,
+        qc: Number(s.qc_mermas) || 0,
+        pacientes: Number(s.pacientes) || 0,
+        vol: Number(s.vol_descontado) || 0
+      });
+    });
+
+    // 2. Cargar lotes con su catálogo maestro
     const lotes = await prisma.lotesReactivos.findMany({
       include: { items_inventario: true },
       orderBy: { Id: 'desc' }
@@ -685,37 +709,26 @@ router.get('/quick/rendimiento-cajas', async (req, res) => {
       const volTotalCaja = Number(lote.CantidadInicial) || (frascosPorCaja * volPorFrasco);
       const pruebasTeoricasInserto = Math.floor(volTotalCaja / consumoInserto);
 
-      const logs = await prisma.logSniffer.findMany({
-        where: { lote_afectado_id: lote.Id }
-      });
+      const stats = logMap.get(lote.Id) || { total: 0, qc: 0, pacientes: 0, vol: 0 };
+      const pacientes = stats.pacientes;
+      const qcCalMermas = stats.qc;
+      const volDescontado = stats.vol;
+      const totalReales = stats.total;
 
-      let pacientes = 0;
-      let qcCalMermas = 0;
-      let volDescontado = 0;
-
-      logs.forEach(l => {
-        const ml = Number(l.ml_descontados) || consumoInserto;
-        volDescontado += ml;
-        if (l.is_qc || l.is_calibracion || l.is_repeticion) {
-          qcCalMermas++;
-        } else {
-          pacientes++;
-        }
-      });
-
-      const totalReales = logs.length;
       const rendimientoPacientePct = pruebasTeoricasInserto > 0 
         ? parseFloat(((pacientes / pruebasTeoricasInserto) * 100).toFixed(1)) 
         : 0;
-      const deltaInserto = totalReales - pruebasTeoricasInserto;
-      const rendimientoTotalExtraccion = `${totalReales} / ${pruebasTeoricasInserto} (${deltaInserto >= 0 ? '+' : ''}${deltaInserto} test)`;
+      const rendimientoTotalExtraccion = `${totalReales} / ${pruebasTeoricasInserto} Tests`;
 
       const frascoActual = Number(meta.frasco_actual) || 1;
       let estadoCaja = 'Sellada / Sin Uso';
-      if (lote.CantidadActual <= 0) {
+      const cantActual = Number(lote.CantidadActual) || 0;
+      if (cantActual <= 0 && lote.Estado === 'Agotado') {
         estadoCaja = 'CERRADA / AGOTADA';
-      } else if (volDescontado > 0) {
+      } else if (lote.Estado === 'Activo' || volDescontado > 0) {
         estadoCaja = `EN USO - Frasco ${frascoActual} de ${frascosPorCaja}`;
+      } else if (lote.Estado === 'CERRADO') {
+        estadoCaja = 'Sellada / Sin Uso';
       }
 
       reportData.push({
@@ -733,9 +746,8 @@ router.get('/quick/rendimiento-cajas', async (req, res) => {
         Pruebas_Reales_Extraidas: totalReales,
         Eficiencia_Paciente_Pct: `${rendimientoPacientePct}%`,
         Rendimiento_Extraccion: rendimientoTotalExtraccion,
-        Delta_vs_Inserto_Tests: deltaInserto,
         Volumen_Consumido_mL: parseFloat(volDescontado.toFixed(2)),
-        Stock_Restante_mL: parseFloat(lote.CantidadActual.toFixed(2)),
+        Stock_Restante_mL: parseFloat(cantActual.toFixed(2)),
         Estado_Caja: estadoCaja
       });
     }

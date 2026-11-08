@@ -23,3 +23,6 @@ scratch/
 
 git/
 .git_controlab/
+backups/
+temp/
+*.pre_*

@@ -46,10 +46,27 @@ class AlmacenesController {
           ISNULL(i.pruebas_teoricas_caja, ISNULL(i.rendimiento_teorico, 500)) as rendimiento_teorico,
           i.stock_actual as stock_total_global,
           COALESCE(sc.stock_actual, CASE WHEN sl.stock_actual IS NULL THEN i.stock_actual ELSE 0 END, 0) as stock_central,
-          ISNULL(sl.stock_actual, 0) as stock_laboratorio
+          ISNULL(sl.stock_actual, 0) as stock_laboratorio,
+          ISNULL(la.cajas_en_uso, 0) as cajas_en_uso,
+          la.lote_en_uso,
+          la.ml_restantes_en_uso,
+          la.pruebas_restantes_en_uso,
+          la.usuario_apertura_en_uso
         FROM items_inventario i
         LEFT JOIN stock_por_almacen sc ON (i.id = sc.item_id AND sc.almacen_id = 1)
         LEFT JOIN stock_por_almacen sl ON (i.id = sl.item_id AND sl.almacen_id = 2)
+        LEFT JOIN (
+          SELECT 
+            InventarioId,
+            COUNT(*) as cajas_en_uso,
+            MAX(NumeroLote) as lote_en_uso,
+            SUM(CantidadActual) as ml_restantes_en_uso,
+            SUM(ISNULL(PruebasRestantes, 0)) as pruebas_restantes_en_uso,
+            MAX(UsuarioApertura) as usuario_apertura_en_uso
+          FROM LotesReactivos
+          WHERE Estado = 'Activo'
+          GROUP BY InventarioId
+        ) la ON (i.id = la.InventarioId)
         WHERE i.activo = 1
         ORDER BY i.nombre ASC
       `;
@@ -73,7 +90,12 @@ class AlmacenesController {
           rendimiento_teorico: Number(r.rendimiento_teorico) || 500,
           stock_central: sc,
           stock_laboratorio: sl,
-          stock_total_global: st
+          stock_total_global: st,
+          cajas_en_uso: Number(r.cajas_en_uso) || 0,
+          ml_restantes_en_uso: r.ml_restantes_en_uso !== null && r.ml_restantes_en_uso !== undefined ? Number(r.ml_restantes_en_uso) : 0,
+          pruebas_restantes_en_uso: Number(r.pruebas_restantes_en_uso) || 0,
+          lote_en_uso: r.lote_en_uso || null,
+          usuario_apertura_en_uso: r.usuario_apertura_en_uso || null
         };
       });
 
