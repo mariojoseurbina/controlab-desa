@@ -140,6 +140,11 @@ const MovementModalForm = memo(({ open, onClose, products, stockSummary, onProdu
   const [submitting, setSubmitting] = useState(false);
   const [currentQty, setCurrentQty] = useState('');
   const [cartItems, setCartItems] = useState([]);
+  const [solicitudesList, setSolicitudesList] = useState([]);
+  const [selectedSolicitud, setSelectedSolicitud] = useState(null);
+  const [solicitudInput, setSolicitudInput] = useState('');
+  const [loadingSolicitud, setLoadingSolicitud] = useState(false);
+  const [loadedPedidoId, setLoadedPedidoId] = useState(null);
   const [formData, setFormData] = useState({
     tipo_movimiento: 'SALIDA',
     almacen_id: 1, // Default Almacén Central
@@ -152,6 +157,20 @@ const MovementModalForm = memo(({ open, onClose, products, stockSummary, onProdu
       const initRef = `SAL-${Date.now().toString().slice(-6)}`;
       setCartItems([]);
       setCurrentQty('');
+      setSelectedSolicitud(null);
+      setSolicitudInput('');
+      setLoadedPedidoId(null);
+
+      // Cargar únicamente solicitudes en estado Pendiente para autocompletar
+      fetch(`${API_BASE_URL}/solicitudes`)
+        .then(r => r.json())
+        .then(data => {
+          if (data.success && Array.isArray(data.solicitudes)) {
+            setSolicitudesList(data.solicitudes.filter(s => s.estado === 'Pendiente'));
+          }
+        })
+        .catch(() => {});
+
       if (onProductSelect) {
         const found = (products || []).find(p => p.id === onProductSelect.id || p.codigo === onProductSelect.codigo) || onProductSelect;
         setSelectedProduct(found);
@@ -192,6 +211,78 @@ const MovementModalForm = memo(({ open, onClose, products, stockSummary, onProdu
     if (almid === 1) return Number(summaryItem.stock_central) || 0;
     if (almid === 2) return Number(summaryItem.stock_laboratorio) || 0;
     return Number(summaryItem.stock_actual) || 0;
+  };
+
+  // Cargar ítems de una solicitud (PED-YYYY-NNN) directamente al carrito
+  const handleCargarSolicitud = async (queryOrObj) => {
+    const targetParam = typeof queryOrObj === 'object' && queryOrObj !== null
+      ? (queryOrObj.id || queryOrObj.numero_pedido)
+      : String(queryOrObj || solicitudInput || formData.referencia || '').trim();
+
+    if (!targetParam) {
+      showSnackbar('Ingresa o selecciona un N° de Solicitud (ej. PED-2026-006)', 'warning');
+      return;
+    }
+
+    try {
+      setLoadingSolicitud(true);
+      const res = await fetch(`${API_BASE_URL}/solicitudes/${encodeURIComponent(targetParam)}`);
+      const data = await res.json();
+      if (!res.ok || !data.success || !data.pedido) {
+        showSnackbar(data.message || `No se encontró la solicitud "${targetParam}"`, 'error');
+        return;
+      }
+
+      const { pedido, items } = data;
+      if (pedido.estado !== 'Pendiente') {
+        showSnackbar(`La solicitud ${pedido.numero_pedido} ya se encuentra en estado "${pedido.estado}". Solo se pueden cargar solicitudes Pendientes.`, 'warning');
+        return;
+      }
+      if (!Array.isArray(items) || items.length === 0) {
+        showSnackbar(`La solicitud ${pedido.numero_pedido} no contiene ítems registrados`, 'warning');
+        return;
+      }
+
+      const almid = parseInt(formData.almacen_id, 10);
+      const mappedCart = items.map((it, idx) => {
+        const prod = (products || []).find(p => p.id === it.item_id) || {};
+        const unidad = obtenerUnidadManejo({
+          categoria: it.categoria || prod.categoria,
+          nombre: it.nombre_item || prod.nombre,
+          unidad_manejo: it.unidad_manejo || prod.unidad_manejo,
+          unidad: it.unidad || prod.unidad
+        });
+        const presentacion = it.presentacion || prod.presentacion || prod.item_presentacion || it.unidad || unidad;
+        const stockDisp = getProductStock(it.item_id) || (almid === 1 ? Number(it.stock_central) : Number(it.stock_laboratorio)) || Number(it.stock_actual) || 0;
+
+        return {
+          id_temp: Date.now() + idx + Math.random(),
+          item_id: it.item_id,
+          codigo: it.codigo_item || it.item_codigo_db || prod.codigo || 'S/C',
+          nombre: it.nombre_item || it.item_nombre_db || prod.nombre || 'Producto',
+          referencia: prod.referencia_abreviada || '',
+          presentacion: presentacion,
+          unidad: unidad,
+          cantidad: Number(it.cantidad_solicitada) || 1,
+          stock_disponible: stockDisp
+        };
+      });
+
+      setCartItems(mappedCart);
+      setLoadedPedidoId(pedido.id);
+      const motivoAuto = `DESPACHO SOLICITUD ${pedido.numero_pedido}${pedido.area_solicitante ? ' - ' + pedido.area_solicitante.toUpperCase() : ''}${pedido.solicitante_nombre ? ' (' + pedido.solicitante_nombre.toUpperCase() + ')' : ''}`;
+      setFormData(prev => ({
+        ...prev,
+        referencia: pedido.numero_pedido,
+        motivo: motivoAuto
+      }));
+      showSnackbar(`Solicitud ${pedido.numero_pedido} cargada: ${mappedCart.length} productos agregados al carrito automáticamente`, 'success');
+    } catch (err) {
+      console.error('Error cargando solicitud al carrito:', err);
+      showSnackbar('Error al consultar la solicitud de productos', 'error');
+    } finally {
+      setLoadingSolicitud(false);
+    }
   };
 
   const handleAddToCart = () => {
@@ -317,6 +408,13 @@ const MovementModalForm = memo(({ open, onClose, products, stockSummary, onProdu
 
       const result = await res.json();
       if (res.ok && result.success) {
+        if (loadedPedidoId) {
+          fetch(`${API_BASE_URL}/solicitudes/${loadedPedidoId}/estado`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ estado: 'Entregada', atendido_por: 'Almacén Central' })
+          }).catch(() => {});
+        }
         showSnackbar(result.message || 'Salida masiva de mercancía registrada exitosamente');
         downloadMovementPdfBlob(finalReferencia);
         onClose();
@@ -359,6 +457,80 @@ const MovementModalForm = memo(({ open, onClose, products, stockSummary, onProdu
               <ListAltIcon fontSize="small" sx={{ color: '#0284c7' }} />
               1. Datos Generales del Documento / Destino
             </Typography>
+
+            {/* BUSCADOR / CARGADOR AUTOMÁTICO DESDE N° DE SOLICITUD PENDIENTE (SOLO EN SALIDA) */}
+            {formData.tipo_movimiento === 'SALIDA' && (
+              <Paper
+                elevation={0}
+                sx={{
+                  p: 1.5,
+                  mb: 2.5,
+                  bgcolor: '#eff6ff',
+                  border: '1.5px dashed #3b82f6',
+                  borderRadius: 2.5
+                }}
+              >
+                <Typography variant="caption" fontWeight={900} color="#1d4ed8" mb={1} display="block">
+                  📋 CARGAR PRODUCTOS DESDE SOLICITUD PENDIENTE (AUTOCOMPLETAR CARRITO)
+                </Typography>
+                <Grid container spacing={1.5} alignItems="center">
+                  <Grid item xs={12} sm={8} md={9}>
+                    <Autocomplete
+                      freeSolo
+                      size="small"
+                      options={solicitudesList}
+                      getOptionLabel={(opt) =>
+                        typeof opt === 'string'
+                          ? opt
+                          : `${opt.numero_pedido} — ${opt.solicitante_nombre || 'Sin nombre'} (${opt.area_solicitante || 'Área'}) • ${opt.total_items || 0} ítems [${opt.estado}]`
+                      }
+                      value={selectedSolicitud}
+                      inputValue={solicitudInput}
+                      onInputChange={(e, newInput) => setSolicitudInput(newInput)}
+                      onChange={(e, newVal) => {
+                        setSelectedSolicitud(newVal);
+                        if (newVal) {
+                          handleCargarSolicitud(newVal);
+                        }
+                      }}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          placeholder="Selecciona o escribe el N° de Solicitud Pendiente (ej. PED-2026-006)..."
+                          sx={{ bgcolor: '#ffffff', borderRadius: 1 }}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault();
+                              handleCargarSolicitud(solicitudInput);
+                            }
+                          }}
+                        />
+                      )}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={4} md={3}>
+                    <Button
+                      fullWidth
+                      variant="contained"
+                      disabled={loadingSolicitud}
+                      onClick={() => handleCargarSolicitud(selectedSolicitud || solicitudInput)}
+                      startIcon={loadingSolicitud ? <CircularProgress size={16} sx={{ color: 'white' }} /> : <AddCartIcon />}
+                      sx={{
+                        bgcolor: '#2563eb',
+                        '&:hover': { bgcolor: '#1d4ed8' },
+                        fontWeight: 800,
+                        borderRadius: 2,
+                        py: 0.9,
+                        textTransform: 'none'
+                      }}
+                    >
+                      {loadingSolicitud ? 'Cargando...' : 'Cargar Solicitud'}
+                    </Button>
+                  </Grid>
+                </Grid>
+              </Paper>
+            )}
+
             <Grid container spacing={2}>
               <Grid item xs={12} sm={6}>
                 <Typography variant="caption" fontWeight={800} color="#475569" mb={0.5} display="block">
@@ -394,15 +566,21 @@ const MovementModalForm = memo(({ open, onClose, products, stockSummary, onProdu
 
               <Grid item xs={12} sm={6}>
                 <Typography variant="caption" fontWeight={800} color="#475569" mb={0.5} display="block">
-                  NRO DE DOCUMENTO / REFERENCIA *
+                  NRO DE DOCUMENTO / REFERENCIA * (O N° SOLICITUD)
                 </Typography>
                 <TextField
                   fullWidth
                   size="small"
-                  placeholder="Ej. SAL-2026-001"
+                  placeholder="Ej. SAL-2026-001 o PED-2026-006"
                   value={formData.referencia}
                   onChange={(e) => setFormData({ ...formData, referencia: e.target.value.toUpperCase() })}
                   inputProps={{ style: { textTransform: 'uppercase' } }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && formData.referencia && formData.referencia.startsWith('PED-')) {
+                      e.preventDefault();
+                      handleCargarSolicitud(formData.referencia);
+                    }
+                  }}
                 />
               </Grid>
 
@@ -638,21 +816,43 @@ const MovementModalForm = memo(({ open, onClose, products, stockSummary, onProdu
   );
 });
 
-// MODAL MEMOIZADO: TRANSFERENCIA ENTRE ALMACENES
+// MODAL MEMOIZADO: TRANSFERENCIA ENTRE ALMACENES (CON CARRITO MASIVO)
 const TransferModalForm = memo(({ open, onClose, products, stockSummary, onProductSelect, onSubmitSuccess, showSnackbar }) => {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const [cartItems, setCartItems] = useState([]);
+  const [solicitudesList, setSolicitudesList] = useState([]);
+  const [selectedSolicitud, setSelectedSolicitud] = useState(null);
+  const [solicitudInput, setSolicitudInput] = useState('');
+  const [loadingSolicitud, setLoadingSolicitud] = useState(false);
+  const [loadedPedidoId, setLoadedPedidoId] = useState(null);
   const [transferData, setTransferData] = useState({
     item_id: '',
     cantidad: '',
     almacen_origen_id: 1,
     almacen_destino_id: 2,
-    motivo: 'Suministro operativo a laboratorio',
+    motivo: 'SUMINISTRO OPERATIVO A LABORATORIO',
     referencia: `TRANS-${Date.now().toString().slice(-6)}`
   });
 
   useEffect(() => {
     if (open) {
+      const initRef = `TRANS-${Date.now().toString().slice(-6)}`;
+      setCartItems([]);
+      setSelectedSolicitud(null);
+      setSolicitudInput('');
+      setLoadedPedidoId(null);
+
+      // Cargar únicamente solicitudes en estado Pendiente para autocompletar
+      fetch(`${API_BASE_URL}/solicitudes`)
+        .then(r => r.json())
+        .then(data => {
+          if (data.success && Array.isArray(data.solicitudes)) {
+            setSolicitudesList(data.solicitudes.filter(s => s.estado === 'Pendiente'));
+          }
+        })
+        .catch(() => {});
+
       if (onProductSelect) {
         const found = (products || []).find(p => p.id === onProductSelect.id || p.codigo === onProductSelect.codigo) || onProductSelect;
         const presentacionFinal = found.presentacion || onProductSelect.presentacion || onProductSelect.item_presentacion || '';
@@ -666,8 +866,8 @@ const TransferModalForm = memo(({ open, onClose, products, stockSummary, onProdu
           cantidad: '',
           almacen_origen_id: 1,
           almacen_destino_id: 2,
-          motivo: 'Suministro operativo a laboratorio',
-          referencia: `TRANS-${Date.now().toString().slice(-6)}`
+          motivo: 'SUMINISTRO OPERATIVO A LABORATORIO',
+          referencia: initRef
         });
       } else {
         setSelectedProduct(null);
@@ -676,8 +876,8 @@ const TransferModalForm = memo(({ open, onClose, products, stockSummary, onProdu
           cantidad: '',
           almacen_origen_id: 1,
           almacen_destino_id: 2,
-          motivo: 'Suministro operativo a laboratorio',
-          referencia: `TRANS-${Date.now().toString().slice(-6)}`
+          motivo: 'SUMINISTRO OPERATIVO A LABORATORIO',
+          referencia: initRef
         });
       }
     }
@@ -757,19 +957,20 @@ const TransferModalForm = memo(({ open, onClose, products, stockSummary, onProdu
     }
   };
 
+  const getProductStockOrigen = (itemId) => {
+    const summaryItem = (stockSummary || []).find(s => s.item_id === itemId);
+    if (!summaryItem) return 0;
+    const origenId = parseInt(transferData.almacen_origen_id, 10);
+    if (origenId === 1) return Number(summaryItem.stock_central) || 0;
+    if (origenId === 2) return Number(summaryItem.stock_laboratorio) || 0;
+    return 0;
+  };
+
   // CÁLCULO DE STOCK DISPONIBLE EN EL ALMACÉN DE ORIGEN
   const availableStockOrigen = useMemo(() => {
     if (!selectedProduct) return null;
     const targetId = selectedProduct.id || selectedProduct.item_id;
-    const summaryItem = (stockSummary || []).find(s => s.item_id === targetId);
-    if (!summaryItem) return 0;
-    const origenId = parseInt(transferData.almacen_origen_id, 10);
-    if (origenId === 1) {
-      return Number(summaryItem.stock_central) || 0;
-    } else if (origenId === 2) {
-      return Number(summaryItem.stock_laboratorio) || 0;
-    }
-    return 0;
+    return getProductStockOrigen(targetId);
   }, [selectedProduct, transferData.almacen_origen_id, stockSummary]);
 
   // BIFURCACION LOGICA EN FRONTEND
@@ -787,15 +988,86 @@ const TransferModalForm = memo(({ open, onClose, products, stockSummary, onProdu
   const isExceeded = selectedProduct !== null && availableStockOrigen !== null && cantidadNum > availableStockOrigen;
   const origenNombre = parseInt(transferData.almacen_origen_id, 10) === 1 ? 'Almacén Central' : 'Almacén Laboratorio';
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const targetItemId = selectedProduct ? (selectedProduct.id || selectedProduct.item_id) : transferData.item_id;
-    if (!targetItemId) {
-      showSnackbar('Por favor selecciona un producto a transferir', 'error');
+  // Cargar ítems de una solicitud (PED-YYYY-NNN) directamente al carrito de transferencia
+  const handleCargarSolicitudTransfer = async (queryOrObj) => {
+    const targetParam = typeof queryOrObj === 'object' && queryOrObj !== null
+      ? (queryOrObj.id || queryOrObj.numero_pedido)
+      : String(queryOrObj || solicitudInput || transferData.referencia || '').trim();
+
+    if (!targetParam) {
+      showSnackbar('Ingresa o selecciona un N° de Solicitud (ej. PED-2026-006)', 'warning');
       return;
     }
-    if (!transferData.cantidad || parseFloat(transferData.cantidad) <= 0) {
-      showSnackbar('Ingresa una cantidad válida a transferir', 'error');
+
+    try {
+      setLoadingSolicitud(true);
+      const res = await fetch(`${API_BASE_URL}/solicitudes/${encodeURIComponent(targetParam)}`);
+      const data = await res.json();
+      if (!res.ok || !data.success || !data.pedido) {
+        showSnackbar(data.message || `No se encontró la solicitud "${targetParam}"`, 'error');
+        return;
+      }
+
+      const { pedido, items } = data;
+      if (pedido.estado !== 'Pendiente') {
+        showSnackbar(`La solicitud ${pedido.numero_pedido} ya se encuentra en estado "${pedido.estado}". Solo se pueden cargar solicitudes Pendientes.`, 'warning');
+        return;
+      }
+      if (!Array.isArray(items) || items.length === 0) {
+        showSnackbar(`La solicitud ${pedido.numero_pedido} no contiene ítems registrados`, 'warning');
+        return;
+      }
+
+      const origenId = parseInt(transferData.almacen_origen_id, 10);
+      const mappedCart = items.map((it, idx) => {
+        const prod = (products || []).find(p => p.id === it.item_id) || {};
+        const unidad = obtenerUnidadManejo({
+          categoria: it.categoria || prod.categoria,
+          nombre: it.nombre_item || prod.nombre,
+          unidad_manejo: it.unidad_manejo || prod.unidad_manejo,
+          unidad: it.unidad || prod.unidad
+        });
+        const presentacion = it.presentacion || prod.presentacion || prod.item_presentacion || it.unidad || unidad;
+        const stockDisp = getProductStockOrigen(it.item_id) || (origenId === 1 ? Number(it.stock_central) : Number(it.stock_laboratorio)) || Number(it.stock_actual) || 0;
+
+        return {
+          id_temp: Date.now() + idx + Math.random(),
+          item_id: it.item_id,
+          codigo: it.codigo_item || it.item_codigo_db || prod.codigo || 'S/C',
+          nombre: it.nombre_item || it.item_nombre_db || prod.nombre || 'Producto',
+          referencia: prod.referencia_abreviada || '',
+          presentacion: presentacion,
+          unidad: unidad,
+          cantidad: Number(it.cantidad_solicitada) || 1,
+          stock_disponible: stockDisp
+        };
+      });
+
+      setCartItems(mappedCart);
+      setLoadedPedidoId(pedido.id);
+      const motivoAuto = `DESPACHO SOLICITUD ${pedido.numero_pedido}${pedido.area_solicitante ? ' - ' + pedido.area_solicitante.toUpperCase() : ''}${pedido.solicitante_nombre ? ' (' + pedido.solicitante_nombre.toUpperCase() + ')' : ''}`;
+      setTransferData(prev => ({
+        ...prev,
+        referencia: pedido.numero_pedido,
+        motivo: motivoAuto
+      }));
+      showSnackbar(`Solicitud ${pedido.numero_pedido} cargada: ${mappedCart.length} productos agregados al carrito automáticamente`, 'success');
+    } catch (err) {
+      console.error('Error cargando solicitud al carrito de transferencia:', err);
+      showSnackbar('Error al consultar la solicitud de productos', 'error');
+    } finally {
+      setLoadingSolicitud(false);
+    }
+  };
+
+  const handleAddToCart = () => {
+    if (!selectedProduct) {
+      showSnackbar('Por favor selecciona un producto para agregar al carrito', 'error');
+      return;
+    }
+    const qty = parseFloat(transferData.cantidad);
+    if (!qty || qty <= 0) {
+      showSnackbar('Ingresa una cantidad válida mayor a cero', 'error');
       return;
     }
     if (String(transferData.almacen_origen_id) === String(transferData.almacen_destino_id)) {
@@ -803,31 +1075,139 @@ const TransferModalForm = memo(({ open, onClose, products, stockSummary, onProdu
       return;
     }
 
-    // REGLA ESTRICTA: NUNCA PUEDE SER MAYOR A LA CANTIDAD EXISTENTE EN EL ALMACÉN
-    if (availableStockOrigen !== null && availableStockOrigen <= 0) {
-      showSnackbar(`REGLA DE CONTROL: El ${origenNombre} no posee cajas disponibles de este producto (Stock: 0).`, 'error');
+    const targetId = selectedProduct.id || selectedProduct.item_id;
+    const unidad = obtenerUnidadManejo(selectedProduct);
+    const presentacion = selectedProduct.presentacion || selectedProduct.item_presentacion || unidad;
+    const stockDisp = availableStockOrigen !== null ? availableStockOrigen : getProductStockOrigen(targetId);
+
+    const alreadyInCart = cartItems
+      .filter(item => item.item_id === targetId)
+      .reduce((sum, item) => sum + item.cantidad, 0);
+
+    if (stockDisp <= 0) {
+      showSnackbar(`REGLA DE CONTROL: El ${origenNombre} no posee existencias disponibles de este producto (Stock: 0).`, 'error');
       return;
     }
-    if (availableStockOrigen !== null && parseFloat(transferData.cantidad) > availableStockOrigen) {
-      showSnackbar(`REGLA DE CONTROL: La cantidad a transferir (${transferData.cantidad} cajas) NUNCA puede ser mayor al stock existente en ${origenNombre} (${availableStockOrigen} cajas).`, 'error');
+    if (alreadyInCart + qty > stockDisp) {
+      showSnackbar(`REGLA DE CONTROL: Stock insuficiente en ${origenNombre}. Disponible: ${stockDisp} ${unidad}. Ya en carrito: ${alreadyInCart}`, 'error');
+      return;
+    }
+
+    const lotesPayload = Object.entries(selectedLots)
+      .filter(([_, q]) => parseFloat(q) > 0)
+      .map(([lId, q]) => ({ lote_id: parseInt(lId, 10), cantidad: parseFloat(q) }));
+
+    const existingIndex = cartItems.findIndex(item => item.item_id === targetId);
+    if (existingIndex >= 0) {
+      const updated = [...cartItems];
+      updated[existingIndex].cantidad += qty;
+      if (lotesPayload.length > 0) {
+        const prevLotes = updated[existingIndex].lotes_transferir || [];
+        const mergedMap = new Map();
+        [...prevLotes, ...lotesPayload].forEach(l => {
+          mergedMap.set(l.lote_id, (mergedMap.get(l.lote_id) || 0) + l.cantidad);
+        });
+        updated[existingIndex].lotes_transferir = Array.from(mergedMap.entries()).map(([lote_id, cantidad]) => ({ lote_id, cantidad }));
+      }
+      setCartItems(updated);
+      showSnackbar(`Cantidad acumulada en el carrito (${updated[existingIndex].cantidad} ${unidad})`, 'success');
+    } else {
+      setCartItems(prev => [
+        ...prev,
+        {
+          id_temp: Date.now() + Math.random(),
+          item_id: targetId,
+          codigo: selectedProduct.codigo,
+          nombre: selectedProduct.nombre,
+          referencia: selectedProduct.referencia_abreviada || selectedProduct.referencia || '',
+          presentacion: presentacion,
+          unidad: unidad,
+          cantidad: qty,
+          stock_disponible: stockDisp,
+          lotes_transferir: lotesPayload.length > 0 ? lotesPayload : undefined
+        }
+      ]);
+      showSnackbar('Producto agregado al carrito de transferencia', 'success');
+    }
+
+    setSelectedProduct(null);
+    setTransferData(prev => ({ ...prev, item_id: '', cantidad: '' }));
+    setSelectedLots({});
+    setAvailableLots([]);
+  };
+
+  const handleRemoveFromCart = (id_temp) => {
+    setCartItems(prev => prev.filter(item => item.id_temp !== id_temp));
+  };
+
+  const handleSubmit = async (e) => {
+    if (e && e.preventDefault) e.preventDefault();
+
+    if (String(transferData.almacen_origen_id) === String(transferData.almacen_destino_id)) {
+      showSnackbar('El almacén de origen y destino deben ser diferentes', 'error');
+      return;
+    }
+
+    let itemsToSubmit = [...cartItems];
+
+    // Auto-agregar si el usuario seleccionó un producto y colocó cantidad pero presionó directamente Confirmar
+    if (selectedProduct && transferData.cantidad && parseFloat(transferData.cantidad) > 0) {
+      const targetId = selectedProduct.id || selectedProduct.item_id;
+      const unidad = obtenerUnidadManejo(selectedProduct);
+      const presentacion = selectedProduct.presentacion || selectedProduct.item_presentacion || unidad;
+      const stockDisp = availableStockOrigen !== null ? availableStockOrigen : getProductStockOrigen(targetId);
+      const qty = parseFloat(transferData.cantidad);
+      const alreadyInCart = itemsToSubmit.filter(it => it.item_id === targetId).reduce((sum, it) => sum + it.cantidad, 0);
+
+      if (stockDisp <= 0) {
+        showSnackbar(`REGLA DE CONTROL: El ${origenNombre} no posee cajas disponibles de este producto (Stock: 0).`, 'error');
+        return;
+      }
+      if (alreadyInCart + qty > stockDisp) {
+        showSnackbar(`REGLA DE CONTROL: La cantidad a transferir (${alreadyInCart + qty} ${unidad}) NUNCA puede ser mayor al stock existente en ${origenNombre} (${stockDisp} ${unidad}).`, 'error');
+        return;
+      }
+
+      const lotesPayload = Object.entries(selectedLots)
+        .filter(([_, q]) => parseFloat(q) > 0)
+        .map(([lId, q]) => ({ lote_id: parseInt(lId, 10), cantidad: parseFloat(q) }));
+
+      itemsToSubmit.push({
+        item_id: targetId,
+        codigo: selectedProduct.codigo,
+        nombre: selectedProduct.nombre,
+        referencia: selectedProduct.referencia_abreviada || '',
+        presentacion: presentacion,
+        unidad: unidad,
+        cantidad: qty,
+        stock_disponible: stockDisp,
+        lotes_transferir: lotesPayload.length > 0 ? lotesPayload : undefined
+      });
+    }
+
+    if (itemsToSubmit.length === 0) {
+      showSnackbar('Debes agregar al menos un producto al carrito para transferir', 'error');
       return;
     }
 
     try {
       setSubmitting(true);
       const token = localStorage.getItem('token');
-      const lotesPayload = Object.entries(selectedLots)
-        .filter(([_, q]) => parseFloat(q) > 0)
-        .map(([lId, q]) => ({ lote_id: parseInt(lId, 10), cantidad: parseFloat(q) }));
+      const finalReferencia = transferData.referencia ? transferData.referencia.trim() : `TRANS-${Date.now().toString().slice(-6)}`;
 
       const payload = {
-        item_id: parseInt(targetItemId, 10),
-        cantidad: parseFloat(transferData.cantidad),
+        item_id: parseInt(itemsToSubmit[0].item_id, 10),
+        cantidad: parseFloat(itemsToSubmit[0].cantidad),
         almacen_origen_id: parseInt(transferData.almacen_origen_id, 10),
         almacen_destino_id: parseInt(transferData.almacen_destino_id, 10),
-        motivo: transferData.motivo || 'Transferencia entre depósitos',
-        referencia: transferData.referencia || `TRANS-${Date.now().toString().slice(-6)}`,
-        lotes_transferir: lotesPayload.length > 0 ? lotesPayload : undefined
+        motivo: transferData.motivo || 'SUMINISTRO OPERATIVO A LABORATORIO',
+        referencia: finalReferencia,
+        lotes_transferir: itemsToSubmit[0].lotes_transferir,
+        items: itemsToSubmit.map(it => ({
+          item_id: parseInt(it.item_id, 10),
+          cantidad: parseFloat(it.cantidad),
+          lotes_transferir: it.lotes_transferir
+        }))
       };
 
       const res = await fetch(`${API_BASE_URL}/movements/transfer`, {
@@ -841,12 +1221,19 @@ const TransferModalForm = memo(({ open, onClose, products, stockSummary, onProdu
 
       const result = await res.json();
       if (res.ok) {
+        if (loadedPedidoId) {
+          fetch(`${API_BASE_URL}/solicitudes/${loadedPedidoId}/estado`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ estado: 'Entregada', atendido_por: 'Almacén Central' })
+          }).catch(() => {});
+        }
         showSnackbar(result.message || 'Transferencia realizada con éxito', 'success');
 
         // Descarga directa e inmediata del comprobante PDF oficial (inmune a bloqueadores)
-        if (payload.referencia) {
+        if (finalReferencia) {
           showSnackbar('Descargando comprobante oficial en PDF...', 'info');
-          await downloadTransferPdfBlob(payload.referencia);
+          await downloadTransferPdfBlob(finalReferencia);
         }
 
         onClose();
@@ -862,176 +1249,344 @@ const TransferModalForm = memo(({ open, onClose, products, stockSummary, onProdu
     }
   };
 
+  const totalCantidadCart = cartItems.reduce((acc, it) => acc + (parseFloat(it.cantidad) || 0), 0);
+  const totalProductosConfirmar = cartItems.length + (selectedProduct && cantidadNum > 0 ? 1 : 0);
+
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth PaperProps={{ sx: { borderRadius: 4 } }}>
-      <DialogTitle sx={{ bgcolor: '#0f172a', color: 'white', py: 2.5, display: 'flex', alignItems: 'center', gap: 1.5 }}>
-        <TransferIcon sx={{ color: '#0284c7' }} />
-        <Typography variant="h6" fontWeight={900}>
-          Transferencia de Stock entre Depósitos
-        </Typography>
+      <DialogTitle sx={{ bgcolor: '#0f172a', color: 'white', py: 2.5, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Box display="flex" alignItems="center" gap={1.5}>
+          <TransferIcon sx={{ color: '#0284c7', fontSize: 28 }} />
+          <Typography variant="h6" fontWeight={900}>
+            Transferencia de Stock entre Depósitos
+          </Typography>
+        </Box>
+        <Chip
+          icon={<CartIcon sx={{ color: 'white !important', fontSize: 16 }} />}
+          label={`${cartItems.length} en Carrito`}
+          sx={{ bgcolor: 'rgba(255,255,255,0.15)', color: 'white', fontWeight: 800 }}
+        />
       </DialogTitle>
 
-      <DialogContent sx={{ p: 4 }}>
-        <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
-          <Grid container spacing={3}>
-            
-            <Grid item xs={12}>
-              <Typography variant="subtitle2" fontWeight={800} color="#1e293b" mb={1}>
-                PRODUCTO A TRANSFERIR *
+      <DialogContent sx={{ p: 3 }}>
+        <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
+
+          {/* SECCIÓN 1: DATOS GENERALES DE LA TRANSFERENCIA */}
+          <Paper elevation={0} sx={{ p: 2.5, mb: 3, bgcolor: '#f8fafc', borderRadius: 3, border: '1px solid #e2e8f0' }}>
+            <Typography variant="subtitle2" fontWeight={800} color="#0f172a" mb={2} display="flex" alignItems="center" gap={1}>
+              <ListAltIcon fontSize="small" sx={{ color: '#0284c7' }} />
+              1. Datos Generales del Traslado entre Depósitos
+            </Typography>
+
+            {/* BUSCADOR / CARGADOR AUTOMÁTICO DESDE N° DE SOLICITUD DE INSUMOS */}
+            <Paper
+              elevation={0}
+              sx={{
+                p: 1.5,
+                mb: 2.5,
+                bgcolor: '#eff6ff',
+                border: '1.5px dashed #3b82f6',
+                borderRadius: 2.5
+              }}
+            >
+              <Typography variant="caption" fontWeight={900} color="#1d4ed8" mb={1} display="block">
+                📋 CARGAR PRODUCTOS DESDE SOLICITUD PENDIENTE (AUTOCOMPLETAR CARRITO)
               </Typography>
-              <Autocomplete
-                options={products}
-                filterOptions={customFilterOptions}
-                isOptionEqualToValue={(option, val) => !val || option.id === val.id || option.codigo === val.codigo}
-                getOptionLabel={(option) => `[${option.codigo}] ${option.nombre} ${option.presentacion ? ' • (' + option.presentacion + ')' : (option.referencia_abreviada ? ' (REF: ' + option.referencia_abreviada + ')' : '')}`}
-                value={selectedProduct}
-                onChange={(e, val) => {
-                  setSelectedProduct(val);
-                  if (val) setTransferData(prev => ({ ...prev, item_id: val.id }));
-                }}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    placeholder="Busca el producto a trasladar..."
-                    required
-                    variant="outlined"
+              <Grid container spacing={1.5} alignItems="center">
+                <Grid item xs={12} sm={8} md={9}>
+                  <Autocomplete
+                    freeSolo
+                    size="small"
+                    options={solicitudesList}
+                    getOptionLabel={(opt) =>
+                      typeof opt === 'string'
+                        ? opt
+                        : `${opt.numero_pedido} — ${opt.solicitante_nombre || 'Sin nombre'} (${opt.area_solicitante || 'Área'}) • ${opt.total_items || 0} ítems [${opt.estado}]`
+                    }
+                    value={selectedSolicitud}
+                    inputValue={solicitudInput}
+                    onInputChange={(e, newInput) => setSolicitudInput(newInput)}
+                    onChange={(e, newVal) => {
+                      setSelectedSolicitud(newVal);
+                      if (newVal) {
+                        handleCargarSolicitudTransfer(newVal);
+                      }
+                    }}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        placeholder="Selecciona o escribe el N° de Solicitud Pendiente (ej. PED-2026-006)..."
+                        sx={{ bgcolor: '#ffffff', borderRadius: 1 }}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            handleCargarSolicitudTransfer(solicitudInput);
+                          }
+                        }}
+                      />
+                    )}
                   />
-                )}
-              />
-            </Grid>
+                </Grid>
+                <Grid item xs={12} sm={4} md={3}>
+                  <Button
+                    fullWidth
+                    variant="contained"
+                    disabled={loadingSolicitud}
+                    onClick={() => handleCargarSolicitudTransfer(selectedSolicitud || solicitudInput)}
+                    startIcon={loadingSolicitud ? <CircularProgress size={16} sx={{ color: 'white' }} /> : <AddCartIcon />}
+                    sx={{
+                      bgcolor: '#2563eb',
+                      '&:hover': { bgcolor: '#1d4ed8' },
+                      fontWeight: 800,
+                      borderRadius: 2,
+                      py: 0.9,
+                      textTransform: 'none'
+                    }}
+                  >
+                    {loadingSolicitud ? 'Cargando...' : 'Cargar Solicitud'}
+                  </Button>
+                </Grid>
+              </Grid>
+            </Paper>
 
-            {/* PRESENTACIÓN COMERCIAL EXTRAÍDA DE LA FICHA TÉCNICA DEL PRODUCTO */}
-            {selectedProduct && (
-              <Grid item xs={12}>
-                <Paper
-                  elevation={0}
-                  sx={{
-                    p: 2,
-                    bgcolor: '#f8fafc',
-                    border: '1.5px solid #0284c7',
-                    borderRadius: 2.5,
-                    display: 'flex',
-                    flexDirection: { xs: 'column', sm: 'row' },
-                    alignItems: { xs: 'flex-start', sm: 'center' },
-                    justifyContent: 'space-between',
-                    gap: 1.5,
-                    boxShadow: '0 2px 8px -2px rgba(2, 132, 199, 0.15)'
-                  }}
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6}>
+                <Typography variant="caption" fontWeight={800} color="#475569" mb={0.5} display="block">
+                  ALMACÉN ORIGEN *
+                </Typography>
+                <TextField
+                  select
+                  fullWidth
+                  size="small"
+                  disabled={cartItems.length > 0}
+                  value={transferData.almacen_origen_id}
+                  onChange={(e) => setTransferData({ ...transferData, almacen_origen_id: e.target.value })}
                 >
-                  <Box display="flex" alignItems="center" gap={1.5}>
-                    <Box sx={{ p: 1, bgcolor: '#e0f2fe', borderRadius: 2, color: '#0284c7', display: 'flex' }}>
-                      <BiotechIcon sx={{ fontSize: 26 }} />
-                    </Box>
-                    <Box>
-                      <Typography variant="caption" sx={{ color: '#0284c7', fontWeight: 800, textTransform: 'uppercase', letterSpacing: 0.5, display: 'block' }}>
-                        Presentación Comercial (Ficha de Producto)
-                      </Typography>
-                      <Typography variant="subtitle1" sx={{ fontWeight: 900, color: '#0f172a', fontSize: 15 }}>
-                        📦 {selectedProduct.presentacion || selectedProduct.item_presentacion || 'Presentación estándar por caja'}
-                      </Typography>
-                    </Box>
-                  </Box>
+                  <MenuItem value={1}>🏢 Almacén Central</MenuItem>
+                  <MenuItem value={2}>🔬 Almacén Laboratorio</MenuItem>
+                </TextField>
+              </Grid>
 
-                  {selectedProduct.equipo_asociado && (
-                    <Chip
-                      label={`Equipo: ${selectedProduct.equipo_asociado}`}
+              <Grid item xs={12} sm={6}>
+                <Typography variant="caption" fontWeight={800} color="#475569" mb={0.5} display="block">
+                  ALMACÉN DESTINO *
+                </Typography>
+                <TextField
+                  select
+                  fullWidth
+                  size="small"
+                  disabled={cartItems.length > 0}
+                  value={transferData.almacen_destino_id}
+                  onChange={(e) => setTransferData({ ...transferData, almacen_destino_id: e.target.value })}
+                >
+                  <MenuItem value={1}>🏢 Almacén Central</MenuItem>
+                  <MenuItem value={2}>🔬 Almacén Laboratorio</MenuItem>
+                </TextField>
+              </Grid>
+
+              <Grid item xs={12} sm={6}>
+                <Typography variant="caption" fontWeight={800} color="#475569" mb={0.5} display="block">
+                  REFERENCIA DE ENVÍO / NRO GUÍA * (O N° SOLICITUD)
+                </Typography>
+                <TextField
+                  fullWidth
+                  size="small"
+                  placeholder="Ej. TRANS-0099 o PED-2026-006"
+                  value={transferData.referencia}
+                  onChange={(e) => setTransferData({ ...transferData, referencia: e.target.value.toUpperCase() })}
+                  inputProps={{ style: { textTransform: 'uppercase' } }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && transferData.referencia && transferData.referencia.startsWith('PED-')) {
+                      e.preventDefault();
+                      handleCargarSolicitudTransfer(transferData.referencia);
+                    }
+                  }}
+                />
+              </Grid>
+
+              <Grid item xs={12} sm={6}>
+                <Typography variant="caption" fontWeight={800} color="#475569" mb={0.5} display="block">
+                  MOTIVO DEL TRASLADO *
+                </Typography>
+                <TextField
+                  fullWidth
+                  size="small"
+                  placeholder="Ej. Suministro semanal a laboratorio operativo"
+                  value={transferData.motivo}
+                  onChange={(e) => setTransferData({ ...transferData, motivo: e.target.value.toUpperCase() })}
+                  inputProps={{ style: { textTransform: 'uppercase' } }}
+                />
+              </Grid>
+            </Grid>
+          </Paper>
+
+          {/* SECCIÓN 2: AGREGAR PRODUCTO AL CARRITO DE TRANSFERENCIA */}
+          <Paper elevation={0} sx={{ p: 2.5, mb: 3, bgcolor: '#ffffff', borderRadius: 3, border: '1px solid #cbd5e1' }}>
+            <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+              <Typography variant="subtitle2" fontWeight={800} color="#0f172a" display="flex" alignItems="center" gap={1}>
+                <AddCartIcon fontSize="small" sx={{ color: '#0284c7' }} />
+                2. Agregar Producto a la Transferencia
+              </Typography>
+              {selectedProduct && (
+                <Chip
+                  label={`Stock Disp.: ${availableStockOrigen !== null ? availableStockOrigen : 0} ${unidadDisplay}`}
+                  size="small"
+                  sx={{
+                    bgcolor: (availableStockOrigen || 0) > 0 ? '#dcfce7' : '#fee2e2',
+                    color: (availableStockOrigen || 0) > 0 ? '#166534' : '#991b1b',
+                    fontWeight: 800
+                  }}
+                />
+              )}
+            </Box>
+
+            <Grid container spacing={2} alignItems="center">
+              <Grid item xs={12} md={5}>
+                <Typography variant="caption" fontWeight={800} color="#475569" mb={0.5} display="block">
+                  PRODUCTO A TRANSFERIR *
+                </Typography>
+                <Autocomplete
+                  options={products || []}
+                  filterOptions={customFilterOptions}
+                  isOptionEqualToValue={(option, val) => !val || option.id === val.id || option.codigo === val.codigo}
+                  getOptionLabel={(option) => `[${option.codigo}] ${option.nombre} ${option.presentacion ? ' • (' + option.presentacion + ')' : (option.referencia_abreviada ? ' (REF: ' + option.referencia_abreviada + ')' : '')}`}
+                  value={selectedProduct}
+                  onChange={(e, val) => {
+                    setSelectedProduct(val);
+                    if (val) {
+                      setTransferData(prev => ({ ...prev, item_id: val.id, cantidad: '' }));
+                    } else {
+                      setTransferData(prev => ({ ...prev, item_id: '', cantidad: '' }));
+                    }
+                  }}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
                       size="small"
-                      sx={{ fontWeight: 800, bgcolor: '#eff6ff', color: '#1e40af', border: '1px solid #bfdbfe' }}
+                      placeholder="Busca el producto a trasladar..."
+                      variant="outlined"
                     />
                   )}
-                </Paper>
+                />
               </Grid>
-            )}
 
-            <Grid item xs={12} sm={6}>
-              <Typography variant="subtitle2" fontWeight={800} color="#1e293b" mb={1}>
-                ALMACÉN ORIGEN *
-              </Typography>
-              <TextField
-                select
-                fullWidth
-                value={transferData.almacen_origen_id}
-                onChange={(e) => setTransferData({ ...transferData, almacen_origen_id: e.target.value })}
-              >
-                <MenuItem value={1}>🏢 Almacén Central</MenuItem>
-                <MenuItem value={2}>🔬 Almacén Laboratorio</MenuItem>
-              </TextField>
-            </Grid>
-
-            <Grid item xs={12} sm={6}>
-              <Typography variant="subtitle2" fontWeight={800} color="#1e293b" mb={1}>
-                ALMACÉN DESTINO *
-              </Typography>
-              <TextField
-                select
-                fullWidth
-                value={transferData.almacen_destino_id}
-                onChange={(e) => setTransferData({ ...transferData, almacen_destino_id: e.target.value })}
-              >
-                <MenuItem value={1}>🏢 Almacén Central</MenuItem>
-                <MenuItem value={2}>🔬 Almacén Laboratorio</MenuItem>
-              </TextField>
-            </Grid>
-
-            {/* BANNER DINÁMICO DE VALIDACIÓN DE STOCK DISPONIBLE EN ALMACÉN ORIGEN */}
-            {selectedProduct && availableStockOrigen !== null && (
-              <Grid item xs={12}>
-                {availableStockOrigen > 0 ? (
-                  <Alert severity="info" sx={{ borderRadius: 2.5, fontWeight: 700, bgcolor: '#f0f9ff', color: '#0369a1', border: '1px solid #bae6fd' }}>
-                    📦 Existencia actual en <strong>{origenNombre}</strong>: <strong>{availableStockOrigen} {unidadDisplay}</strong> disponibles para transferir.
-                  </Alert>
-                ) : (
-                  <Alert severity="error" sx={{ borderRadius: 2.5, fontWeight: 800, bgcolor: '#fef2f2', color: '#991b1b', border: '1px solid #fecaca' }}>
-                    ⛔ ALMACÉN ORIGEN SIN EXISTENCIAS: <strong>{origenNombre}</strong> posee <strong>0 {unidadDisplay}</strong> de este producto. La cantidad a transferir nunca puede ser mayor al stock existente.
-                  </Alert>
-                )}
+              <Grid item xs={12} sm={4} md={3}>
+                <Typography variant="caption" fontWeight={800} color="#475569" mb={0.5} display="block">
+                  PRESENTACIÓN COMERCIAL
+                </Typography>
+                <TextField
+                  fullWidth
+                  size="small"
+                  disabled
+                  value={selectedProduct ? (selectedProduct.presentacion || selectedProduct.item_presentacion || unidadDisplay) : ''}
+                  placeholder="Automático"
+                  sx={{ bgcolor: '#f1f5f9', borderRadius: 1 }}
+                />
               </Grid>
-            )}
 
-            {/* SELECCIÓN Y ASIGNACIÓN DE LOTES (CUANDO ORIGEN ES ALMACÉN CENTRAL) */}
-            {esFamiliaA && parseInt(transferData.almacen_origen_id, 10) === 1 && selectedProduct && (
-              <Grid item xs={12}>
-                <Paper
-                  elevation={0}
+              <Grid item xs={12} sm={4} md={2}>
+                <Typography variant="caption" fontWeight={800} color="#475569" mb={0.5} display="block">
+                  CANTIDAD ({selectedProduct ? unidadDisplay.toUpperCase() : 'CAJAS'}) *
+                </Typography>
+                <TextField
+                  fullWidth
+                  size="small"
+                  type="number"
+                  placeholder={isZeroStock ? `0 disp.` : "Ej. 2"}
+                  disabled={isZeroStock}
+                  error={isExceeded || (isZeroStock && cantidadNum > 0)}
+                  value={transferData.cantidad}
+                  onChange={(e) => handleManualCantidadChange(e.target.value)}
+                  inputProps={{
+                    min: 1,
+                    max: availableStockOrigen > 0 ? availableStockOrigen : 1,
+                    step: 1
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleAddToCart();
+                    }
+                  }}
+                />
+              </Grid>
+
+              <Grid item xs={12} sm={4} md={2} sx={{ display: 'flex', alignItems: 'flex-end', pt: { xs: 0, sm: '20px !important' } }}>
+                <Button
+                  fullWidth
+                  variant="contained"
+                  onClick={handleAddToCart}
+                  startIcon={<AddCartIcon />}
                   sx={{
-                    p: 2.5,
-                    bgcolor: '#f8fafc',
-                    border: '1.5px solid #cbd5e1',
-                    borderRadius: 3
+                    bgcolor: '#0284c7',
+                    '&:hover': { bgcolor: '#0369a1' },
+                    fontWeight: 800,
+                    borderRadius: 2,
+                    py: 0.9,
+                    textTransform: 'none'
                   }}
                 >
-                  <Box display="flex" alignItems="center" justifyContent="space-between" mb={1.5}>
-                    <Box display="flex" alignItems="center" gap={1}>
-                      <InventoryIcon sx={{ color: '#0284c7', fontSize: 22 }} />
-                      <Typography variant="subtitle2" fontWeight={800} color="#0f172a">
-                        IDENTIFICACIÓN Y ASIGNACIÓN DE LOTES (ALMACÉN CENTRAL)
-                      </Typography>
-                    </Box>
-                    {loadingLots && <CircularProgress size={18} />}
-                  </Box>
+                  + Carrito
+                </Button>
+              </Grid>
 
-                  {loadingLots ? (
-                    <Typography variant="caption" color="text.secondary">
-                      Consultando lotes disponibles en Almacén Central...
-                    </Typography>
-                  ) : availableLots.length === 0 ? (
-                    <Alert severity="warning" sx={{ py: 0.5, borderRadius: 2 }}>
-                      No se encontraron registros de lotes específicos para este producto en Central. Puede ingresar la cantidad manualmente a continuación.
+              {/* BANNER DINÁMICO DE VALIDACIÓN DE STOCK DISPONIBLE EN ALMACÉN ORIGEN */}
+              {selectedProduct && availableStockOrigen !== null && (
+                <Grid item xs={12}>
+                  {availableStockOrigen > 0 ? (
+                    <Alert severity="info" sx={{ py: 0.5, borderRadius: 2, fontWeight: 700, bgcolor: '#f0f9ff', color: '#0369a1', border: '1px solid #bae6fd' }}>
+                      📦 Existencia actual en <strong>{origenNombre}</strong>: <strong>{availableStockOrigen} {unidadDisplay}</strong> disponibles para transferir.
+                      {esFamiliaA && transferData.cantidad && parseFloat(transferData.cantidad) > 0 && String(transferData.almacen_destino_id) === '2' && !isExceeded && (
+                        <span> • 🔬 <strong>{(parseFloat(transferData.cantidad) * (selectedProduct.pruebas_teoricas_caja || selectedProduct.rendimiento_teorico || 500)).toLocaleString()} determinaciones</strong></span>
+                      )}
                     </Alert>
                   ) : (
-                    <>
-                      <Typography variant="caption" sx={{ color: '#64748b', display: 'block', mb: 1.5 }}>
-                        Indique la cantidad exacta de cajas a despachar por cada lote. Puede transferir cajas del mismo lote o de lotes distintos:
-                      </Typography>
+                    <Alert severity="error" sx={{ py: 0.5, borderRadius: 2, fontWeight: 800, bgcolor: '#fef2f2', color: '#991b1b', border: '1px solid #fecaca' }}>
+                      ⛔ ALMACÉN ORIGEN SIN EXISTENCIAS: <strong>{origenNombre}</strong> posee <strong>0 {unidadDisplay}</strong> de este producto.
+                    </Alert>
+                  )}
+                </Grid>
+              )}
 
-                      <TableContainer component={Paper} elevation={0} sx={{ border: '1px solid #e2e8f0', borderRadius: 2, overflow: 'hidden' }}>
-                        <Table size="small">
+              {/* SELECCIÓN Y ASIGNACIÓN DE LOTES (CUANDO ORIGEN ES ALMACÉN CENTRAL) */}
+              {esFamiliaA && parseInt(transferData.almacen_origen_id, 10) === 1 && selectedProduct && (
+                <Grid item xs={12}>
+                  <Paper
+                    elevation={0}
+                    sx={{
+                      p: 2,
+                      bgcolor: '#f8fafc',
+                      border: '1.5px solid #cbd5e1',
+                      borderRadius: 2.5
+                    }}
+                  >
+                    <Box display="flex" alignItems="center" justifyContent="space-between" mb={1}>
+                      <Box display="flex" alignItems="center" gap={1}>
+                        <InventoryIcon sx={{ color: '#0284c7', fontSize: 20 }} />
+                        <Typography variant="caption" fontWeight={800} color="#0f172a">
+                          IDENTIFICACIÓN Y ASIGNACIÓN DE LOTES (ALMACÉN CENTRAL)
+                        </Typography>
+                      </Box>
+                      {loadingLots && <CircularProgress size={16} />}
+                    </Box>
+
+                    {loadingLots ? (
+                      <Typography variant="caption" color="text.secondary">
+                        Consultando lotes disponibles en Almacén Central...
+                      </Typography>
+                    ) : availableLots.length === 0 ? (
+                      <Alert severity="warning" sx={{ py: 0.2, borderRadius: 2, fontSize: 12 }}>
+                        No se encontraron registros de lotes específicos para este producto en Central. Se aplicará despacho automático.
+                      </Alert>
+                    ) : (
+                      <TableContainer component={Paper} elevation={0} sx={{ border: '1px solid #e2e8f0', borderRadius: 2, maxHeight: 160 }}>
+                        <Table size="small" stickyHeader>
                           <TableHead sx={{ bgcolor: '#f1f5f9' }}>
                             <TableRow>
-                              <TableCell sx={{ fontWeight: 800, color: '#334155' }}>N° LOTE</TableCell>
-                              <TableCell sx={{ fontWeight: 800, color: '#334155' }}>VENCIMIENTO</TableCell>
-                              <TableCell align="center" sx={{ fontWeight: 800, color: '#334155' }}>DISPONIBLES</TableCell>
-                              <TableCell align="center" sx={{ fontWeight: 800, color: '#0284c7', width: 150 }}>A TRANSFERIR</TableCell>
+                              <TableCell sx={{ fontWeight: 800, color: '#334155', py: 0.5 }}>N° LOTE</TableCell>
+                              <TableCell sx={{ fontWeight: 800, color: '#334155', py: 0.5 }}>VENCIMIENTO</TableCell>
+                              <TableCell align="center" sx={{ fontWeight: 800, color: '#334155', py: 0.5 }}>DISPONIBLES</TableCell>
+                              <TableCell align="center" sx={{ fontWeight: 800, color: '#0284c7', width: 140, py: 0.5 }}>A TRANSFERIR</TableCell>
                             </TableRow>
                           </TableHead>
                           <TableBody>
@@ -1041,26 +1596,26 @@ const TransferModalForm = memo(({ open, onClose, products, stockSummary, onProdu
                               const isSelected = Boolean(selectedLots[lot.lote_id] && selectedLots[lot.lote_id] > 0);
                               return (
                                 <TableRow key={lot.lote_id} hover sx={{ bgcolor: isSelected ? '#f0fdf4' : 'inherit' }}>
-                                  <TableCell>
+                                  <TableCell sx={{ py: 0.5 }}>
                                     <Chip
                                       label={lot.numero_lote || 'S/L'}
                                       size="small"
                                       sx={{ fontWeight: 800, bgcolor: isSelected ? '#bbf7d0' : '#e0f2fe', color: isSelected ? '#166534' : '#0369a1' }}
                                     />
                                   </TableCell>
-                                  <TableCell>
+                                  <TableCell sx={{ py: 0.5 }}>
                                     <Typography variant="body2" fontWeight={600} color="#334155">
                                       {venc}
                                     </Typography>
                                   </TableCell>
-                                  <TableCell align="center">
+                                  <TableCell align="center" sx={{ py: 0.5 }}>
                                     <Chip
                                       label={`${lot.cajas_disponibles} cajas`}
                                       size="small"
                                       sx={{ fontWeight: 700, bgcolor: '#f1f5f9', color: '#475569' }}
                                     />
                                   </TableCell>
-                                  <TableCell align="center">
+                                  <TableCell align="center" sx={{ py: 0.5 }}>
                                     <TextField
                                       type="number"
                                       size="small"
@@ -1071,9 +1626,9 @@ const TransferModalForm = memo(({ open, onClose, products, stockSummary, onProdu
                                         min: 0,
                                         max: lot.cajas_disponibles,
                                         step: 1,
-                                        style: { textAlign: 'center', fontWeight: 800, padding: '4px 8px' }
+                                        style: { textAlign: 'center', fontWeight: 800, padding: '3px 6px' }
                                       }}
-                                      sx={{ width: 90 }}
+                                      sx={{ width: 85 }}
                                     />
                                   </TableCell>
                                 </TableRow>
@@ -1082,115 +1637,102 @@ const TransferModalForm = memo(({ open, onClose, products, stockSummary, onProdu
                           </TableBody>
                         </Table>
                       </TableContainer>
+                    )}
+                  </Paper>
+                </Grid>
+              )}
+            </Grid>
+          </Paper>
 
-                      {Object.keys(selectedLots).length > 0 && (
-                        <Box mt={1.5} p={1.5} bgcolor="#ecfdf5" borderRadius={2} border="1px solid #a7f3d0" display="flex" justifyContent="space-between" alignItems="center">
-                          <Typography variant="body2" fontWeight={800} color="#065f46">
-                            TOTAL CAJAS ASIGNADAS POR LOTE:
+          {/* SECCIÓN 3: LISTA DE PRODUCTOS EN EL CARRITO PARA TRANSFERENCIA */}
+          <Paper elevation={0} sx={{ borderRadius: 3, border: '1px solid #e2e8f0', overflow: 'hidden' }}>
+            <Box sx={{ p: 2, bgcolor: '#f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Typography variant="subtitle2" fontWeight={800} color="#0f172a" display="flex" alignItems="center" gap={1}>
+                <CartIcon fontSize="small" sx={{ color: '#0f172a' }} />
+                3. Lista de Productos para Transferencia ({cartItems.length} {cartItems.length === 1 ? 'producto' : 'productos'})
+              </Typography>
+              {cartItems.length > 0 && (
+                <Chip
+                  label={`Total a transferir: ${totalCantidadCart} unidades/cajas`}
+                  size="small"
+                  sx={{ bgcolor: '#0284c7', color: 'white', fontWeight: 800 }}
+                />
+              )}
+            </Box>
+
+            <TableContainer sx={{ maxHeight: 260 }}>
+              <Table size="small" stickyHeader>
+                <TableHead>
+                  <TableRow sx={{ bgcolor: '#f8fafc' }}>
+                    <TableCell sx={{ fontWeight: 800, color: '#475569', width: 40 }}>#</TableCell>
+                    <TableCell sx={{ fontWeight: 800, color: '#475569' }}>PRODUCTO / REACTIVO</TableCell>
+                    <TableCell sx={{ fontWeight: 800, color: '#475569' }}>PRESENTACIÓN</TableCell>
+                    <TableCell align="center" sx={{ fontWeight: 800, color: '#475569' }}>STOCK DISP.</TableCell>
+                    <TableCell align="center" sx={{ fontWeight: 800, color: '#475569' }}>CANTIDAD</TableCell>
+                    <TableCell align="center" sx={{ fontWeight: 800, color: '#475569', width: 60 }}>ACCIÓN</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {cartItems.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={6} align="center" sx={{ py: 4, color: '#94a3b8' }}>
+                        <CartIcon sx={{ fontSize: 36, color: '#cbd5e1', mb: 1, display: 'block', mx: 'auto' }} />
+                        <Typography variant="body2" fontWeight={600}>
+                          El carrito está vacío. Agrega productos arriba para realizar una transferencia masiva única.
+                        </Typography>
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    cartItems.map((item, idx) => (
+                      <TableRow key={item.id_temp} hover>
+                        <TableCell sx={{ fontWeight: 700, color: '#64748b' }}>{idx + 1}</TableCell>
+                        <TableCell>
+                          <Typography variant="body2" fontWeight={800} color="#0f172a">
+                            {item.nombre}
                           </Typography>
+                          <Typography variant="caption" color="textSecondary" sx={{ fontFamily: 'monospace' }}>
+                            [{item.codigo}] {item.referencia ? `REF: ${item.referencia}` : ''}
+                          </Typography>
+                        </TableCell>
+                        <TableCell>
+                          <Chip label={item.presentacion} size="small" sx={{ bgcolor: '#e2e8f0', color: '#334155', fontWeight: 700, fontSize: 11 }} />
+                        </TableCell>
+                        <TableCell align="center">
                           <Chip
-                            label={`${Object.values(selectedLots).reduce((a, b) => a + (parseInt(b, 10) || 0), 0)} cajas listas para despacho`}
-                            color="success"
-                            sx={{ fontWeight: 900 }}
+                            label={`${item.stock_disponible} ${item.unidad}`}
+                            size="small"
+                            sx={{ bgcolor: '#f0fdf4', color: '#15803d', fontWeight: 800, fontSize: 11 }}
                           />
-                        </Box>
-                      )}
-                    </>
+                        </TableCell>
+                        <TableCell align="center">
+                          <Chip
+                            label={`${item.cantidad} ${item.unidad}`}
+                            size="small"
+                            sx={{
+                              bgcolor: '#e0f2fe',
+                              color: '#0369a1',
+                              fontWeight: 900,
+                              fontSize: 12
+                            }}
+                          />
+                        </TableCell>
+                        <TableCell align="center">
+                          <IconButton size="small" color="error" onClick={() => handleRemoveFromCart(item.id_temp)}>
+                            <DeleteIcon fontSize="small" />
+                          </IconButton>
+                        </TableCell>
+                      </TableRow>
+                    ))
                   )}
-                </Paper>
-              </Grid>
-            )}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Paper>
 
-            <Grid item xs={12} sm={6}>
-              <Typography variant="subtitle2" fontWeight={800} color="#1e293b" mb={1}>
-                CANTIDAD TOTAL A TRANSFERIR *
-              </Typography>
-              <TextField
-                fullWidth
-                type="number"
-                placeholder={isZeroStock ? `0 ${unidadDisplay} disponibles` : "Ej. 2"}
-                required
-                disabled={isZeroStock}
-                error={isExceeded || (isZeroStock && cantidadNum > 0)}
-                helperText={
-                  isExceeded
-                    ? `⚠️ REGLA: La cantidad (${cantidadNum} cajas) NUNCA puede ser mayor al stock en almacén (${availableStockOrigen} cajas).`
-                    : isZeroStock
-                    ? "Sin existencias en el almacén de origen seleccionado"
-                    : availableStockOrigen !== null
-                    ? `Máximo permitido: ${availableStockOrigen} ${unidadDisplay}`
-                    : ""
-                }
-                value={transferData.cantidad}
-                onChange={(e) => handleManualCantidadChange(e.target.value)}
-                inputProps={{
-                  min: 1,
-                  max: availableStockOrigen > 0 ? availableStockOrigen : 1,
-                  step: 1
-                }}
-              />
-            </Grid>
-
-            {/* BANNER DINÁMICO DE BIFURCACIÓN DE RUTAS */}
-            {selectedProduct && (
-              <Grid item xs={12} sm={6}>
-                <Paper elevation={0} sx={{ height: '100%', p: 1.5, bgcolor: esFamiliaA ? '#fef3c7' : '#f0fdfa', border: `1px solid ${esFamiliaA ? '#fde68a' : '#ccfbf1'}`, borderRadius: 2, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                  <Typography variant="caption" sx={{ fontWeight: 800, color: esFamiliaA ? '#92400e' : '#115e59', textTransform: 'uppercase' }}>
-                    Flujo de Transferencia
-                  </Typography>
-                  <Typography variant="body2" sx={{ fontWeight: 600, color: esFamiliaA ? '#b45309' : '#0f766e', mt: 0.5, lineHeight: 1.2 }}>
-                    {esFamiliaA 
-                      ? 'Envío EN TRÁNSITO para Recepción Electrónica (Trazabilidad estricta).'
-                      : 'Transferencia DIRECTA e INMEDIATA a stock de Laboratorio.'}
-                  </Typography>
-                </Paper>
-              </Grid>
-            )}
-
-            {/* BANNER DE DESGLOSE OPERATIVO */}
-            {esFamiliaA && selectedProduct && transferData.cantidad && parseFloat(transferData.cantidad) > 0 && String(transferData.almacen_destino_id) === '2' && !isExceeded && !isZeroStock && (
-              <Grid item xs={12}>
-                <Paper elevation={0} sx={{ p: 2, bgcolor: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 3 }}>
-                  <Typography variant="caption" sx={{ fontWeight: 800, color: '#166534', textTransform: 'uppercase', display: 'block', mb: 0.5 }}>
-                    🔬 Desglose Operativo según Ficha de Producto (ISO 15189):
-                  </Typography>
-                  <Typography variant="body2" sx={{ fontWeight: 900, color: '#0f172a' }}>
-                    {transferData.cantidad} {unidadDisplay} ➔ { (parseFloat(transferData.cantidad) * (selectedProduct.pruebas_teoricas_caja || selectedProduct.rendimiento_teorico || 500)).toLocaleString() } Determinaciones disponibles en Almacén Laboratorio
-                  </Typography>
-                </Paper>
-              </Grid>
-            )}
-
-            <Grid item xs={12} sm={6}>
-              <Typography variant="subtitle2" fontWeight={800} color="#1e293b" mb={1}>
-                REFERENCIA DE ENVÍO / NRO GUÍA
-              </Typography>
-              <TextField
-                fullWidth
-                placeholder="Ej. TRANS-0099"
-                value={transferData.referencia}
-                onChange={(e) => setTransferData({ ...transferData, referencia: e.target.value })}
-              />
-            </Grid>
-
-            <Grid item xs={12}>
-              <Typography variant="subtitle2" fontWeight={800} color="#1e293b" mb={1}>
-                MOTIVO DEL TRASLADO
-              </Typography>
-              <TextField
-                fullWidth
-                placeholder="Ej. Suministro semanal a laboratorio operativo"
-                value={transferData.motivo}
-                onChange={(e) => setTransferData({ ...transferData, motivo: e.target.value.toUpperCase() })}
-                inputProps={{ style: { textTransform: 'uppercase' } }}
-              />
-            </Grid>
-
-          </Grid>
         </Box>
       </DialogContent>
 
-      <DialogActions sx={{ px: 4, pb: 3 }}>
+      <DialogActions sx={{ px: 3, pb: 2.5, bgcolor: '#f8fafc', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between' }}>
         <Button onClick={onClose} sx={{ fontWeight: 700, color: '#64748b' }}>
           Cancelar
         </Button>
@@ -1198,26 +1740,25 @@ const TransferModalForm = memo(({ open, onClose, products, stockSummary, onProdu
           type="submit"
           onClick={handleSubmit}
           variant="contained"
-          disabled={submitting || isZeroStock || isExceeded || !transferData.cantidad || parseFloat(transferData.cantidad) <= 0}
+          disabled={submitting || (cartItems.length === 0 && (isZeroStock || isExceeded || !transferData.cantidad || parseFloat(transferData.cantidad) <= 0))}
+          startIcon={<PdfIcon />}
           sx={{
             bgcolor: '#0284c7',
             '&:hover': { bgcolor: '#0369a1' },
             fontWeight: 800,
-            px: 4,
-            py: 1.2,
-            borderRadius: 2,
-            display: 'flex',
-            alignItems: 'center',
-            gap: 1.5
+            px: 3.5,
+            py: 1.1,
+            borderRadius: 2.5,
+            boxShadow: '0 10px 15px -3px rgba(2, 132, 199, 0.3)'
           }}
         >
           {submitting ? (
             <>
-              <CircularProgress size={18} sx={{ color: 'white' }} />
+              <CircularProgress size={18} sx={{ color: 'white', mr: 1 }} />
               Emitiendo PDF y Guardando...
             </>
           ) : (
-            'Confirmar Transferencia y Emitir PDF'
+            `Confirmar Transferencia y Emitir PDF (${totalProductosConfirmar} ${totalProductosConfirmar === 1 ? 'producto' : 'productos'})`
           )}
         </Button>
       </DialogActions>

@@ -193,30 +193,52 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const pool = await db();
+    const rawParam = String(req.params.id || '').trim();
+    const isNumeric = /^\d+$/.test(rawParam);
 
-    const pedidoRes = await pool.request()
-      .input('id', sql.Int, req.params.id)
-      .query('SELECT * FROM solicitudes_pedidos WHERE id = @id');
+    let pedidoRes;
+    if (isNumeric) {
+      pedidoRes = await pool.request()
+        .input('id', sql.Int, parseInt(rawParam, 10))
+        .input('suffix', sql.NVarChar, `%-${rawParam.padStart(3, '0')}`)
+        .query('SELECT TOP 1 * FROM solicitudes_pedidos WHERE id = @id OR numero_pedido LIKE @suffix ORDER BY id DESC');
+    } else {
+      pedidoRes = await pool.request()
+        .input('num', sql.NVarChar, rawParam.toUpperCase())
+        .query('SELECT TOP 1 * FROM solicitudes_pedidos WHERE UPPER(numero_pedido) = @num ORDER BY id DESC');
+    }
 
     if (pedidoRes.recordset.length === 0) {
       return res.status(404).json({ success: false, message: 'Pedido no encontrado' });
     }
 
+    const pedido = pedidoRes.recordset[0];
+
     const itemsRes = await pool.request()
-      .input('pid', sql.Int, req.params.id)
+      .input('pid', sql.Int, pedido.id)
       .query(`
         SELECT 
           si.*,
-          i.stock_actual, i.categoria
+          i.codigo AS item_codigo_db,
+          i.nombre AS item_nombre_db,
+          i.presentacion,
+          i.unidad AS item_unidad_db,
+          i.unidad_manejo,
+          i.stock_actual,
+          i.categoria,
+          ISNULL(sa1.stock_actual, 0) AS stock_central,
+          ISNULL(sa2.stock_actual, 0) AS stock_laboratorio
         FROM solicitudes_items si
         LEFT JOIN items_inventario i ON i.id = si.item_id
+        LEFT JOIN stock_por_almacen sa1 ON sa1.item_id = si.item_id AND sa1.almacen_id = 1
+        LEFT JOIN stock_por_almacen sa2 ON sa2.item_id = si.item_id AND sa2.almacen_id = 2
         WHERE si.pedido_id = @pid
         ORDER BY si.id
       `);
 
     res.json({
       success: true,
-      pedido: pedidoRes.recordset[0],
+      pedido,
       items: itemsRes.recordset
     });
   } catch (error) {

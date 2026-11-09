@@ -2,6 +2,41 @@ const movementsService = require('../services/movementsService');
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 const PDFDocument = require('pdfkit');
+const fontkit = require('fontkit');
+
+let headerBoldFont = null;
+try {
+  headerBoldFont = fontkit.openSync('C:/Windows/Fonts/segoeuib.ttf');
+} catch (_) {
+  try {
+    headerBoldFont = fontkit.openSync('C:/Windows/Fonts/arialbd.ttf');
+  } catch (__) {}
+}
+
+// Renderiza el título principal como trazado vectorial puro (SVG Path)
+// para evitar que visores PDF o cachés de fuentes recorten o ignoren el primer glifo ('C')
+const drawVectorHeaderTitle = (doc, text, startX, baselineY, fontSize = 20, color = '#1e293b') => {
+  if (!headerBoldFont) {
+    doc.font('Helvetica-Bold').fillColor(color).fontSize(fontSize).text(text, startX, baselineY - fontSize * 0.8, { width: 500 });
+    return;
+  }
+  const scale = fontSize / headerBoldFont.unitsPerEm;
+  const run = headerBoldFont.layout(text);
+  let cursorX = startX;
+  doc.save().fillColor(color);
+  for (let i = 0; i < run.glyphs.length; i++) {
+    const glyph = run.glyphs[i];
+    const pos = run.positions[i];
+    const gx = cursorX + (pos.xOffset || 0) * scale;
+    const gy = baselineY - (pos.yOffset || 0) * scale;
+    const svgPath = glyph.path.scale(scale, -scale).translate(gx, gy).toSVG();
+    if (svgPath) {
+      doc.path(svgPath).fill(color);
+    }
+    cursorX += (pos.xAdvance || glyph.advanceWidth || 0) * scale;
+  }
+  doc.restore();
+};
 
 const getAllMovements = async (req, res) => {
   try {
@@ -82,32 +117,34 @@ const downloadTransferPdf = async (req, res) => {
     doc.pipe(res);
 
     // Dibujar diseño premium del PDF
-    doc.rect(50, 45, 512, 15).fill('#0f766e'); // Teal header bar
+    doc.save().rect(50, 45, 512, 15).fill('#0f766e').restore(); // Teal header bar
     
-    // Título y Subtítulo
-    doc.fillColor('#1e293b').fontSize(22).text('CONTROLAB - LIMS VET / IA', 50, 75, { bold: true });
-    doc.fontSize(10).fillColor('#64748b').text('COMPROBANTE OFICIAL DE TRANSFERENCIA DE SUMINISTROS', 50, 100);
+    // Título y Subtítulo (Título renderizado como trazado vectorial puro para evitar recorte del primer glifo 'C')
+    drawVectorHeaderTitle(doc, 'CONTROLAB - LIMS / IA', 55, 89, 20, '#1e293b');
+    doc.font('Helvetica').fontSize(10).fillColor('#64748b').text('COMPROBANTE OFICIAL DE TRANSFERENCIA DE SUMINISTROS', 55, 98, { width: 500 });
     
     // Línea separadora
     doc.strokeColor('#cbd5e1').moveTo(50, 115).lineTo(562, 115).stroke();
 
     // Metadatos
     doc.fillColor('#1e293b').fontSize(11);
-    doc.text(`Referencia de Envío: `, 50, 130, { bold: true, continued: true }).fillColor('#0f766e').text(referencia);
-    doc.fillColor('#1e293b');
-    doc.text(`Fecha de Emisión: ${dateStr}`, 50, 145);
-    doc.text(`Almacén de Origen: `, 50, 160, { bold: true, continued: true }).text(origin, { bold: false });
-    doc.text(`Sucursal de Destino: `, 50, 175, { bold: true, continued: true }).text(destination, { bold: false });
+    doc.font('Helvetica-Bold').text(`Referencia de Envío: `, 55, 130, { continued: true }).fillColor('#0f766e').text(referencia);
+    doc.font('Helvetica').fillColor('#1e293b');
+    doc.text(`Fecha de Emisión: ${dateStr}`, 55, 145);
+    doc.font('Helvetica-Bold').text(`Almacén de Origen: `, 55, 160, { continued: true }).font('Helvetica').text(origin);
+    doc.font('Helvetica-Bold').text(`Sucursal de Destino: `, 55, 175, { continued: true }).font('Helvetica').text(destination);
 
     // Encabezado de la tabla de ítems
     const tableTop = 210;
-    doc.rect(50, tableTop, 512, 22).fill('#f1f5f9');
-    doc.fillColor('#334155').fontSize(9).text('Código', 55, tableTop + 6, { bold: true });
-    doc.text('Descripción del Producto', 140, tableTop + 6, { bold: true });
-    doc.text('Presentación Comercial', 335, tableTop + 6, { bold: true });
-    doc.text('Cantidad', 460, tableTop + 6, { bold: true, align: 'right', width: 95 });
+    doc.save().rect(50, tableTop, 512, 22).fill('#f1f5f9').restore();
+    doc.font('Helvetica-Bold').fillColor('#334155').fontSize(9).text('Código', 55, tableTop + 6);
+    doc.text('Descripción del Producto', 140, tableTop + 6);
+    doc.text('Presentación Comercial', 335, tableTop + 6);
+    doc.text('Cantidad', 460, tableTop + 6, { align: 'right', width: 95 });
+    doc.font('Helvetica');
 
     let currentY = tableTop + 24;
+    let totalQty = 0;
 
     // Listar las líneas de transferencia
     movements.forEach((mov) => {
@@ -115,22 +152,33 @@ const downloadTransferPdf = async (req, res) => {
       const code = item.codigo || 'N/A';
       const name = item.nombre || 'Producto no especificado';
       const presentacion = item.presentacion || 'N/A';
-      const unit = item.unidad || 'Caja(s)';
       const qty = Number(mov.cantidad);
+      totalQty += qty;
 
-      doc.fillColor('#1e293b').fontSize(8.5);
+      doc.font('Helvetica').fillColor('#1e293b').fontSize(8.5);
+      const codeHeight = doc.heightOfString(code, { width: 80 });
+      const nameHeight = doc.heightOfString(name, { width: 185 });
+      const presHeight = doc.heightOfString(presentacion, { width: 120 });
+      const rowHeight = Math.max(24, Math.ceil(Math.max(codeHeight, nameHeight, presHeight)) + 12);
+
       doc.text(code, 55, currentY + 6, { width: 80 });
-      doc.text(name, 140, currentY + 6, { width: 190 });
+      doc.text(name, 140, currentY + 6, { width: 185 });
       doc.fillColor('#0369a1').text(presentacion, 335, currentY + 6, { width: 120 });
       doc.fillColor('#1e293b').text(`${qty}`, 460, currentY + 6, { align: 'right', width: 95 });
 
       // Línea fina para fila de tabla
-      doc.strokeColor('#e2e8f0').moveTo(50, currentY + 22).lineTo(562, currentY + 22).stroke();
-      currentY += 24;
+      doc.strokeColor('#e2e8f0').moveTo(50, currentY + rowHeight - 2).lineTo(562, currentY + rowHeight - 2).stroke();
+      currentY += rowHeight;
     });
 
+    doc.save().rect(50, currentY, 512, 22).fill('#f8fafc').restore();
+    doc.font('Helvetica-Bold').fillColor('#0f172a').fontSize(9).text(`TOTAL GENERAL: ${movements.length} ÍTEMS TRANSFERIDOS`, 55, currentY + 6);
+    doc.text(`${totalQty}`, 460, currentY + 6, { align: 'right', width: 95 });
+    doc.font('Helvetica');
+    currentY += 32;
+
     // Zona de firmas
-    const signatureY = currentY + 80;
+    const signatureY = Math.max(currentY + 60, 620);
     doc.fillColor('#64748b').fontSize(10);
     
     // Firma de origen (Central)
@@ -194,7 +242,7 @@ const downloadReceptionPdf = async (req, res) => {
         : new Date().toLocaleString('es-VE');
   
       const isRechazo = action === 'RECHAZAR';
-      const title = isRechazo ? 'ACTA DE RECHAZO Y DEVOLUCIN' : 'ACTA DE RECEPCIN Y CONFORMIDAD';
+      const title = isRechazo ? 'ACTA DE RECHAZO Y DEVOLUCIÓN' : 'ACTA DE RECEPCIÓN Y CONFORMIDAD';
       const colorTheme = isRechazo ? '#b91c1c' : '#047857'; // Red vs Green
   
       // Crear PDF
@@ -205,30 +253,30 @@ const downloadReceptionPdf = async (req, res) => {
       doc.pipe(res);
   
       // Header bar
-      doc.rect(50, 45, 512, 15).fill(colorTheme);
+      doc.save().rect(50, 45, 512, 15).fill(colorTheme).restore();
       
       // Titles
-      doc.fillColor('#1e293b').fontSize(22).text('CONTROLAB - LIMS VET / IA', 50, 75, { bold: true });
-      doc.fontSize(12).fillColor('#64748b').text(title, 50, 100);
+      drawVectorHeaderTitle(doc, 'CONTROLAB - LIMS / IA', 55, 89, 20, '#1e293b');
+      doc.font('Helvetica').fontSize(11).fillColor('#64748b').text(title, 55, 98, { width: 500 });
       
       // Separator
       doc.strokeColor('#cbd5e1').moveTo(50, 115).lineTo(562, 115).stroke();
   
       // Meta
-      doc.fillColor('#1e293b').fontSize(11);
-      doc.text(`Cdigo de Referencia: `, 50, 130, { bold: true, continued: true }).fillColor(colorTheme).text(referencia);
-      doc.fillColor('#1e293b');
-      doc.text(`Fecha de Emisin: ${dateStr}`, 50, 145);
+      doc.font('Helvetica-Bold').fillColor('#1e293b').fontSize(11);
+      doc.text(`Código de Referencia: `, 50, 130, { continued: true }).fillColor(colorTheme).text(referencia);
+      doc.font('Helvetica').fillColor('#1e293b');
+      doc.text(`Fecha de Emisión: ${dateStr}`, 50, 145);
       doc.text(`Sucursal Validadora: Laboratorio Central`, 50, 160);
-      doc.text(`Estatus de Operacin: `, 50, 175, { bold: true, continued: true }).fillColor(colorTheme).text(isRechazo ? 'RECHAZADO Y DEVUELTO ALMACN' : 'CONFORME, INGRESADO A RESERVA DE NEVERA');
+      doc.font('Helvetica-Bold').text(`Estatus de Operación: `, 50, 175, { continued: true }).fillColor(colorTheme).text(isRechazo ? 'RECHAZADO Y DEVUELTO ALMACÉN' : 'CONFORME, INGRESADO A RESERVA DE NEVERA');
   
       // Table Header
       const tableTop = 210;
-      doc.rect(50, tableTop, 512, 22).fill('#f1f5f9');
-      doc.fillColor('#334155').fontSize(9).text('Cdigo', 55, tableTop + 6, { bold: true });
-      doc.text('Descripcin del Producto', 140, tableTop + 6, { bold: true });
-      doc.text('Presentacin', 335, tableTop + 6, { bold: true });
-      doc.text('Cant. Cajas', 460, tableTop + 6, { bold: true, align: 'right', width: 95 });
+      doc.save().rect(50, tableTop, 512, 22).fill('#f1f5f9').restore();
+      doc.font('Helvetica-Bold').fillColor('#334155').fontSize(9).text('Código', 55, tableTop + 6);
+      doc.text('Descripción del Producto', 140, tableTop + 6);
+      doc.text('Presentación', 335, tableTop + 6);
+      doc.text('Cant. Cajas', 460, tableTop + 6, { align: 'right', width: 95 });
   
       let currentY = tableTop + 24;
   
@@ -239,14 +287,19 @@ const downloadReceptionPdf = async (req, res) => {
         const presentacion = item.presentacion || 'Caja';
         const qty = Number(mov.cantidad);
   
-        doc.fillColor('#1e293b').fontSize(8.5);
+        doc.font('Helvetica').fillColor('#1e293b').fontSize(8.5);
+        const codeHeight = doc.heightOfString(code, { width: 80 });
+        const nameHeight = doc.heightOfString(name, { width: 190 });
+        const presHeight = doc.heightOfString(presentacion, { width: 120 });
+        const rowHeight = Math.max(24, Math.ceil(Math.max(codeHeight, nameHeight, presHeight)) + 12);
+
         doc.text(code, 55, currentY + 6, { width: 80 });
         doc.text(name, 140, currentY + 6, { width: 190 });
         doc.text(presentacion, 335, currentY + 6, { width: 120 });
-        doc.fillColor(colorTheme).text(`${qty}`, 460, currentY + 6, { align: 'right', width: 95 });
+        doc.font('Helvetica-Bold').fillColor(colorTheme).text(`${qty}`, 460, currentY + 6, { align: 'right', width: 95 });
   
-        doc.strokeColor('#e2e8f0').moveTo(50, currentY + 22).lineTo(562, currentY + 22).stroke();
-        currentY += 24;
+        doc.strokeColor('#e2e8f0').moveTo(50, currentY + rowHeight - 2).lineTo(562, currentY + rowHeight - 2).stroke();
+        currentY += rowHeight;
       });
   
       // Footer Signatures
@@ -347,24 +400,25 @@ const downloadMovementPdf = async (req, res) => {
     const isExit = movType === 'SALIDA' || movType === 'MERMA';
     const headerColor = isExit ? '#dc2626' : '#16a34a';
 
-    doc.rect(50, 45, 512, 15).fill(headerColor);
-    doc.fillColor('#1e293b').fontSize(22).text('CONTROLAB - LIMS VET / IA', 50, 75, { bold: true });
-    doc.fontSize(10).fillColor('#64748b').text(`COMPROBANTE OFICIAL DE MOVIMIENTO DE INVENTARIO (${movType})`, 50, 100);
+    doc.save().rect(50, 45, 512, 15).fill(headerColor).restore();
+    drawVectorHeaderTitle(doc, 'CONTROLAB - LIMS / IA', 55, 89, 20, '#1e293b');
+    doc.font('Helvetica').fontSize(10).fillColor('#64748b').text(`COMPROBANTE OFICIAL DE MOVIMIENTO DE INVENTARIO (${movType})`, 55, 98, { width: 500 });
     doc.strokeColor('#cbd5e1').moveTo(50, 115).lineTo(562, 115).stroke();
 
     doc.fillColor('#1e293b').fontSize(11);
-    doc.text(`Nro de Referencia: `, 50, 130, { bold: true, continued: true }).fillColor(headerColor).text(referencia);
-    doc.fillColor('#1e293b');
-    doc.text(`Fecha de Emisión: ${dateStr}`, 50, 145);
-    doc.text(`Almacén: `, 50, 160, { bold: true, continued: true }).text(origin, { bold: false });
-    doc.text(`Motivo / Concepto: `, 50, 175, { bold: true, continued: true }).text(movements[0].motivo || 'N/A', { bold: false });
+    doc.font('Helvetica-Bold').text(`Nro de Referencia: `, 55, 130, { continued: true }).fillColor(headerColor).text(referencia);
+    doc.font('Helvetica').fillColor('#1e293b');
+    doc.text(`Fecha de Emisión: ${dateStr}`, 55, 145);
+    doc.font('Helvetica-Bold').text(`Almacén: `, 55, 160, { continued: true }).font('Helvetica').text(origin);
+    doc.font('Helvetica-Bold').text(`Motivo / Concepto: `, 55, 175, { continued: true }).font('Helvetica').text(movements[0].motivo || 'N/A');
 
     const tableTop = 210;
-    doc.rect(50, tableTop, 512, 22).fill('#f1f5f9');
-    doc.fillColor('#334155').fontSize(9).text('Código', 55, tableTop + 6, { bold: true });
-    doc.text('Descripción del Producto', 140, tableTop + 6, { bold: true });
-    doc.text('Presentación Comercial', 335, tableTop + 6, { bold: true });
-    doc.text('Cantidad', 460, tableTop + 6, { bold: true, align: 'right', width: 95 });
+    doc.save().rect(50, tableTop, 512, 22).fill('#f1f5f9').restore();
+    doc.font('Helvetica-Bold').fillColor('#334155').fontSize(9).text('Código', 55, tableTop + 6);
+    doc.text('Descripción del Producto', 140, tableTop + 6);
+    doc.text('Presentación Comercial', 335, tableTop + 6);
+    doc.text('Cantidad', 460, tableTop + 6, { align: 'right', width: 95 });
+    doc.font('Helvetica');
 
     let currentY = tableTop + 24;
     let totalQty = 0;
@@ -373,24 +427,29 @@ const downloadMovementPdf = async (req, res) => {
       const code = item.codigo || 'N/A';
       const name = item.nombre || 'Producto no especificado';
       const presentacion = item.presentacion || 'N/A';
-      const unit = item.unidad || 'Caja(s)';
       const qty = Number(mov.cantidad);
       totalQty += qty;
 
-      doc.fillColor('#1e293b').fontSize(8.5);
+      doc.font('Helvetica').fillColor('#1e293b').fontSize(8.5);
+      const codeHeight = doc.heightOfString(code, { width: 80 });
+      const nameHeight = doc.heightOfString(name, { width: 185 });
+      const presHeight = doc.heightOfString(presentacion, { width: 120 });
+      const rowHeight = Math.max(24, Math.ceil(Math.max(codeHeight, nameHeight, presHeight)) + 12);
+
       doc.text(code, 55, currentY + 6, { width: 80 });
-      doc.text(name, 140, currentY + 6, { width: 190 });
+      doc.text(name, 140, currentY + 6, { width: 185 });
       doc.fillColor('#0369a1').text(presentacion, 335, currentY + 6, { width: 120 });
       doc.fillColor('#1e293b').text(`${qty}`, 460, currentY + 6, { align: 'right', width: 95 });
 
-      doc.strokeColor('#e2e8f0').moveTo(50, currentY + 22).lineTo(562, currentY + 22).stroke();
-      currentY += 24;
+      doc.strokeColor('#e2e8f0').moveTo(50, currentY + rowHeight - 2).lineTo(562, currentY + rowHeight - 2).stroke();
+      currentY += rowHeight;
     });
 
-    doc.rect(50, currentY, 512, 20).fill('#f8fafc');
-    doc.fillColor('#0f172a').fontSize(9).text(`TOTAL GENERAL: ${movements.length} ÍTEMS REGISTRADOS`, 55, currentY + 5, { bold: true });
-    doc.text(`${totalQty}`, 460, currentY + 5, { bold: true, align: 'right', width: 95 });
-    currentY += 30;
+    doc.save().rect(50, currentY, 512, 22).fill('#f8fafc').restore();
+    doc.font('Helvetica-Bold').fillColor('#0f172a').fontSize(9).text(`TOTAL GENERAL: ${movements.length} ÍTEMS REGISTRADOS`, 55, currentY + 6);
+    doc.text(`${totalQty}`, 460, currentY + 6, { align: 'right', width: 95 });
+    doc.font('Helvetica');
+    currentY += 32;
 
     const signatureY = Math.max(currentY + 60, 620);
     doc.fillColor('#64748b').fontSize(10);

@@ -238,222 +238,246 @@ class MovementsService {
   }
 
   async transferStock(data, userId) {
-    const { item_id, cantidad, almacen_origen_id, almacen_destino_id, motivo, referencia, lotes_transferir } = data;
+    const { item_id, cantidad, almacen_origen_id, almacen_destino_id, motivo, referencia, lotes_transferir, items } = data;
 
-    if (!item_id || !cantidad || !almacen_origen_id || !almacen_destino_id) {
-      throw new Error('ParÃ¡metros de transferencia incompletos');
+    if (!almacen_origen_id || !almacen_destino_id) {
+      throw new Error('Parámetros de transferencia incompletos: almacén origen y destino son obligatorios');
     }
 
-    if (parseInt(almacen_origen_id) === parseInt(almacen_destino_id)) {
-      throw new Error('El almacÃ©n de origen y destino no pueden ser iguales');
+    if (parseInt(almacen_origen_id, 10) === parseInt(almacen_destino_id, 10)) {
+      throw new Error('El almacén de origen y destino no pueden ser iguales');
     }
+
+    let itemsToProcess = [];
+    if (items && Array.isArray(items) && items.length > 0) {
+      itemsToProcess = items;
+    } else if (item_id && cantidad) {
+      itemsToProcess = [{ item_id, cantidad, lotes_transferir }];
+    } else {
+      throw new Error('Parámetros de transferencia incompletos: debe especificar al menos un producto y cantidad');
+    }
+
+    const refFinal = normalizarTextoMayusculas(referencia) || `TRANS-${Date.now().toString().slice(-6)}`;
+    const motivoFinal = normalizarTextoMayusculas(motivo) || 'TRANSFERENCIA ENTRE ALMACENES';
+    const origenIdNum = parseInt(almacen_origen_id, 10);
+    const destinoIdNum = parseInt(almacen_destino_id, 10);
 
     return await prisma.$transaction(async (tx) => {
-      // BIFURCACION LOGICA: Obtener datos del item para saber a que Familia pertenece
-      const itemInfo = await tx.itemInventario.findUnique({
-        where: { id: parseInt(item_id) }
-      });
+      const movimientosCreados = [];
 
-      if (!itemInfo) {
-        throw new Error('Item no encontrado en el inventario.');
-      }
+      for (const it of itemsToProcess) {
+        const targetItemId = parseInt(it.item_id, 10);
+        const qty = parseFloat(it.cantidad);
+        const itemLotesTransferir = it.lotes_transferir;
 
-      const esFamiliaA = ['Reactivo', 'Calibrador', 'Control', 'Reactivos', 'Calibradores', 'Controles', 'Solucion', 'Soluciones', 'Hematología', 'Hematologia'].some(c => (itemInfo.categoria || '').toLowerCase() === c.toLowerCase()) || (itemInfo.unidad || '').toLowerCase() === 'cajas' || ['LISANTES', 'DILUYENTES', 'REACTIVOS'].includes(itemInfo.grupo);
-      const unidadDeDespacho = itemInfo.unidad || 'UND';
-
-      // 1. Validar y restar en almacÃ©n origen
-      let stockOrigen = await tx.stockPorAlmacen.findUnique({
-        where: {
-          item_id_almacen_id: {
-            item_id: parseInt(item_id),
-            almacen_id: parseInt(almacen_origen_id)
-          }
+        if (!targetItemId || isNaN(qty) || qty <= 0) {
+          throw new Error(`Cantidad inválida (${it.cantidad}) para el producto ID ${targetItemId}`);
         }
-      });
 
-      const stock_anterior_origen = stockOrigen ? Number(stockOrigen.stock_actual) : 0;
-      const qty = parseFloat(cantidad);
+        // BIFURCACION LOGICA: Obtener datos del item para saber a que Familia pertenece
+        const itemInfo = await tx.itemInventario.findUnique({
+          where: { id: targetItemId }
+        });
 
-      if (stock_anterior_origen <= 0) {
-        throw new Error(`REGLA DE CONTROL: El almacÃ©n de origen seleccionado posee 0 ${unidadDeDespacho} disponibles de este producto. No se pueden realizar transferencias sin existencia previa.`);
-      }
-
-      if (qty > stock_anterior_origen) {
-        throw new Error(`REGLA DE CONTROL: La cantidad a transferir (${qty} ${unidadDeDespacho}) NUNCA puede ser mayor a la cantidad existente en el almacÃ©n de origen (${stock_anterior_origen} ${unidadDeDespacho}).`);
-      }
-
-      const stock_nuevo_origen = stock_anterior_origen - qty;
-
-      await tx.stockPorAlmacen.upsert({
-        where: {
-          item_id_almacen_id: {
-            item_id: parseInt(item_id),
-            almacen_id: parseInt(almacen_origen_id)
-          }
-        },
-        update: { stock_actual: stock_nuevo_origen },
-        create: {
-          item_id: parseInt(item_id),
-          almacen_id: parseInt(almacen_origen_id),
-          stock_actual: stock_nuevo_origen
+        if (!itemInfo) {
+          throw new Error(`Item ID ${targetItemId} no encontrado en el inventario.`);
         }
-      });
 
-      // 2. Sumar en almacÃ©n destino (SEGUN FAMILIA)
-      let stock_anterior_destino = 0;
-      let stock_nuevo_destino = 0;
+        const esFamiliaA = ['Reactivo', 'Calibrador', 'Control', 'Reactivos', 'Calibradores', 'Controles', 'Solucion', 'Soluciones', 'Hematología', 'Hematologia'].some(c => (itemInfo.categoria || '').toLowerCase() === c.toLowerCase()) || (itemInfo.unidad || '').toLowerCase() === 'cajas' || ['LISANTES', 'DILUYENTES', 'REACTIVOS'].includes(itemInfo.grupo);
+        const unidadDeDespacho = itemInfo.unidad || 'UND';
 
-      let stockDestino = await tx.stockPorAlmacen.findUnique({
-        where: {
-          item_id_almacen_id: {
-            item_id: parseInt(item_id),
-            almacen_id: parseInt(almacen_destino_id)
-          }
-        }
-      });
-      stock_anterior_destino = stockDestino ? Number(stockDestino.stock_actual) : 0;
-
-      if (esFamiliaA) {
-        // FAMILIA A: Trazabilidad estricta por caja hacia Recepcion Electronica de Laboratorio
-        if (parseInt(almacen_origen_id) === 1 && parseInt(almacen_destino_id) === 2) {
-          const cajasADespachar = [];
-
-          if (Array.isArray(lotes_transferir) && lotes_transferir.length > 0) {
-            // Caso 1: Lotes seleccionados explicitamente en el Modal
-            for (const itemLote of lotes_transferir) {
-              const lId = parseInt(itemLote.lote_id || itemLote.id, 10);
-              const cantLote = parseFloat(itemLote.cantidad || 1);
-              if (!lId || cantLote <= 0) continue;
-
-              const loteOrigen = await tx.lotesReactivos.findUnique({ where: { Id: lId } });
-              if (!loteOrigen) {
-                throw new Error(`El lote seleccionado (ID: ${lId}) no fue encontrado.`);
-              }
-              const stockLote = Number(loteOrigen.CantidadActual) || 0;
-              if (cantLote > stockLote) {
-                throw new Error(`El lote ${loteOrigen.NumeroLote} solo tiene ${stockLote} cajas disponibles.`);
-              }
-
-              // Descontar del lote en Almacen Central
-              const saldoCentral = stockLote - cantLote;
-              await tx.lotesReactivos.update({
-                where: { Id: loteOrigen.Id },
-                data: { CantidadActual: saldoCentral }
-              });
-
-              for (let i = 0; i < cantLote; i++) {
-                cajasADespachar.push(loteOrigen);
-              }
-            }
-          } else {
-            // Caso 2: Fallback automatico FIFO si no se especificaron lotes
-            let restante = parseFloat(qty);
-            const lotesDisponibles = await tx.lotesReactivos.findMany({
-              where: {
-                InventarioId: parseInt(item_id),
-                OR: [
-                  { estado_transferencia: 'ALMACEN_CENTRAL' },
-                  { estado_transferencia: null }
-                ],
-                CantidadActual: { gt: 0 }
-              },
-              orderBy: [
-                { FechaVencimiento: 'asc' },
-                { Id: 'asc' }
-              ]
-            });
-
-            for (const lote of lotesDisponibles) {
-              if (restante <= 0) break;
-              const stockLote = Number(lote.CantidadActual) || 0;
-              const tomar = Math.min(restante, stockLote);
-
-              const saldoCentral = stockLote - tomar;
-              await tx.lotesReactivos.update({
-                where: { Id: lote.Id },
-                data: { CantidadActual: saldoCentral }
-              });
-
-              for (let i = 0; i < tomar; i++) {
-                cajasADespachar.push(lote);
-              }
-              restante -= tomar;
+        // 1. Validar y restar en almacén origen
+        let stockOrigen = await tx.stockPorAlmacen.findUnique({
+          where: {
+            item_id_almacen_id: {
+              item_id: targetItemId,
+              almacen_id: origenIdNum
             }
           }
+        });
 
-          // Crear los registros fisicos independientes (1 caja por registro) en transito hacia Laboratorio
-          const usuarioDesp = userId ? `Usuario #${userId}` : 'Almacen Central';
-          for (const loteBase of cajasADespachar) {
-            await tx.lotesReactivos.create({
-              data: {
-                InventarioId: loteBase.InventarioId,
-                NumeroLote: loteBase.NumeroLote,
-                CantidadInicial: 1,
-                CantidadActual: 1,
-                Estado: 'CERRADO',
-                estado_transferencia: 'EN_TRANSITO_LAB',
-                almacen_origen_id: 1,
-                almacen_destino_id: parseInt(almacen_destino_id),
-                usuario_despacho: usuarioDesp,
-                fecha_despacho: new Date(),
-                FechaRegistro: new Date(),
-                FechaFabricacion: loteBase.FechaFabricacion,
-                FechaVencimiento: loteBase.FechaVencimiento,
-                CondicionesEspeciales: loteBase.CondicionesEspeciales,
-                TemperaturaAlmacenamiento: loteBase.TemperaturaAlmacenamiento,
-                ConsumoPorPrueba: loteBase.ConsumoPorPrueba,
-                VolumenTrabajoPractico: loteBase.VolumenTrabajoPractico,
-                PruebasTeoricas: loteBase.PruebasTeoricas,
-                PruebasRestantes: loteBase.PruebasRestantes,
-                ReactivoPorPrueba: loteBase.ReactivoPorPrueba,
-                EsBiReactivo: loteBase.EsBiReactivo,
-                CantidadInicialR2: loteBase.CantidadInicialR2,
-                CantidadActualR2: loteBase.CantidadActualR2,
-                ConsumoPorPruebaR2: loteBase.ConsumoPorPruebaR2
-              }
-            });
-          }
+        const stock_anterior_origen = stockOrigen ? Number(stockOrigen.stock_actual) : 0;
+
+        if (stock_anterior_origen <= 0) {
+          throw new Error(`REGLA DE CONTROL: El almacén de origen seleccionado posee 0 ${unidadDeDespacho} disponibles de "${itemInfo.nombre}". No se pueden realizar transferencias sin existencia previa.`);
         }
-        
-        stock_nuevo_destino = stock_anterior_destino;
 
-      } else {
+        if (qty > stock_anterior_origen) {
+          throw new Error(`REGLA DE CONTROL: Para "${itemInfo.nombre}", la cantidad a transferir (${qty} ${unidadDeDespacho}) NUNCA puede ser mayor a la cantidad existente en el almacén de origen (${stock_anterior_origen} ${unidadDeDespacho}).`);
+        }
+
+        const stock_nuevo_origen = stock_anterior_origen - qty;
+
+        await tx.stockPorAlmacen.upsert({
+          where: {
+            item_id_almacen_id: {
+              item_id: targetItemId,
+              almacen_id: origenIdNum
+            }
+          },
+          update: { stock_actual: stock_nuevo_origen },
+          create: {
+            item_id: targetItemId,
+            almacen_id: origenIdNum,
+            stock_actual: stock_nuevo_origen
+          }
+        });
+
+        // 2. Sumar en almacén destino (SEGUN FAMILIA)
+        let stock_anterior_destino = 0;
+        let stock_nuevo_destino = 0;
+
+        let stockDestino = await tx.stockPorAlmacen.findUnique({
+          where: {
+            item_id_almacen_id: {
+              item_id: targetItemId,
+              almacen_id: destinoIdNum
+            }
+          }
+        });
+        stock_anterior_destino = stockDestino ? Number(stockDestino.stock_actual) : 0;
+
+        if (esFamiliaA) {
+          // FAMILIA A: Trazabilidad estricta por caja hacia Recepcion Electronica de Laboratorio
+          if (origenIdNum === 1 && destinoIdNum === 2) {
+            const cajasADespachar = [];
+
+            if (Array.isArray(itemLotesTransferir) && itemLotesTransferir.length > 0) {
+              // Caso 1: Lotes seleccionados explicitamente en el Modal
+              for (const itemLote of itemLotesTransferir) {
+                const lId = parseInt(itemLote.lote_id || itemLote.id, 10);
+                const cantLote = parseFloat(itemLote.cantidad || 1);
+                if (!lId || cantLote <= 0) continue;
+
+                const loteOrigen = await tx.lotesReactivos.findUnique({ where: { Id: lId } });
+                if (!loteOrigen) {
+                  throw new Error(`El lote seleccionado (ID: ${lId}) no fue encontrado.`);
+                }
+                const stockLote = Number(loteOrigen.CantidadActual) || 0;
+                if (cantLote > stockLote) {
+                  throw new Error(`El lote ${loteOrigen.NumeroLote} solo tiene ${stockLote} cajas disponibles.`);
+                }
+
+                // Descontar del lote en Almacen Central
+                const saldoCentral = stockLote - cantLote;
+                await tx.lotesReactivos.update({
+                  where: { Id: loteOrigen.Id },
+                  data: { CantidadActual: saldoCentral }
+                });
+
+                for (let i = 0; i < cantLote; i++) {
+                  cajasADespachar.push(loteOrigen);
+                }
+              }
+            } else {
+              // Caso 2: Fallback automatico FIFO si no se especificaron lotes
+              let restante = parseFloat(qty);
+              const lotesDisponibles = await tx.lotesReactivos.findMany({
+                where: {
+                  InventarioId: targetItemId,
+                  OR: [
+                    { estado_transferencia: 'ALMACEN_CENTRAL' },
+                    { estado_transferencia: null }
+                  ],
+                  CantidadActual: { gt: 0 }
+                },
+                orderBy: [
+                  { FechaVencimiento: 'asc' },
+                  { Id: 'asc' }
+                ]
+              });
+
+              for (const lote of lotesDisponibles) {
+                if (restante <= 0) break;
+                const stockLote = Number(lote.CantidadActual) || 0;
+                const tomar = Math.min(restante, stockLote);
+
+                const saldoCentral = stockLote - tomar;
+                await tx.lotesReactivos.update({
+                  where: { Id: lote.Id },
+                  data: { CantidadActual: saldoCentral }
+                });
+
+                for (let i = 0; i < tomar; i++) {
+                  cajasADespachar.push(lote);
+                }
+                restante -= tomar;
+              }
+            }
+
+            // Crear los registros fisicos independientes (1 caja por registro) en transito hacia Laboratorio
+            const usuarioDesp = userId ? `Usuario #${userId}` : 'Almacen Central';
+            for (const loteBase of cajasADespachar) {
+              await tx.lotesReactivos.create({
+                data: {
+                  InventarioId: loteBase.InventarioId,
+                  NumeroLote: loteBase.NumeroLote,
+                  CantidadInicial: 1,
+                  CantidadActual: 1,
+                  Estado: 'CERRADO',
+                  estado_transferencia: 'EN_TRANSITO_LAB',
+                  almacen_origen_id: 1,
+                  almacen_destino_id: destinoIdNum,
+                  usuario_despacho: usuarioDesp,
+                  fecha_despacho: new Date(),
+                  FechaRegistro: new Date(),
+                  FechaFabricacion: loteBase.FechaFabricacion,
+                  FechaVencimiento: loteBase.FechaVencimiento,
+                  CondicionesEspeciales: loteBase.CondicionesEspeciales,
+                  TemperaturaAlmacenamiento: loteBase.TemperaturaAlmacenamiento,
+                  ConsumoPorPrueba: loteBase.ConsumoPorPrueba,
+                  VolumenTrabajoPractico: loteBase.VolumenTrabajoPractico,
+                  PruebasTeoricas: loteBase.PruebasTeoricas,
+                  PruebasRestantes: loteBase.PruebasRestantes,
+                  ReactivoPorPrueba: loteBase.ReactivoPorPrueba,
+                  EsBiReactivo: loteBase.EsBiReactivo,
+                  CantidadInicialR2: loteBase.CantidadInicialR2,
+                  CantidadActualR2: loteBase.CantidadActualR2,
+                  ConsumoPorPruebaR2: loteBase.ConsumoPorPruebaR2
+                }
+              });
+            }
+          }
+
+          stock_nuevo_destino = stock_anterior_destino;
+
+        } else {
           // FAMILIA B (Insumos, Papeleria, etc): Transferencia directa e inmediata
           stock_nuevo_destino = stock_anterior_destino + qty;
-  
+
           await tx.stockPorAlmacen.upsert({
             where: {
               item_id_almacen_id: {
-                item_id: parseInt(item_id),
-                almacen_id: parseInt(almacen_destino_id)
+                item_id: targetItemId,
+                almacen_id: destinoIdNum
               }
             },
             update: { stock_actual: stock_nuevo_destino },
             create: {
-              item_id: parseInt(item_id),
-              almacen_id: parseInt(almacen_destino_id),
+              item_id: targetItemId,
+              almacen_id: destinoIdNum,
               stock_actual: stock_nuevo_destino
             }
           });
 
           // ACTUALIZACION: Mover LotesReactivos fisicos directo a laboratorio sin limbo
-          if (parseInt(almacen_origen_id) === 1 && parseInt(almacen_destino_id) === 2) {
+          if (origenIdNum === 1 && destinoIdNum === 2) {
             const cajasFisicas = await tx.lotesReactivos.findMany({
               where: {
-                InventarioId: parseInt(item_id),
+                InventarioId: targetItemId,
                 estado_transferencia: 'ALMACEN_CENTRAL'
               },
-              take: parseInt(qty)
+              take: parseInt(qty, 10)
             });
-            
+
             if (cajasFisicas.length > 0) {
               const idsToUpdate = cajasFisicas.map(c => c.Id);
               await tx.lotesReactivos.updateMany({
                 where: { Id: { in: idsToUpdate } },
                 data: {
                   estado_transferencia: 'EN_TRANSITO_LAB',
-                  almacen_destino_id: parseInt(almacen_destino_id),
-                                    usuario_despacho: 'Transferencia Directa B',
+                  almacen_destino_id: destinoIdNum,
+                  usuario_despacho: 'Transferencia Directa B',
                   fecha_despacho: new Date()
                 }
               });
@@ -461,50 +485,61 @@ class MovementsService {
           }
         }
 
-      // 3. Recalcular y actualizar stock global acumulado en items_inventario (deberÃ­a quedar igual, pero asegura sincronizaciÃ³n)
-      const allStocks = await tx.stockPorAlmacen.findMany({
-        where: { item_id: parseInt(item_id) }
-      });
-      const totalGlobalStock = allStocks.reduce((sum, s) => sum + Number(s.stock_actual), 0);
+        // 3. Recalcular y actualizar stock global acumulado en items_inventario
+        const allStocks = await tx.stockPorAlmacen.findMany({
+          where: { item_id: targetItemId }
+        });
+        const totalGlobalStock = allStocks.reduce((sum, s) => sum + Number(s.stock_actual), 0);
 
-      await tx.itemInventario.update({
-        where: { id: parseInt(item_id) },
-        data: { stock_actual: totalGlobalStock }
-      });
+        await tx.itemInventario.update({
+          where: { id: targetItemId },
+          data: { stock_actual: totalGlobalStock }
+        });
 
-      const movimiento = await tx.movimientoInventario.create({
-        data: {
-          item_id: parseInt(item_id),
-          tipo_movimiento: 'TRANSFERENCIA',
-          cantidad: qty,
-          stock_anterior: stock_anterior_origen,
-          stock_nuevo: stock_nuevo_origen,
-          motivo: normalizarTextoMayusculas(motivo) || 'TRANSFERENCIA ENTRE ALMACENES',
-          referencia: referencia || 'TRANSFERENCIA',
-          almacen_id: parseInt(almacen_origen_id),
-          almacen_destino_id: parseInt(almacen_destino_id),
-          creado_por: userId
-        }
-      });
+        const movimiento = await tx.movimientoInventario.create({
+          data: {
+            item_id: targetItemId,
+            tipo_movimiento: 'TRANSFERENCIA',
+            cantidad: qty,
+            stock_anterior: stock_anterior_origen,
+            stock_nuevo: stock_nuevo_origen,
+            motivo: motivoFinal,
+            referencia: refFinal,
+            almacen_id: origenIdNum,
+            almacen_destino_id: destinoIdNum,
+            creado_por: userId
+          }
+        });
 
-      // Trazabilidad: REGISTRAR_MOVIMIENTO para Transferencias
-      await auditService.logEvent(
-        userId || 1,
-        'TRANSFERIR_INVENTARIO',
-        'MOVIMIENTO',
-        movimiento.id,
-        {
-          item_id,
-          tipo_movimiento: 'TRANSFERENCIA',
-          cantidad: qty,
-          almacen_origen_id,
-          almacen_destino_id,
-          motivo,
-          referencia
-        }
-      );
+        movimientosCreados.push(movimiento);
 
-      return { success: true, message: 'Transferencia registrada exitosamente', data: movimiento };
+        // Trazabilidad: REGISTRAR_MOVIMIENTO para Transferencias
+        await auditService.logEvent(
+          userId || 1,
+          'TRANSFERIR_INVENTARIO',
+          'MOVIMIENTO',
+          movimiento.id,
+          {
+            item_id: targetItemId,
+            tipo_movimiento: 'TRANSFERENCIA',
+            cantidad: qty,
+            almacen_origen_id: origenIdNum,
+            almacen_destino_id: destinoIdNum,
+            motivo: motivoFinal,
+            referencia: refFinal
+          }
+        );
+      }
+
+      return {
+        success: true,
+        message: itemsToProcess.length > 1
+          ? `Transferencia masiva de ${itemsToProcess.length} productos registrada exitosamente`
+          : 'Transferencia registrada exitosamente',
+        count: itemsToProcess.length,
+        referencia: refFinal,
+        data: itemsToProcess.length === 1 ? movimientosCreados[0] : movimientosCreados
+      };
     });
   }
   async cargaMasivaInicial(data, userId) {
