@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import api from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
 import {
@@ -57,7 +57,11 @@ import {
   CheckCircleOutline as SuccessIcon,
   FilterList as FilterIcon,
   ViewList as ListIcon,
-  ViewModule as ModuleIcon
+  ViewModule as ModuleIcon,
+  Search as SearchIcon,
+  Close as CloseIcon,
+  Clear as ClearIcon,
+  LocalShipping as ShippingIcon
 } from '@mui/icons-material';
 
 // Helper para formatear fechas a DD/MM/AAAA evitando el desfase de zona horaria (UTC rollback)
@@ -104,7 +108,26 @@ const GestionCajasFrascos = () => {
   const [scanMessage, setScanMessage] = useState(null);
   const [candidatosModalOpen, setCandidatosModalOpen] = useState(false);
   const [candidatosScan, setCandidatosScan] = useState([]);
+  const [filtroCandidatos, setFiltroCandidatos] = useState('');
   const scanInputRef = useRef(null);
+
+  // Filtrado reactivo en vivo de los candidatos encontrados en el modal
+  const candidatosFiltrados = useMemo(() => {
+    if (!candidatosScan || candidatosScan.length === 0) return [];
+    if (!filtroCandidatos || !filtroCandidatos.trim()) return candidatosScan;
+    const q = filtroCandidatos.toLowerCase().trim();
+    return candidatosScan.filter(c => {
+      const prod = (c.producto || '').toLowerCase();
+      const cod = (c.codigo || '').toLowerCase();
+      const lt = (c.lote || '').toLowerCase();
+      const mrc = (c.marca || '').toLowerCase();
+      const eq = (c.equipoAsociado || '').toLowerCase();
+      const ubi = (c.ubicacionTexto || '').toLowerCase();
+      const pres = (c.presentacion || '').toLowerCase();
+      const cid = String(c.id || '');
+      return prod.includes(q) || cod.includes(q) || lt.includes(q) || mrc.includes(q) || eq.includes(q) || ubi.includes(q) || pres.includes(q) || cid.includes(q);
+    });
+  }, [candidatosScan, filtroCandidatos]);
 
   // Modal para confirmar apertura manual
   const [modalOpen, setModalOpen] = useState(false);
@@ -303,6 +326,7 @@ const GestionCajasFrascos = () => {
 
       if (response.data && response.data.success && response.data.candidatos && response.data.candidatos.length > 0) {
         setCandidatosScan(response.data.candidatos);
+        setFiltroCandidatos('');
         setCandidatosModalOpen(true);
         setBarcodeInput('');
       } else {
@@ -1378,123 +1402,389 @@ const GestionCajasFrascos = () => {
 
       {/* MODAL DE CONFIRMACIÓN DE APERTURA POR EL BIOANALISTA */}
       
-      {/* MODAL DE CONFIRMACION PREVIA */}
-      <Dialog open={candidatosModalOpen} onClose={() => setCandidatosModalOpen(false)} maxWidth="md" fullWidth>
-        <DialogTitle sx={{ backgroundColor: '#0f172a', color: '#fff' }}>
-          Confirmacion Previa: Busqueda de Caja
+      {/* MODAL DE CONFIRMACION PREVIA: BUSQUEDA Y SELECCIÓN DE CAJA (REDESISEÑADO AMPLIO) */}
+      <Dialog 
+        open={candidatosModalOpen} 
+        onClose={() => setCandidatosModalOpen(false)} 
+        maxWidth="lg" 
+        fullWidth
+        PaperProps={{
+          sx: {
+            width: '96%',
+            maxWidth: '1280px',
+            borderRadius: 3,
+            overflow: 'hidden',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.35)'
+          }
+        }}
+      >
+        <DialogTitle sx={{ 
+          backgroundColor: '#0f172a', 
+          color: '#fff', 
+          py: 2, 
+          px: 3, 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'space-between',
+          borderBottom: '2px solid #334155'
+        }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap' }}>
+            <Box sx={{ p: 0.8, bgcolor: 'rgba(56, 189, 248, 0.15)', borderRadius: 2, display: 'flex', alignItems: 'center' }}>
+              <ScannerIcon sx={{ color: '#38bdf8', fontSize: 26 }} />
+            </Box>
+            <div>
+              <Typography variant="h6" sx={{ fontWeight: 800, fontSize: '1.15rem', color: '#f8fafc', letterSpacing: '-0.01em' }}>
+                Confirmación Previa: Búsqueda y Selección de Caja
+              </Typography>
+              <Typography variant="caption" sx={{ color: '#94a3b8', fontSize: '0.8rem' }}>
+                Seleccione la caja física identificada para autorizar su apertura o verificar su trazabilidad
+              </Typography>
+            </div>
+          </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+            <Chip 
+              label={`${candidatosScan.length} resultado(s)`} 
+              size="small" 
+              sx={{ fontWeight: 800, bgcolor: 'rgba(255, 255, 255, 0.12)', color: '#38bdf8', border: '1px solid rgba(56, 189, 248, 0.3)' }} 
+            />
+            <IconButton 
+              size="small" 
+              onClick={() => setCandidatosModalOpen(false)} 
+              sx={{ color: '#94a3b8', '&:hover': { color: '#ffffff', bgcolor: 'rgba(255, 255, 255, 0.1)' } }}
+            >
+              <CloseIcon fontSize="small" />
+            </IconButton>
+          </Box>
         </DialogTitle>
-        <DialogContent sx={{ mt: 2 }}>
-          <Typography variant="body1" sx={{ mb: 2 }}>
-            Hemos encontrado <b>{candidatosScan.length}</b> similitud(es). 
-            Por favor, seleccione la caja exacta:
-          </Typography>
-          <TableContainer component={Paper} variant="outlined">
-            <Table size="small">
-              <TableHead sx={{ backgroundColor: '#f1f5f9' }}>
+
+        <DialogContent sx={{ p: 2.5, bgcolor: '#f8fafc' }}>
+          {/* BARRA DE FILTRO EN VIVO DENTRO DEL MODAL */}
+          <Paper 
+            elevation={0} 
+            sx={{ 
+              p: 1.5, 
+              mb: 2, 
+              bgcolor: '#ffffff', 
+              borderRadius: 2.5, 
+              border: '1px solid #e2e8f0', 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: 2,
+              boxShadow: '0 2px 4px rgba(0,0,0,0.03)'
+            }}
+          >
+            <TextField
+              fullWidth
+              size="small"
+              placeholder="Filtrar por nombre de reactivo, código (REA-...), lote, equipo, marca o presentación..."
+              value={filtroCandidatos}
+              onChange={(e) => setFiltroCandidatos(e.target.value)}
+              autoFocus
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon sx={{ color: '#0284c7', fontSize: 22 }} />
+                  </InputAdornment>
+                ),
+                endAdornment: filtroCandidatos ? (
+                  <InputAdornment position="end">
+                    <IconButton size="small" onClick={() => setFiltroCandidatos('')}>
+                      <ClearIcon fontSize="small" />
+                    </IconButton>
+                  </InputAdornment>
+                ) : null,
+                sx: { 
+                  bgcolor: '#f8fafc', 
+                  borderRadius: 2,
+                  '& fieldset': { borderColor: '#cbd5e1' },
+                  '&:hover fieldset': { borderColor: '#94a3b8' }
+                }
+              }}
+            />
+            <Chip 
+              icon={<FilterIcon fontSize="small" />} 
+              label={`${candidatosFiltrados.length} visibles`} 
+              sx={{ 
+                fontWeight: 800, 
+                bgcolor: '#e0f2fe', 
+                color: '#0369a1',
+                border: '1px solid #bae6fd',
+                flexShrink: 0
+              }} 
+            />
+          </Paper>
+
+          {/* TABLA PRINCIPAL RESPONSIVA Y ESPACIOSA */}
+          <TableContainer 
+            component={Paper} 
+            elevation={0} 
+            sx={{ 
+              maxHeight: '58vh', 
+              borderRadius: 2.5, 
+              border: '1px solid #e2e8f0', 
+              overflow: 'auto',
+              bgcolor: '#ffffff'
+            }}
+          >
+            <Table size="small" stickyHeader sx={{ minWidth: 1050 }}>
+              <TableHead>
                 <TableRow>
-                  <TableCell><b>Producto</b></TableCell>
-                  <TableCell><b>Lote</b></TableCell>
-                  <TableCell><b>Vencimiento (FEFO)</b></TableCell>
-                  <TableCell><b>Estado actual</b></TableCell>
-                  <TableCell><b>Ubicación</b></TableCell>
-                  <TableCell><b>Equipo</b></TableCell>
-                  <TableCell align="center"><b>Accion</b></TableCell>
+                  <TableCell sx={{ bgcolor: '#1e293b', color: '#ffffff', fontWeight: 800, fontSize: '0.85rem', width: '34%', minWidth: 320 }}>
+                    Producto / Reactivo
+                  </TableCell>
+                  <TableCell sx={{ bgcolor: '#1e293b', color: '#ffffff', fontWeight: 800, fontSize: '0.85rem', minWidth: 120 }}>
+                    Lote
+                  </TableCell>
+                  <TableCell sx={{ bgcolor: '#1e293b', color: '#ffffff', fontWeight: 800, fontSize: '0.85rem', minWidth: 125 }}>
+                    Vencimiento (FEFO)
+                  </TableCell>
+                  <TableCell sx={{ bgcolor: '#1e293b', color: '#ffffff', fontWeight: 800, fontSize: '0.85rem', minWidth: 110 }}>
+                    Estado
+                  </TableCell>
+                  <TableCell sx={{ bgcolor: '#1e293b', color: '#ffffff', fontWeight: 800, fontSize: '0.85rem', minWidth: 165 }}>
+                    Ubicación Física
+                  </TableCell>
+                  <TableCell sx={{ bgcolor: '#1e293b', color: '#ffffff', fontWeight: 800, fontSize: '0.85rem', minWidth: 135 }}>
+                    Autoanalizador
+                  </TableCell>
+                  <TableCell align="center" sx={{ bgcolor: '#1e293b', color: '#ffffff', fontWeight: 800, fontSize: '0.85rem', minWidth: 155 }}>
+                    Acción
+                  </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {candidatosScan.map((c) => (
-                  <TableRow key={c.id} sx={{ backgroundColor: c.estaEnLab ? '#f0fdf4' : 'inherit' }}>
-                    <TableCell sx={{ fontWeight: 600 }}>{c.producto}</TableCell>
-                    <TableCell><Chip size="small" label={c.lote} sx={{ fontWeight: 700 }} /></TableCell>
-                    <TableCell sx={{ color: '#d97706', fontWeight: 600 }}>
-                      {c.fechaVencimiento ? new Date(c.fechaVencimiento).toLocaleDateString() : 'N/A'}
-                    </TableCell>
-                    <TableCell>
-                      {c.estadoTransferencia === 'EN_TRANSITO' 
-                        ? <Chip size="small" label="En Tránsito" color="warning" />
-                        : <Chip size="small" label={c.estado || 'Cerrado'} color={c.estado === 'Activo' ? 'success' : 'primary'} variant="outlined"/>
-                      }
-                    </TableCell>
-                    <TableCell>
-                      <Chip 
-                        size="small" 
-                        label={c.ubicacionTexto || (c.estaEnLab ? 'Almacén Laboratorio' : (c.estadoTransferencia === 'EN_TRANSITO' ? 'En Tránsito' : 'Almacén Central'))} 
-                        sx={{ 
-                          fontWeight: 700, 
-                          backgroundColor: c.estaEnLab ? '#dcfce7' : (c.estadoTransferencia === 'EN_TRANSITO' ? '#fef3c7' : '#fee2e2'),
-                          color: c.estaEnLab ? '#15803d' : (c.estadoTransferencia === 'EN_TRANSITO' ? '#b45309' : '#b91c1c'),
-                          border: `1px solid ${c.estaEnLab ? '#86efac' : (c.estadoTransferencia === 'EN_TRANSITO' ? '#fde68a' : '#fca5a5')}`
-                        }}
-                      />
-                    </TableCell>
-                    <TableCell>{c.equipoAsociado}</TableCell>
-                    <TableCell align="center">
-                      {c.estaEnLab && (c.estado === 'Activo' || c.estado?.toLowerCase() === 'activo') ? (
-                        <Tooltip title="Bloqueado: Esta caja ya fue abierta y sus frascos se encuentran activos en producción en el analizador.">
-                          <span>
-                            <Button 
-                              variant="outlined" 
-                              size="small"
-                              disabled
-                              sx={{ 
-                                fontWeight: 700, 
-                                opacity: 0.65,
-                                color: '#15803d !important',
-                                borderColor: '#86efac !important',
-                                backgroundColor: '#f0fdf4 !important',
-                                cursor: 'not-allowed',
-                                textTransform: 'none'
-                              }}
-                            >
-                              En Producción
-                            </Button>
-                          </span>
-                        </Tooltip>
-                      ) : c.estaEnLab ? (
-                        <Button 
-                          variant="contained" 
-                          color="success" 
-                          size="small"
-                          sx={{ fontWeight: 700 }}
-                          onClick={() => handleProcesarLote(c.id, c.equipoAsociado)}
-                        >
-                          Abrir en Lab
-                        </Button>
-                      ) : c.estadoTransferencia === 'EN_TRANSITO' ? (
-                        <Button 
-                          variant="contained" 
-                          color="warning" 
-                          size="small"
-                          sx={{ fontWeight: 700 }}
-                          onClick={() => handleProcesarLote(c.id, c.equipoAsociado)}
-                        >
-                          Recibir en Lab
-                        </Button>
-                      ) : (
-                        <Tooltip title="Bloqueado: La caja está en Almacén Central. Primero debe transferirse y recibirse en Laboratorio.">
-                          <span>
-                            <Button 
-                              variant="outlined" 
-                              color="error" 
-                              size="small"
-                              disabled
-                              sx={{ fontWeight: 700, opacity: 0.6 }}
-                            >
-                              En Almacén Central
-                            </Button>
-                          </span>
-                        </Tooltip>
-                      )}
+                {candidatosFiltrados.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={7} align="center" sx={{ py: 5, color: '#64748b' }}>
+                      <Typography variant="body1" sx={{ fontWeight: 700, mb: 0.5 }}>
+                        No se encontraron cajas con el filtro "{filtroCandidatos}"
+                      </Typography>
+                      <Typography variant="caption" sx={{ color: '#94a3b8' }}>
+                        Pruebe borrando el texto del filtro para ver todos los {candidatosScan.length} resultado(s).
+                      </Typography>
                     </TableCell>
                   </TableRow>
-                ))}
+                ) : (
+                  candidatosFiltrados.map((c) => {
+                    const esActivo = c.estado === 'Activo' || c.estado?.toLowerCase() === 'activo';
+                    const esTransito = c.estadoTransferencia === 'EN_TRANSITO' || c.estadoTransferencia === 'EN_TRANSITO_LAB';
+                    const bgFila = esActivo ? '#f0f9ff' : (c.estaEnLab ? '#f0fdf4' : (esTransito ? '#fffbeb' : '#ffffff'));
+
+                    return (
+                      <TableRow 
+                        key={c.id} 
+                        hover 
+                        sx={{ 
+                          backgroundColor: bgFila,
+                          '&:hover': { backgroundColor: esActivo ? '#e0f2fe' : (c.estaEnLab ? '#dcfce7' : '#f1f5f9') },
+                          transition: 'background-color 0.15s ease'
+                        }}
+                      >
+                        {/* COLUMNA PRODUCTO / REACTIVO CON METADATOS CLAROS */}
+                        <TableCell sx={{ py: 1.2 }}>
+                          <Typography sx={{ fontWeight: 800, color: '#0f172a', fontSize: '0.92rem', lineHeight: 1.3 }}>
+                            {c.producto}
+                          </Typography>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8, mt: 0.6, flexWrap: 'wrap' }}>
+                            <Chip 
+                              size="small" 
+                              label={`#${c.id}`} 
+                              sx={{ height: 20, fontSize: '0.72rem', fontWeight: 800, bgcolor: '#f1f5f9', color: '#475569' }} 
+                            />
+                            {c.codigo && (
+                              <Chip 
+                                size="small" 
+                                label={c.codigo} 
+                                sx={{ height: 20, fontSize: '0.72rem', fontWeight: 700, bgcolor: '#e0f2fe', color: '#0369a1' }} 
+                              />
+                            )}
+                            {c.presentacion && (
+                              <Chip 
+                                size="small" 
+                                label={c.presentacion} 
+                                sx={{ height: 20, fontSize: '0.72rem', fontWeight: 700, bgcolor: '#f3e8ff', color: '#7e22ce' }} 
+                              />
+                            )}
+                            {c.marca && c.marca !== 'Sin Marca' && (
+                              <Typography variant="caption" sx={{ color: '#64748b', fontWeight: 600, fontSize: '0.75rem' }}>
+                                • {c.marca}
+                              </Typography>
+                            )}
+                          </Box>
+                        </TableCell>
+
+                        {/* COLUMNA LOTE */}
+                        <TableCell sx={{ py: 1.2 }}>
+                          <Chip 
+                            size="small" 
+                            label={c.lote} 
+                            sx={{ 
+                              fontFamily: 'monospace', 
+                              fontWeight: 800, 
+                              fontSize: '0.84rem', 
+                              bgcolor: '#ffffff',
+                              border: '1px solid #cbd5e1',
+                              color: '#1e293b'
+                            }} 
+                          />
+                        </TableCell>
+
+                        {/* COLUMNA FECHA DE VENCIMIENTO (FEFO) */}
+                        <TableCell sx={{ py: 1.2 }}>
+                          <Typography sx={{ color: '#b45309', fontWeight: 800, fontSize: '0.86rem' }}>
+                            {formatDate(c.fechaVencimiento)}
+                          </Typography>
+                        </TableCell>
+
+                        {/* COLUMNA ESTADO */}
+                        <TableCell sx={{ py: 1.2 }}>
+                          {esTransito ? (
+                            <Chip size="small" label="En Tránsito" sx={{ fontWeight: 800, bgcolor: '#fef3c7', color: '#b45309', border: '1px solid #fde68a' }} />
+                          ) : esActivo ? (
+                            <Chip size="small" label="Activo" sx={{ fontWeight: 800, bgcolor: '#dbeafe', color: '#1d4ed8', border: '1px solid #93c5fd' }} />
+                          ) : (
+                            <Chip size="small" label="Cerrado" variant="outlined" sx={{ fontWeight: 700, color: '#475569', borderColor: '#cbd5e1' }} />
+                          )}
+                        </TableCell>
+
+                        {/* COLUMNA UBICACIÓN FÍSICA */}
+                        <TableCell sx={{ py: 1.2 }}>
+                          <Chip 
+                            size="small" 
+                            icon={
+                              c.estaEnLab 
+                                ? <CheckIcon sx={{ fontSize: '14px !important', color: '#15803d !important' }} /> 
+                                : (esTransito 
+                                    ? <ShippingIcon sx={{ fontSize: '14px !important', color: '#b45309 !important' }} /> 
+                                    : <LockIcon sx={{ fontSize: '14px !important', color: '#b91c1c !important' }} />)
+                            }
+                            label={c.ubicacionTexto || (c.estaEnLab ? 'Almacén Laboratorio' : (esTransito ? 'En Tránsito' : 'Almacén Central'))} 
+                            sx={{ 
+                              fontWeight: 800, 
+                              fontSize: '0.78rem',
+                              backgroundColor: c.estaEnLab ? '#dcfce7' : (esTransito ? '#fef3c7' : '#fee2e2'),
+                              color: c.estaEnLab ? '#15803d' : (esTransito ? '#b45309' : '#b91c1c'),
+                              border: `1px solid ${c.estaEnLab ? '#86efac' : (esTransito ? '#fde68a' : '#fca5a5')}`
+                            }}
+                          />
+                        </TableCell>
+
+                        {/* COLUMNA EQUIPO / ANALIZADOR */}
+                        <TableCell sx={{ py: 1.2 }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.6 }}>
+                            <AnalyzerIcon sx={{ fontSize: 16, color: '#64748b' }} />
+                            <Typography sx={{ fontSize: '0.82rem', fontWeight: 700, color: '#334155' }}>
+                              {c.equipoAsociado}
+                            </Typography>
+                          </Box>
+                        </TableCell>
+
+                        {/* COLUMNA ACCION */}
+                        <TableCell align="center" sx={{ py: 1.2 }}>
+                          {c.estaEnLab && esActivo ? (
+                            <Tooltip title="Bloqueado: Esta caja ya se encuentra abierta y sus frascos están en producción en el analizador." arrow>
+                              <span>
+                                <Button 
+                                  variant="outlined" 
+                                  size="small"
+                                  disabled
+                                  sx={{ 
+                                    fontWeight: 800, 
+                                    opacity: 0.85,
+                                    color: '#1d4ed8 !important',
+                                    borderColor: '#93c5fd !important',
+                                    backgroundColor: '#eff6ff !important',
+                                    cursor: 'not-allowed',
+                                    textTransform: 'none',
+                                    fontSize: '0.78rem',
+                                    px: 1.5,
+                                    borderRadius: 1.5
+                                  }}
+                                >
+                                  ⚡ En Producción
+                                </Button>
+                              </span>
+                            </Tooltip>
+                          ) : c.estaEnLab ? (
+                            <Button 
+                              variant="contained" 
+                              size="small"
+                              sx={{ 
+                                fontWeight: 800, 
+                                textTransform: 'none', 
+                                fontSize: '0.78rem',
+                                bgcolor: '#16a34a',
+                                '&:hover': { bgcolor: '#15803d' },
+                                boxShadow: '0 2px 4px rgba(22, 163, 74, 0.3)',
+                                px: 1.8,
+                                borderRadius: 1.5
+                              }}
+                              onClick={() => handleProcesarLote(c.id, c.equipoAsociado)}
+                            >
+                              Abrir en Lab
+                            </Button>
+                          ) : esTransito ? (
+                            <Button 
+                              variant="contained" 
+                              size="small"
+                              sx={{ 
+                                fontWeight: 800, 
+                                textTransform: 'none', 
+                                fontSize: '0.78rem',
+                                bgcolor: '#d97706',
+                                '&:hover': { bgcolor: '#b45309' },
+                                boxShadow: '0 2px 4px rgba(217, 119, 6, 0.3)',
+                                px: 1.8,
+                                borderRadius: 1.5
+                              }}
+                              onClick={() => handleProcesarLote(c.id, c.equipoAsociado)}
+                            >
+                              Recibir en Lab
+                            </Button>
+                          ) : (
+                            <Tooltip title="Bloqueado: La caja está en Almacén Central. Primero debe transferirse y recibirse en Laboratorio." arrow>
+                              <span>
+                                <Button 
+                                  variant="outlined" 
+                                  size="small"
+                                  disabled
+                                  sx={{ 
+                                    fontWeight: 700, 
+                                    opacity: 0.7,
+                                    color: '#94a3b8 !important',
+                                    borderColor: '#cbd5e1 !important',
+                                    backgroundColor: '#f8fafc !important',
+                                    cursor: 'not-allowed',
+                                    textTransform: 'none',
+                                    fontSize: '0.75rem',
+                                    borderRadius: 1.5
+                                  }}
+                                >
+                                  En Almacén Central
+                                </Button>
+                              </span>
+                            </Tooltip>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })
+                )}
               </TableBody>
             </Table>
           </TableContainer>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setCandidatosModalOpen(false)} color="inherit">
-            Cancelar Busqueda
+        <DialogActions sx={{ px: 3, py: 1.8, bgcolor: '#f1f5f9', borderTop: '1px solid #e2e8f0', justifyContent: 'space-between' }}>
+          <Typography variant="caption" sx={{ color: '#64748b', fontWeight: 600 }}>
+            {candidatosFiltrados.length} fila(s) mostrada(s) • Ordenadas por vencimiento FEFO
+          </Typography>
+          <Button 
+            onClick={() => setCandidatosModalOpen(false)} 
+            variant="outlined"
+            size="small"
+            sx={{ fontWeight: 700, color: '#334155', borderColor: '#cbd5e1', textTransform: 'none' }}
+          >
+            Cerrar Ventana
           </Button>
         </DialogActions>
       </Dialog>

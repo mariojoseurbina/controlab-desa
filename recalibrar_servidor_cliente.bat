@@ -9,3 +9,4 @@ node scripts\sanear_stock_y_lotes.js
 echo.
 echo Presione cualquier tecla para salir...
 pause > nul
+

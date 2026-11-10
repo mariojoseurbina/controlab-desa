@@ -686,6 +686,8 @@ class CajasService {
           id: c.Id,
           lote: c.NumeroLote,
           producto: c.items_inventario?.nombre,
+          codigo: c.items_inventario?.codigo,
+          presentacion: c.items_inventario?.presentacion,
           marca: c.items_inventario?.marca,
           equipoAsociado: c.items_inventario?.equipo_asociado,
           fechaVencimiento: c.FechaVencimiento,
