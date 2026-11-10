@@ -9,7 +9,8 @@
     "install-deps": "npm install",
     "prisma:generate": "prisma generate",
     "test:reglas": "node tests/validar-reglas-negocio.js",
-    "restaurar-reglas": "node scripts/restaurar-reglas.js"
+    "restaurar-reglas": "node scripts/restaurar-reglas.js",
+    "recalibrar:stock": "node scripts/sanear_stock_y_lotes.js"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
