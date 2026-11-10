@@ -160,13 +160,18 @@ class CajasService {
       const pruebasConsumidasLoteTotal = statsTotal.count;
       const mlConsumidosLoteTotal = statsTotal.ml;
 
-      // 🔄 AUTO-TRANSICIÓN AUTOMÁTICA DE FRASCOS (Sin necesidad de clic manual):
+      const esCajaAgotada = lote.Estado === 'Agotado'; // Solo se agota administrativamente
+      const estaAbiertaOEnUso = Boolean(lote.FechaApertura) && (lote.Estado === 'Activo' || lote.Estado === 'En Uso');
+
+      // 🔄 AUTO-TRANSICIÓN AUTOMÁTICA DE FRASCOS (SOLO SI LA CAJA YA FUE ABIERTA POR EL BIOANALISTA):
       // Si el volumen total acumulado consumido supera la capacidad de los frascos anteriores, avanza automáticamente
       const frascoCalculadoPorConsumo = Math.min(totalFrascos, Math.floor(mlConsumidosLoteTotal / (volPorFrasco || 1)) + 1);
-      let frascoActual = Math.min(totalFrascos, Math.max(1, Math.max(Number(meta.frasco_actual) || 1, frascoCalculadoPorConsumo)));
+      let frascoActual = estaAbiertaOEnUso
+        ? Math.min(totalFrascos, Math.max(1, Math.max(Number(meta.frasco_actual) || 1, frascoCalculadoPorConsumo)))
+        : 1;
 
-      // Si el frasco actual cambia de forma automatica por el consumo del Sniffer, persistir en metadata
-      if (frascoActual !== meta.frasco_actual && frascoActual <= totalFrascos) {
+      // Si el frasco actual cambia de forma automatica por el consumo del Sniffer, persistir en metadata (SOLO EN CAJAS ACTIVAS)
+      if (estaAbiertaOEnUso && frascoActual !== meta.frasco_actual && frascoActual <= totalFrascos) {
         meta.frasco_actual = frascoActual;
         meta[`fecha_apertura_frasco_${frascoActual}`] = meta[`fecha_apertura_frasco_${frascoActual}`] || new Date().toISOString();
         prisma.lotesReactivos.update({
@@ -200,8 +205,6 @@ class CajasService {
       const mlRestantesFrasco = Number(Math.min(volPorFrasco, volPorFrasco - mlConsumidosEnFrascoActual).toFixed(2));
       const pruebasRestantesFrasco = Math.floor(mlRestantesFrasco / consumoPorPrueba);
       const porcentajeRestante = volPorFrasco > 0 ? Math.min(100, Math.round((mlRestantesFrasco / volPorFrasco) * 100)) : 0;
-
-      const esCajaAgotada = lote.Estado === 'Agotado'; // Solo se agota administrativamente
 
       // Detalle individual de cada frasco en la caja para la UI del monitor
       const frascos = [];
@@ -250,7 +253,7 @@ class CajasService {
         presentacion: lote.items_inventario?.presentacion || `${totalFrascos} frascos x ${volPorFrasco} ml`,
         numeroLote: lote.NumeroLote,
         fechaVencimiento: lote.FechaVencimiento,
-        fechaApertura: meta.fecha_apertura_frasco_1 || lote.FechaApertura,
+        fechaApertura: lote.FechaApertura ? (meta.fecha_apertura_frasco_1 || lote.FechaApertura) : null,
         usuarioApertura: lote.UsuarioApertura,
         totalFrascos,
         volPorFrasco,
@@ -328,7 +331,7 @@ class CajasService {
     const estaEnLaboratorio = transf === 'RECIBIDO_LABORATORIO' || transf === 'LABORATORIO' || almId === 2;
 
     if (!estaEnLaboratorio) {
-      if (transf === 'EN_TRANSITO') {
+      if (transf === 'EN_TRANSITO' || transf === 'EN_TRANSITO_LAB') {
         throw new Error('Acción bloqueada: Esta caja se encuentra EN TRÁNSITO hacia el Laboratorio. Primero debe ser aceptada y recibida en el Almacén de Laboratorio antes de que un Bioanalista pueda abrirla.');
       }
       throw new Error('Acción bloqueada: Esta caja se encuentra en el ALMACÉN CENTRAL. Es obligatorio realizar la transferencia y confirmación de recepción en el Almacén de Laboratorio antes de que un Bioanalista pueda abrirla.');
@@ -586,8 +589,8 @@ class CajasService {
       ]
     });
 
-    // REGLA DE NEGOCIO OBLIGATORIA (Vigente a partir de 27/10/2026):
-    // Consultar stock real por almacén para validar existencia física en laboratorio
+    // REGLA DE NEGOCIO OBLIGATORIA (Vigente):
+    // Consultar stock real por almacén para validar existencia física en laboratorio y almacén central
     const itemIds = Array.from(new Set(candidatos.map(c => c.InventarioId).filter(Boolean)));
     const stockMap = new Map();
     if (itemIds.length > 0) {
@@ -606,16 +609,28 @@ class CajasService {
       }
     }
 
-    // Filtrar candidatos según regla de negocio:
-    // Si la caja ya fue abierta (FechaApertura != null o Estado == 'Activo' o 'Abierto')
-    // y no queda stock en el almacén de laboratorio (stock_lab <= 0):
-    // NO DEBE APARECER en la búsqueda de cajas para abrir/transferir para evitar confusión.
+    // Filtrar candidatos según regla de negocio solicitada por el usuario:
+    // 1. Si NO HAY STOCK en Central NI en Lab (ambos <= 0), NO MOSTRAR (ítem agotado).
+    // 2. Si hay stock en Central > 0, SE MUESTRA pero con apertura bloqueada para el Bioanalista.
+    // 3. Si hay stock en Lab > 0, SE MUESTRA habilitada si la caja es cerrada.
     const candidatosValidos = candidatos.filter(c => {
-      const yaAbierta = c.FechaApertura !== null || c.Estado === 'Activo' || c.Estado === 'Abierto';
+      const transf = (c.estado_transferencia || '').toUpperCase().trim();
+      const almId = Number(c.almacen_destino_id);
+      const estaEnLab = transf === 'RECIBIDO_LABORATORIO' || transf === 'LABORATORIO' || almId === 2;
+      const esTransito = transf === 'EN_TRANSITO' || transf === 'EN_TRANSITO_LAB';
       const itemStock = stockMap.get(c.InventarioId) || { lab: 0, central: 0 };
+
+      // Si el ítem no tiene existencia en ningún almacén, no mostrar
+      if (itemStock.central <= 0 && itemStock.lab <= 0 && !esTransito) {
+        return false;
+      }
+
+      // Si la caja ya fue abierta / activa y ya no queda stock en lab:
+      const yaAbierta = c.FechaApertura !== null || c.Estado === 'Activo' || c.Estado === 'Abierto';
       if (yaAbierta && itemStock.lab <= 0) {
         return false;
       }
+
       return true;
     });
 
@@ -627,7 +642,7 @@ class CajasService {
         const almId = Number(c.almacen_destino_id);
         const itemStock = stockMap.get(c.InventarioId) || { lab: 0, central: 0 };
         const estaEnLab = transf === 'RECIBIDO_LABORATORIO' || transf === 'LABORATORIO' || almId === 2;
-        const esTransito = transf === 'EN_TRANSITO';
+        const esTransito = transf === 'EN_TRANSITO' || transf === 'EN_TRANSITO_LAB';
         const esCerrada = !c.FechaApertura && (c.Estado === 'Cerrado' || c.Estado === 'CERRADO');
         
         let ubicacionTexto = 'Almacén Central';
@@ -646,6 +661,12 @@ class CajasService {
           ubicacionColor = '#f59e0b';
           puedeAbrir = false;
           accionSugerida = 'Recibir en Lab';
+        } else {
+          // Está en Almacén Central
+          ubicacionTexto = 'Almacén Central';
+          ubicacionColor = '#ef4444';
+          puedeAbrir = false;
+          accionSugerida = 'En Almacén Central (No Abrir)';
         }
 
         return {
@@ -660,7 +681,10 @@ class CajasService {
           almacenId: c.almacen_destino_id || 1,
           frascosCaja: c.items_inventario?.frascos_por_caja,
           fechaApertura: c.FechaApertura,
+          stockCentral: itemStock.central,
+          stockLab: itemStock.lab,
           estaEnLab,
+          esTransito,
           ubicacionTexto,
           ubicacionColor,
           puedeAbrir,
@@ -678,7 +702,8 @@ class CajasService {
 
     if (!lote) throw new Error('Lote no encontrado.');
 
-    if (lote.estado_transferencia === 'EN_TRANSITO') {
+    const esTransito = lote.estado_transferencia === 'EN_TRANSITO' || lote.estado_transferencia === 'EN_TRANSITO_LAB';
+    if (esTransito) {
       await this.confirmarRecepcionElectronica({
         loteId: lote.Id,
         usuarioRecepcion: usuarioNombre || 'Sistema'
@@ -786,20 +811,20 @@ class CajasService {
       };
     }
 
-    // Priorizar seleccion segÃºn el ciclo operativo:
-    // 1. Cajas en trasnsito hacia laboratorio (Pendiente por confirmar recepcion)
+    // Priorizar seleccion segun el ciclo operativo:
+    // 1. Cajas en transito hacia laboratorio (Pendiente por confirmar recepcion)
     // 2. Cajas cerradas en reserva/nevera (Pendiente por abrir para uso)
     // 3. Cajas activas en analizadores
-    let lote = candidatos.find(c => c.estado_transferencia === 'EN_TRANSITO');
+    let lote = candidatos.find(c => c.estado_transferencia === 'EN_TRANSITO' || c.estado_transferencia === 'EN_TRANSITO_LAB');
     if (!lote) {
-      lote = candidatos.find(c => !c.FechaApertura || c.Estado === 'Cerrado');
+      lote = candidatos.find(c => !c.FechaApertura || c.Estado === 'Cerrado' || c.Estado === 'CERRADO');
     }
     if (!lote) {
       lote = candidatos[0];
     }
 
     // Si la caja estaba EN TRANSITO, confirmar su recepcion electronica a la nevera del laboratorio
-    if (lote.estado_transferencia === 'EN_TRANSITO') {
+    if (lote.estado_transferencia === 'EN_TRANSITO' || lote.estado_transferencia === 'EN_TRANSITO_LAB') {
       await this.confirmarRecepcionElectronica({
         loteId: lote.Id,
         usuarioRecepcion: usuarioNombre || 'Bioanalista (RecepciÃ³n)'
@@ -954,13 +979,38 @@ class CajasService {
           }
         });
 
+        // Descontar 1 caja fisica de stock_por_almacen en Almacen Laboratorio (id=2)
+        const stockLab = await tx.stockPorAlmacen.findFirst({
+          where: { item_id: lote.InventarioId, almacen_id: 2 }
+        });
+        const stockLabAnt = stockLab ? Number(stockLab.stock_actual) : 0;
+        const stockLabNuev = Math.max(0, stockLabAnt - 1);
+        if (stockLab) {
+          await tx.stockPorAlmacen.update({
+            where: { id: stockLab.id },
+            data: { stock_actual: stockLabNuev }
+          });
+        }
+
+        const itemMaster = await tx.itemInventario.findUnique({
+          where: { id: lote.InventarioId }
+        });
+        if (itemMaster && Number(itemMaster.stock_actual) > 0) {
+          await tx.itemInventario.update({
+            where: { id: lote.InventarioId },
+            data: { stock_actual: Math.max(0, Number(itemMaster.stock_actual) - 1) }
+          });
+        }
+
         await tx.movimientoInventario.create({
           data: {
             item_id: lote.InventarioId,
             tipo_movimiento: 'APERTURA_CAJA',
-            cantidad: 0,
-            stock_anterior: Number(siguienteCaja.CantidadActual),
-            stock_nuevo: Number(siguienteCaja.CantidadActual),
+            cantidad: 1,
+            stock_anterior: stockLabAnt,
+            stock_nuevo: stockLabNuev,
+            almacen_id: 2,
+            almacen_destino_id: 2,
             motivo: normalizarTextoMayusculas(`APERTURA Y ACTIVACION AUTOMATICA DE NUEVA CAJA TRAS AGOTARSE LOTE ${lote.NumeroLote}`),
             referencia: normalizarTextoMayusculas(`LOTE: ${siguienteCaja.NumeroLote} - FRASCO 1 ACTIVO EN ${equipoAsociado}`),
             creado_por: 1

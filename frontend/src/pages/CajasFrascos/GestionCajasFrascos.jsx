@@ -827,7 +827,7 @@ const GestionCajasFrascos = () => {
                         <Chip label={trans.numeroLote} size="small" variant="outlined" color="primary" sx={{ fontWeight: 700 }} />
                       </Box>
                       <Typography variant="body2" color="text.secondary">
-                        Código: <strong>{trans.productoCodigo}</strong>
+                        Código: <strong>{trans.productoCodigo}</strong> | Caja: <strong>#{trans.id}</strong>
                       </Typography>
                       <Typography variant="caption" color="text.secondary" display="block" mt={0.5}>
                         Despachado por: <strong>{trans.usuarioDespacho}</strong>
@@ -1031,118 +1031,129 @@ const GestionCajasFrascos = () => {
                         const esMindray = (caja.marca || '').toLowerCase().includes('mindray');
                         const sugerenciaEquipo = caja.equipoAsociado || (esMindray ? 'Mindray BS-230' : 'CM 260i');
                         return (
-                          <Grid item xs={12} sm={6} lg={4} key={caja.id}>
+                          <Grid item xs={12} sm={6} md={4} lg={3} key={caja.id}>
                             <Card
                               elevation={0}
                               sx={{
                                 border: '1px solid #e2e8f0',
-                                borderRadius: 2.5,
-                                transition: 'transform 0.2s, box-shadow 0.2s',
+                                borderRadius: 2,
+                                transition: 'transform 0.15s, box-shadow 0.15s',
                                 '&:hover': {
                                   transform: 'translateY(-2px)',
-                                  boxShadow: '0 8px 16px -4px rgba(0,0,0,0.08)',
+                                  boxShadow: '0 6px 14px -3px rgba(0,0,0,0.08)',
                                   borderColor: '#f59e0b'
                                 }
                               }}
                             >
-                              <CardContent sx={{ pb: 1 }}>
-                                <Box display="flex" justifyContent="space-between" alignItems="flex-start" mb={1.5}>
+                              <CardContent sx={{ p: 1.5, pb: 0.5 }}>
+                                <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
                                   <Chip
-                                    icon={<LockIcon sx={{ fontSize: 14, color: '#d97706 !important' }} />}
+                                    icon={<LockIcon sx={{ fontSize: 13, color: '#d97706 !important' }} />}
                                     size="small"
-                                    label="CERRADA / SELLADA"
+                                    label={`CAJA #${caja.id}`}
                                     sx={{
                                       backgroundColor: '#fef3c7',
                                       color: '#b45309',
-                                      fontWeight: 700,
-                                      fontSize: '0.75rem'
+                                      fontWeight: 800,
+                                      fontSize: '0.7rem',
+                                      height: 22
                                     }}
                                   />
                                   <Chip
                                     size="small"
                                     label={caja.marca || 'Wiener'}
                                     variant="outlined"
-                                    sx={{ fontSize: '0.7rem' }}
+                                    sx={{ fontSize: '0.65rem', height: 20 }}
                                   />
                                 </Box>
 
-                                <Typography variant="subtitle1" fontWeight={700} color="#1e293b" gutterBottom>
+                                <Typography
+                                  variant="subtitle2"
+                                  fontWeight={700}
+                                  color="#1e293b"
+                                  noWrap
+                                  title={caja.productoNombre}
+                                  sx={{ fontSize: '0.88rem', mb: 1 }}
+                                >
                                   {caja.productoNombre}
                                 </Typography>
 
                                 <Box
                                   sx={{
                                     backgroundColor: '#f8fafc',
-                                    p: 1.5,
+                                    p: 1,
                                     borderRadius: 1.5,
                                     border: '1px solid #f1f5f9',
-                                    my: 1.5
+                                    mb: 1
                                   }}
                                 >
-                                  <Grid container spacing={1}>
+                                  <Grid container spacing={0.5}>
                                     <Grid item xs={6}>
-                                      <Typography variant="caption" color="text.secondary" display="block">
-                                        Número de Lote
+                                      <Typography variant="caption" color="text.secondary" display="block" sx={{ fontSize: '0.68rem' }}>
+                                        Lote:
                                       </Typography>
-                                      <Typography variant="body2" fontWeight={700} color="#0f172a">
+                                      <Typography variant="body2" fontWeight={800} color="#0f172a" sx={{ fontSize: '0.78rem' }}>
                                         {caja.numeroLote}
                                       </Typography>
                                     </Grid>
                                     <Grid item xs={6}>
-                                      <Typography variant="caption" color="text.secondary" display="block">
-                                        Vencimiento
+                                      <Typography variant="caption" color="text.secondary" display="block" sx={{ fontSize: '0.68rem' }}>
+                                        Vence:
                                       </Typography>
-                                      <Typography variant="body2" fontWeight={600} color="#0f172a">
+                                      <Typography variant="body2" fontWeight={600} color="#0f172a" sx={{ fontSize: '0.78rem' }}>
                                         {formatDate(caja.fechaVencimiento)}
                                       </Typography>
                                     </Grid>
                                     <Grid item xs={6}>
-                                      <Typography variant="caption" color="text.secondary" display="block">
-                                        Contenido Caja
+                                      <Typography variant="caption" color="text.secondary" display="block" sx={{ fontSize: '0.68rem' }}>
+                                        Contenido:
                                       </Typography>
-                                      <Typography variant="body2" fontWeight={600} color="#0f172a">
-                                        {caja.totalFrascos} frascos × {caja.volPorFrasco}ml
+                                      <Typography variant="caption" fontWeight={700} color="#334155" sx={{ fontSize: '0.75rem' }}>
+                                        {caja.totalFrascos}F × {caja.volPorFrasco}ml
                                       </Typography>
                                     </Grid>
                                     <Grid item xs={6}>
-                                      <Typography variant="caption" color="text.secondary" display="block">
-                                        Pruebas Teóricas
+                                      <Typography variant="caption" color="text.secondary" display="block" sx={{ fontSize: '0.68rem' }}>
+                                        Pruebas:
                                       </Typography>
-                                      <Typography variant="body2" fontWeight={600} color="#0f172a">
-                                        ~{caja.pruebasPorCaja} pruebas
+                                      <Typography variant="caption" fontWeight={700} color="#0369a1" sx={{ fontSize: '0.75rem' }}>
+                                        ~{caja.pruebasPorCaja} det.
                                       </Typography>
                                     </Grid>
                                   </Grid>
                                 </Box>
 
-                                <Box display="flex" justifyContent="space-between" alignItems="center">
-                                  <Typography variant="caption" color="text.secondary">
-                                    Presentación: {caja.presentacion || 'Estándar'}
+                                <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
+                                  <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.7rem' }}>
+                                    {caja.presentacion || 'Caja'}
                                   </Typography>
                                   <Chip
                                     size="small"
-                                    icon={<AnalyzerIcon sx={{ fontSize: 13 }} />}
+                                    icon={<AnalyzerIcon sx={{ fontSize: 12 }} />}
                                     label={sugerenciaEquipo}
-                                    sx={{ fontSize: '0.65rem', height: 20, backgroundColor: '#f1f5f9' }}
+                                    sx={{ fontSize: '0.65rem', height: 19, backgroundColor: '#f1f5f9' }}
                                   />
                                 </Box>
                               </CardContent>
 
                               <Divider />
 
-                              <CardActions sx={{ p: 2, pt: 1.5 }}>
+                              <CardActions sx={{ p: 1, pt: 0.8 }}>
                                 <Button
                                   fullWidth
+                                  size="small"
                                   variant="contained"
-                                  startIcon={<LockOpenIcon />}
+                                  startIcon={<LockOpenIcon sx={{ fontSize: 16 }} />}
                                   onClick={() => handleOpenModal(caja)}
                                   sx={{
                                     backgroundColor: '#f59e0b',
                                     '&:hover': { backgroundColor: '#d97706' },
                                     color: '#ffffff',
                                     fontWeight: 700,
+                                    fontSize: '0.75rem',
+                                    py: 0.6,
                                     textTransform: 'none',
-                                    borderRadius: 2
+                                    borderRadius: 1.5
                                   }}
                                 >
                                   Abrir Caja y Colocar Frasco
@@ -1333,15 +1344,26 @@ const GestionCajasFrascos = () => {
                   ) : (
                     <Grid container spacing={2}>
                       {agotadasFiltradas.map((caja) => (
-                        <Grid item xs={12} sm={6} md={4} key={caja.id}>
+                        <Grid item xs={12} sm={6} md={4} lg={3} key={caja.id}>
                           <Paper sx={{ p: 2, border: '1px solid #e2e8f0', borderRadius: 2 }}>
-                            <Typography variant="subtitle1" fontWeight={700}>
-                              {caja.productoNombre}
+                            <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
+                              <Typography variant="subtitle2" fontWeight={800} color="#1e293b" noWrap title={caja.productoNombre}>
+                                {caja.productoNombre}
+                              </Typography>
+                              <Chip size="small" label={`#${caja.id}`} sx={{ fontWeight: 800, fontSize: '0.68rem', height: 20 }} />
+                            </Box>
+                            <Typography variant="caption" color="text.secondary" display="block">
+                              Lote: <strong>{caja.numeroLote}</strong> | Equipo: <strong>{caja.equipoAsociado}</strong>
                             </Typography>
-                            <Typography variant="body2" color="text.secondary">
-                              Lote: {caja.numeroLote} | Equipo: {caja.equipoAsociado} | Total pruebas: {caja.pruebasConsumidasHoy}
+                            <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 0.5 }}>
+                              Total Pruebas Registradas: <strong>{caja.pruebasConsumidasTotal || caja.pruebasConsumidasHoy || 0}</strong>
                             </Typography>
-                            <Chip size="small" label="Agotada" color="default" sx={{ mt: 1 }} />
+                            <Box display="flex" justifyContent="space-between" alignItems="center" mt={1}>
+                              <Chip size="small" label="Agotada" color="default" sx={{ height: 20, fontSize: '0.7rem' }} />
+                              <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.7rem' }}>
+                                {caja.usuarioApertura ? `Abrió: ${caja.usuarioApertura}` : ''}
+                              </Typography>
+                            </Box>
                           </Paper>
                         </Grid>
                       ))}
