@@ -46,7 +46,10 @@ class AlmacenesController {
           ISNULL(i.pruebas_teoricas_caja, ISNULL(i.rendimiento_teorico, 500)) as rendimiento_teorico,
           i.stock_actual as stock_total_global,
           COALESCE(sc.stock_actual, CASE WHEN sl.stock_actual IS NULL THEN i.stock_actual ELSE 0 END, 0) as stock_central,
-          ISNULL(sl.stock_actual, 0) as stock_laboratorio,
+          CASE 
+            WHEN l_cerradas.total IS NOT NULL THEN l_cerradas.total
+            ELSE ISNULL(sl.stock_actual, 0)
+          END as stock_laboratorio,
           ISNULL(la.cajas_en_uso, 0) as cajas_en_uso,
           la.lote_en_uso,
           la.ml_restantes_en_uso,
@@ -55,6 +58,17 @@ class AlmacenesController {
         FROM items_inventario i
         LEFT JOIN stock_por_almacen sc ON (i.id = sc.item_id AND sc.almacen_id = 1)
         LEFT JOIN stock_por_almacen sl ON (i.id = sl.item_id AND sl.almacen_id = 2)
+        LEFT JOIN (
+          SELECT 
+            InventarioId, 
+            COUNT(*) as total
+          FROM LotesReactivos
+          WHERE FechaApertura IS NULL 
+            AND Estado IN ('Cerrado', 'CERRADO')
+            AND (estado_transferencia IN ('RECIBIDO_LABORATORIO', 'LABORATORIO') OR almacen_destino_id = 2)
+            AND CantidadActual > 0
+          GROUP BY InventarioId
+        ) l_cerradas ON (i.id = l_cerradas.InventarioId)
         LEFT JOIN (
           SELECT 
             InventarioId,

@@ -580,7 +580,8 @@ class CajasService {
     const candidatos = await prisma.lotesReactivos.findMany({
       where: {
         OR: orConditions,
-        Estado: { not: 'Agotado' } 
+        Estado: { not: 'Agotado' },
+        CantidadActual: { gt: 0 }
       },
       include: { items_inventario: true },
       orderBy: [
@@ -609,25 +610,37 @@ class CajasService {
       }
     }
 
-    // Filtrar candidatos según regla de negocio solicitada por el usuario:
-    // 1. Si NO HAY STOCK en Central NI en Lab (ambos <= 0), NO MOSTRAR (ítem agotado).
-    // 2. Si hay stock en Central > 0, SE MUESTRA pero con apertura bloqueada para el Bioanalista.
-    // 3. Si hay stock en Lab > 0, SE MUESTRA habilitada si la caja es cerrada.
+    // Filtrar candidatos según Regla de Negocio Oficial de Escaneo y Búsqueda:
+    // 1. Toda caja con CantidadActual <= 0 debe excluirse automáticamente del modal de búsqueda.
+    // 2. Si una caja está en Central, debe tener stock_central > 0 y CantidadActual > 0 para ser visible.
+    // 3. Si una caja está en Laboratorio y es cerrada, debe haber stock_lab > 0 y CantidadActual > 0.
     const candidatosValidos = candidatos.filter(c => {
+      const cantActual = Number(c.CantidadActual) || 0;
+      if (cantActual <= 0) {
+        return false;
+      }
+
       const transf = (c.estado_transferencia || '').toUpperCase().trim();
       const almId = Number(c.almacen_destino_id);
       const estaEnLab = transf === 'RECIBIDO_LABORATORIO' || transf === 'LABORATORIO' || almId === 2;
       const esTransito = transf === 'EN_TRANSITO' || transf === 'EN_TRANSITO_LAB';
       const itemStock = stockMap.get(c.InventarioId) || { lab: 0, central: 0 };
 
-      // Si el ítem no tiene existencia en ningún almacén, no mostrar
+      // Si el ítem no tiene existencia en ningún almacén y no está en tránsito, no mostrar
       if (itemStock.central <= 0 && itemStock.lab <= 0 && !esTransito) {
         return false;
       }
 
-      // Si la caja ya fue abierta / activa y ya no queda stock en lab:
-      const yaAbierta = c.FechaApertura !== null || c.Estado === 'Activo' || c.Estado === 'Abierto';
-      if (yaAbierta && itemStock.lab <= 0) {
+      // Regla de Central: Si una caja está en Central, debe tener stock_central > 0 y CantidadActual > 0
+      if (!estaEnLab && !esTransito) {
+        if (itemStock.central <= 0 || cantActual <= 0) {
+          return false;
+        }
+      }
+
+      // Si la caja es cerrada en Laboratorio, validar que haya stock físico en Lab
+      const esCerrada = !c.FechaApertura && (c.Estado === 'Cerrado' || c.Estado === 'CERRADO');
+      if (estaEnLab && esCerrada && itemStock.lab <= 0) {
         return false;
       }
 
